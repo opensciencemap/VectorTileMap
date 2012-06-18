@@ -924,14 +924,14 @@ public class MapRenderer implements org.mapsforge.android.maps.MapRenderer {
 		GLES20.glUseProgram(gPolygonProgram);
 
 		for (int i = 0; i < tileCnt; i++) {
-			GLMapTile tile = tiles[i];
-			if (!tile.isVisible)
-				continue;
+			if (tiles[i].isVisible) {
+				GLMapTile tile = tiles[i];
 
-			if (tile.isDrawn)
-				drawPolygons(tile, 0);
-			else
-				drawProxyPolygons(tile);
+				if (tile.isDrawn)
+					drawPolygons(tile, 0);
+				else
+					drawProxyPolygons(tile);
+			}
 		}
 
 		GLES20.glDisable(GLES20.GL_STENCIL_TEST);
@@ -946,14 +946,14 @@ public class MapRenderer implements org.mapsforge.android.maps.MapRenderer {
 		GLES20.glUseProgram(gLineProgram);
 
 		for (int i = 0; i < tileCnt; i++) {
-			GLMapTile tile = tiles[i];
-			if (!tile.isVisible)
-				continue;
+			if (tiles[i].isVisible) {
+				GLMapTile tile = tiles[i];
 
-			if (tile.isDrawn)
-				drawLines(tile, 0);
-			else
-				drawProxyLines(tile);
+				if (tile.isDrawn)
+					drawLines(tile, 0);
+				else
+					drawProxyLines(tile);
+			}
 		}
 
 		// GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
