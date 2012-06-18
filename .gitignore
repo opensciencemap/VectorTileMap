@@ -15,6 +15,5 @@
 /eclipse-config/
 .svn
 *.class
-*.png
 *~
 .settings/
