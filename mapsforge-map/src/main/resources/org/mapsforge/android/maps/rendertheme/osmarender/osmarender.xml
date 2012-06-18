@@ -351,7 +351,7 @@
 				<rule e="way" k="*" v="*" zoom-min="5" zoom-max="10">
 
 					<rule e="way" k="*" v="secondary|primary_link" zoom-min="9">
-						<line stroke="#fefe8a" stroke-width="1.5" stroke-linecap="butt"
+						<line stroke="#eeee4a" stroke-width="1.5" stroke-linecap="butt"
 							fixed="true" />
 					</rule>
 
@@ -361,7 +361,7 @@
 					</rule>
 
 					<rule e="way" k="*" v="primary" zoom-min="8">
-						<line stroke="#fefe8a" stroke-width="1.6" stroke-linecap="butt"
+						<line stroke="#eeee4a" stroke-width="1.6" stroke-linecap="butt"
 							fixed="true" />
 					</rule>
 
