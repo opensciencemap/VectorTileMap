@@ -1,0 +1,15 @@
+<projectDescription>
+  <name>map-writer-osmosis</name>
+  <comment>An osmosis plugin to create binary map files</comment>
+  <projects>
+    <project>mapsforge-core</project>
+  </projects>
+  <buildSpec>
+    <buildCommand>
+      <name>org.eclipse.jdt.core.javabuilder</name>
+    </buildCommand>
+  </buildSpec>
+  <natures>
+    <nature>org.eclipse.jdt.core.javanature</nature>
+  </natures>
+</projectDescription>
