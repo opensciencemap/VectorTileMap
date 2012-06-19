@@ -38,25 +38,25 @@ public class MapWriter {
 
 	private static void init() {
 		conf = new MapWriterConfiguration();
-		conf.addOutputFile("test_ways3.map");
+		conf.addOutputFile("test.map");
 		conf.setWriterVersion("4");
 		conf.loadTagMappingFile("src/config/tag-mapping.xml");
 
-		 conf.addMapStartPosition("53.055,8.45");
-		 conf.addMapStartZoom("10");
-		 conf.addBboxConfiguration("48,6,54,10");
-		 conf.addZoomIntervalConfiguration("4,0,4,"+"5,5,6,"+"7,7,9,"+"10,10,12,"+"13,13,15");
+		// conf.addMapStartPosition("53.055,8.45");
+		// conf.addMapStartZoom("10");
+		// conf.addBboxConfiguration("48,6,54,10");
+		// conf.addZoomIntervalConfiguration("4,0,4,"+"5,5,6,"+"7,7,9,"+"10,10,12,"+"13,13,15");
+
+		conf.addMapStartPosition("53,9");
+		conf.addMapStartZoom("10");
+		conf.addBboxConfiguration("53 ,9,54, 10");
+		conf.addZoomIntervalConfiguration("11,11,11");// ("5,0,7,10,8,11,14,12,18");
 
 		// conf.addMapStartPosition("53,9");
-		// conf.addMapStartZoom("10");
-		// conf.addBboxConfiguration("53 ,9,54, 10");
-		// conf.addZoomIntervalConfiguration("11,11,11");// ("5,0,7,10,8,11,14,12,18");
-
-//		conf.addMapStartPosition("53,9");
-//		conf.addMapStartZoom("3");
-//		conf.addBboxConfiguration("-60 ,-180, 80, 180");
-//		// conf.addBboxConfiguration("20 ,0, 60, 20");
-//		conf.addZoomIntervalConfiguration("6,6,6");// ("5,0,7,10,8,11,14,12,18");
+		// conf.addMapStartZoom("3");
+		// conf.addBboxConfiguration("-60 ,-180, 80, 180");
+		// // conf.addBboxConfiguration("20 ,0, 60, 20");
+		// conf.addZoomIntervalConfiguration("6,6,6");// ("5,0,7,10,8,11,14,12,18");
 
 		conf.setComment("yo!");
 		conf.setDebugStrings(false);
@@ -96,9 +96,9 @@ public class MapWriter {
 
 		return "ST_SetSRID('BOX3D(" + minLon + " " + minLat + ", " + " " + maxLon + " " + maxLat + ")'::box3d ,4326)";
 	}
-	
+
 	private static String getQuery(TileCoordinate t) {
-		Tile tile = new Tile(t.getX(),t.getY(),t.getZoomlevel());
+		Tile tile = new Tile(t.getX(), t.getY(), t.getZoomlevel());
 
 		// String bbox = tileToBOX3D(tile.tileX, tile.tileY, tile.zoomLevel, 2);
 		String bbox = tileToBOX3D(tile, 2);
@@ -226,97 +226,100 @@ public class MapWriter {
 				+ bbox
 				+ " AND tags ? 'highway' AND tags->'highway' in ('primary', 'primary_link', 'secondary', 'secondary_link', 'tertiary', 'residential', 'motorway', 'motorway_link', 'trunk', 'trunk_link')";
 	}
-//	private static String getQuery(TileCoordinate tile) {
-//
-//		String bbox = GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel(), 0);
-//
-//		// String table_ocean = "geometries.ne_110m_ocean";
-//		// String table_admin = "geometries.ne_110m_admin_0_lines";
-//		//
-//		// if (tile.getZoomlevel() > 2) {
-//		String table_ocean = "geometries.ne_50m_ocean";
-//		String table_admin = "geometries.ne_50m_admin_0_lines";
-//		// String table_ways = "geometries.ways2";
-//		String table_ways = "geometries.routes_simp";
-//		// }
-//		//
-//		return "SELECT gid::bigint as id, ('natural' => 'water') as tags,"
-//				+ " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ocean
-//				+ " WHERE geom && " + bbox
-//				+ " UNION ALL "
-//				+ " SELECT gid::bigint as id, ('boundary' => 'administrative') || ('admin_level' => '2') as tags,"
-//				+ " ST_AsEWKB(geom) FROM " + table_admin + " WHERE geom && " + bbox
-//				+ " UNION ALL "
-//				+ " SELECT id, ('highway' => 'motorway') as tags,"
-//				+ " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ways
-//				+ " WHERE geom && " + bbox;
-//		// + " UNION ALL "
-//		// + " SELECT id, ('highway' => way_type) as tags,"
-//		// + " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ways
-//		// + " WHERE geom && " + bbox;
-//
-//		// if (tile.getZoomlevel() > 14)
-//		// return "SELECT id, tagshstore, ST_AsEWKB(linestring) FROM ways "
-//		// + "WHERE linestring && " + bbox
-//		// + "AND (tagshstore ?| ARRAY['highway','building','landuse','natural','waterway','leisure','railway'])";
-//		// else
-//		// return "SELECT id, tagshstore, ST_AsEWKB(linestring) FROM ways "
-//		// + "WHERE linestring && " + bbox
-//		// + "AND (tagshstore ?| ARRAY['highway','landuse','natural','waterway','leisure','railway'])";
-//		//
-//
-//		// return "SELECT id, way_type, ST_AsEWKB(geom) FROM geometries.ways2 "
-//		// + "WHERE geom && " + bbox;
-//
-//		// r = s.executeQuery("SELECT gid::bigint as id, tags, ST_AsEWKB(geom) FROM geometries.ne_admin_0_countries "
-//		// + "WHERE geom && "
-//		// + GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel()));
-//		//
-//
-//		// r = s.executeQuery("SELECT id, tags, ST_AsEWKB(linestring) FROM ways "
-//		// + "WHERE linestring && "
-//		// + GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel())
-//		// + "AND tags ? 'highway'");
-//
-//		// return "SELECT id, ('landuse' => tag)::hstore as tags,"
-//		// + " ST_AsEWKB(ST_Intersection(" + bbox
-//		// + ",geom)) FROM " + "geometries.landuse" + " WHERE geom && " + bbox;
-//
-//		// + " UNION ALL "
-//		// + " SELECT gid::bigint as id, ('boundary' => 'administrative') || ('admin_level' => '2') as tags,"
-//		// + " ST_AsEWKB(geom) FROM " + table_admin + " WHERE geom && " + bbox;
-//
-//		// return "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('landuse' => tag)::hstore as tags, "
-//		// + "ST_AsEWKB(ST_Intersection(" + bbox
-//		// + ", st_transform(st_simplifypreservetopology(geom,20), 4326))) "
-//		// + "from "
-//		// +
-//		// "(select tag, st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),100)),-100))).geom,0) as geom "
-//		// + "from geometries.landuse "
-//		// + "where geom && " + bbox
-//		// + "group by tag)p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 10000"
-//		// + "union all "
-//		// + "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('natural' => tag)::hstore as tags, "
-//		// + "ST_AsEWKB(ST_Intersection(" + bbox
-//		// + ", st_transform(st_simplifypreservetopology(geom,20), 4326))) "
-//		// + "from "
-//		// +
-//		// "(select tag, st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),100)),-100))).geom,0) as geom "
-//		// + "from geometries.natural "
-//		// + "where geom && " + bbox
-//		// + "group by tag)p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 10000";
-//		// + "union all "
-//		// + "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('building' => 'yes')::hstore as tags, "
-//		// + "ST_AsEWKB(ST_Intersection(" + bbox
-//		// + ", st_transform(st_simplifypreservetopology(geom,2), 4326))) "
-//		// + "from "
-//		// +
-//		// "(select st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),1)),-1))).geom,0) as geom "
-//		// + "from geometries.buildings "
-//		// + "where geom && " + bbox
-//		// + ")p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 100";
-//
-//	}
+
+	// private static String getQuery(TileCoordinate tile) {
+	//
+	// String bbox = GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel(), 0);
+	//
+	// // String table_ocean = "geometries.ne_110m_ocean";
+	// // String table_admin = "geometries.ne_110m_admin_0_lines";
+	// //
+	// // if (tile.getZoomlevel() > 2) {
+	// String table_ocean = "geometries.ne_50m_ocean";
+	// String table_admin = "geometries.ne_50m_admin_0_lines";
+	// // String table_ways = "geometries.ways2";
+	// String table_ways = "geometries.routes_simp";
+	// // }
+	// //
+	// return "SELECT gid::bigint as id, ('natural' => 'water') as tags,"
+	// + " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ocean
+	// + " WHERE geom && " + bbox
+	// + " UNION ALL "
+	// + " SELECT gid::bigint as id, ('boundary' => 'administrative') || ('admin_level' => '2') as tags,"
+	// + " ST_AsEWKB(geom) FROM " + table_admin + " WHERE geom && " + bbox
+	// + " UNION ALL "
+	// + " SELECT id, ('highway' => 'motorway') as tags,"
+	// + " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ways
+	// + " WHERE geom && " + bbox;
+	// // + " UNION ALL "
+	// // + " SELECT id, ('highway' => way_type) as tags,"
+	// // + " ST_AsEWKB(ST_Intersection(" + bbox + ",geom)) FROM " + table_ways
+	// // + " WHERE geom && " + bbox;
+	//
+	// // if (tile.getZoomlevel() > 14)
+	// // return "SELECT id, tagshstore, ST_AsEWKB(linestring) FROM ways "
+	// // + "WHERE linestring && " + bbox
+	// // + "AND (tagshstore ?| ARRAY['highway','building','landuse','natural','waterway','leisure','railway'])";
+	// // else
+	// // return "SELECT id, tagshstore, ST_AsEWKB(linestring) FROM ways "
+	// // + "WHERE linestring && " + bbox
+	// // + "AND (tagshstore ?| ARRAY['highway','landuse','natural','waterway','leisure','railway'])";
+	// //
+	//
+	// // return "SELECT id, way_type, ST_AsEWKB(geom) FROM geometries.ways2 "
+	// // + "WHERE geom && " + bbox;
+	//
+	// // r = s.executeQuery("SELECT gid::bigint as id, tags, ST_AsEWKB(geom) FROM geometries.ne_admin_0_countries "
+	// // + "WHERE geom && "
+	// // + GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel()));
+	// //
+	//
+	// // r = s.executeQuery("SELECT id, tags, ST_AsEWKB(linestring) FROM ways "
+	// // + "WHERE linestring && "
+	// // + GeoUtils.tileToBOX3D(tile.getX(), tile.getY(), tile.getZoomlevel())
+	// // + "AND tags ? 'highway'");
+	//
+	// // return "SELECT id, ('landuse' => tag)::hstore as tags,"
+	// // + " ST_AsEWKB(ST_Intersection(" + bbox
+	// // + ",geom)) FROM " + "geometries.landuse" + " WHERE geom && " + bbox;
+	//
+	// // + " UNION ALL "
+	// // + " SELECT gid::bigint as id, ('boundary' => 'administrative') || ('admin_level' => '2') as tags,"
+	// // + " ST_AsEWKB(geom) FROM " + table_admin + " WHERE geom && " + bbox;
+	//
+	// // return "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('landuse' => tag)::hstore as tags, "
+	// // + "ST_AsEWKB(ST_Intersection(" + bbox
+	// // + ", st_transform(st_simplifypreservetopology(geom,20), 4326))) "
+	// // + "from "
+	// // +
+	// //
+	// "(select tag, st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),100)),-100))).geom,0) as geom "
+	// // + "from geometries.landuse "
+	// // + "where geom && " + bbox
+	// // + "group by tag)p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 10000"
+	// // + "union all "
+	// // + "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('natural' => tag)::hstore as tags, "
+	// // + "ST_AsEWKB(ST_Intersection(" + bbox
+	// // + ", st_transform(st_simplifypreservetopology(geom,20), 4326))) "
+	// // + "from "
+	// // +
+	// //
+	// "(select tag, st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),100)),-100))).geom,0) as geom "
+	// // + "from geometries.natural "
+	// // + "where geom && " + bbox
+	// // + "group by tag)p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 10000";
+	// // + "union all "
+	// // + "select (ROW_NUMBER() OVER(ORDER BY geom DESC))::bigint as id, ('building' => 'yes')::hstore as tags, "
+	// // + "ST_AsEWKB(ST_Intersection(" + bbox
+	// // + ", st_transform(st_simplifypreservetopology(geom,2), 4326))) "
+	// // + "from "
+	// // +
+	// // "(select st_buffer((st_dump(st_buffer(st_union(st_buffer(st_transform(geom, 2154),1)),-1))).geom,0) as geom "
+	// // + "from geometries.buildings "
+	// // + "where geom && " + bbox
+	// // + ")p where geometrytype(geom) = 'POLYGON' and st_isvalid(geom) and st_area(geom) > 100";
+	//
+	// }
 
 	public static List<TDWay> getWaysForTile(TileCoordinate tile) {
 		ResultSet r;
@@ -401,9 +404,9 @@ public class MapWriter {
 		Connection conn = null;
 
 		init();
-		// String dburl = "jdbc:postgresql://city.informatik.uni-bremen.de:5432/planet-2.0";
+		String dburl = "jdbc:postgresql://city.informatik.uni-bremen.de:5432/planet-2.0";
 		// String dburl = "jdbc:postgresql://127.0.0.1:5432/bremen";
-		String dburl = "jdbc:postgresql://127.0.0.1:5431/planet-2.0";
+		// String dburl = "jdbc:postgresql://127.0.0.1:5432/planet-2.0";
 		String dbuser = "osm";
 		String dbpass = "osm";
 

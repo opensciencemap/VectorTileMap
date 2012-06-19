@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>postgis2map</name>
+	<name>map-writer-postgis</name>
 	<comment></comment>
 	<projects>
 	</projects>
