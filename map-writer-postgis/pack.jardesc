@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="/home/jeff/postgis2map.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/postgis2map/pack.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="true" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="true" mainClassHandleIdentifier="=postgis2map/src&lt;de.sfb.pampa.writer{MapWriter.java[MapWriter" manifestLocation="/postgis2map/manifest.xml" manifestVersion="1.0" reuseManifest="false" saveManifest="true" usesManifest="true">
+        <sealing sealJar="true">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <folder path="/postgis2map/lib"/>
+        <javaElement handleIdentifier="=postgis2map/src"/>
+    </selectedElements>
+</jardesc>
