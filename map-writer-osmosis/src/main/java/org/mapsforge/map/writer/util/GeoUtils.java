@@ -178,9 +178,14 @@ public final class GeoUtils {
 			// geometry = OverlayOp.overlayOp(tileBBJTS, geometry, OverlayOp.INTERSECTION);
 			ret = tileBBJTS.intersection(geometry);
 		} catch (TopologyException e) {
-			LOGGER.log(Level.FINE, "JTS cannot clip way, not storing it in data file: " + way.getId(), e);
-			way.setInvalid(true);
-			return null;
+			LOGGER.log(Level.FINE, "JTS cannot clip way, try zero buffering: " + way.getId(), e);
+			try {
+				ret = tileBBJTS.intersection(geometry.buffer(0));
+			} catch (TopologyException ee) {
+				LOGGER.log(Level.FINE, "JTS cannot clip way, not storing it in data file: " + way.getId(), ee);
+				way.setInvalid(true);
+				return null;
+			}
 		}
 		return ret;
 	}
