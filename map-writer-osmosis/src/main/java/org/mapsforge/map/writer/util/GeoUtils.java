@@ -179,10 +179,11 @@ public final class GeoUtils {
 			ret = tileBBJTS.intersection(geometry);
 		} catch (TopologyException e) {
 			LOGGER.log(Level.FINE, "JTS cannot clip way, try zero buffering: " + way.getId(), e);
+
 			try {
 				ret = tileBBJTS.intersection(geometry.buffer(0));
 			} catch (TopologyException ee) {
-				LOGGER.log(Level.FINE, "JTS cannot clip way, not storing it in data file: " + way.getId(), ee);
+				LOGGER.log(Level.WARNING, "JTS cannot clip way, not storing it in data file: " + way.getId(), ee);
 				way.setInvalid(true);
 				return null;
 			}
