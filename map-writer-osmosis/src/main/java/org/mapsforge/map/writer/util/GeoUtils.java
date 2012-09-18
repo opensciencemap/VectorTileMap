@@ -178,7 +178,7 @@ public final class GeoUtils {
 			// geometry = OverlayOp.overlayOp(tileBBJTS, geometry, OverlayOp.INTERSECTION);
 			ret = tileBBJTS.intersection(geometry);
 		} catch (TopologyException e) {
-			LOGGER.log(Level.FINE, "JTS cannot clip way, try zero buffering: " + way.getId(), e);
+			LOGGER.log(Level.WARNING, "JTS cannot clip way, try zero buffering: " + way.getId(), e);
 
 			try {
 				ret = tileBBJTS.intersection(geometry.buffer(0));
