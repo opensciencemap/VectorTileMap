@@ -1,6 +1,7 @@
 VectorTileMap/backup/*
 VectorTileMap/gen/*
 VectorTileMap/local.properties
+vtm-backup/*
 */target/*
 */bin/*
 */classes/
