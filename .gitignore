@@ -1,7 +1,7 @@
 VectorTileMap/backup/*
 VectorTileMap/gen/*
 VectorTileMap/local.properties
-vtm-backup/*
+backup/*
 VectorTileMap/proguard/*
 */target/*
 */bin/*
