@@ -55,20 +55,19 @@ public class ItemizedOverlayWithBubble<Item extends OverlayItem> extends Itemize
 	private Point mTmpPoint = new Point();
 
 	@Override
-	public void onUpdate(MapPosition mapPosition) {
+	public void onUpdate(MapPosition mapPosition, boolean changed) {
 		if (mBubble.isOpen()) {
 			GeoPoint gp = mItemWithBubble.getPoint();
+			
 			Point p = mTmpPoint;
-
 			mMapView.getMapViewPosition().project(gp, p);
-
+			
 			mBubble.position(p.x, p.y);
 		}
 	}
 
 	public ItemizedOverlayWithBubble(final MapView mapView, final Context context,
 			final List<Item> aList, final InfoWindow bubble) {
-
 		super(mapView, context, aList, null);
 
 		mItemsList = aList;

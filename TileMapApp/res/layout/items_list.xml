@@ -30,11 +30,11 @@
 				android:completionThreshold="1"
 				android:ems="10" />
 
-			<Button
+		<!-- 	<Button
 				android:id="@+id/buttonSetPOITag"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="Search" />
+				android:text="Search" /> -->
 		</LinearLayout>
 
 		<HorizontalScrollView
@@ -63,6 +63,11 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:text="Flickr" />
+				<Button
+					android:id="@+id/pois_btn_foursquare"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="Foursquare" />
 			</LinearLayout>
 		</HorizontalScrollView>
 

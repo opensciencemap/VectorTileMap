@@ -14,6 +14,11 @@
  */
 package org.osmdroid.location;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -23,6 +28,10 @@ import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class FourSquareProvider {
@@ -32,6 +41,9 @@ public class FourSquareProvider {
 	//	https://apigee.com/console/foursquare
 
 	protected String mApiKey;
+
+	//	private static HashMap<String, Bitmap> mIcons = 
+	//			(HashMap<String,Bitmap>)Collections.synchronizedMap(new HashMap<String, Bitmap>());
 
 	/**
 	 * @param apiKey
@@ -43,22 +55,30 @@ public class FourSquareProvider {
 	}
 
 	//"https://api.foursquare.com/v2/venues/search?v=20120321&intent=checkin&ll=53.06,8.8&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY
-	private String getUrlInside(BoundingBox boundingBox, int maxResults) {
+	private String getUrlInside(BoundingBox boundingBox, String query, int maxResults) {
 		StringBuffer url = new StringBuffer(
-				"https://api.foursquare.com/v2/venues/search?v=20120321"
-						+ "&intent=checkin"
-						+ "&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3"
-						+ "&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY"
-						+ "&ll=");
+		"https://api.foursquare.com/v2/venues/search?v=20120321"
+		+ "&intent=browse"
+		+ "&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3"
+		+ "&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY");
+		url.append("&sw=");
 		url.append(boundingBox.getMinLatitude());
 		url.append(',');
 		url.append(boundingBox.getMinLongitude());
-
+		url.append("&ne=");
+		url.append(boundingBox.getMaxLatitude());
+		url.append(',');
+		url.append(boundingBox.getMaxLongitude());
+		url.append("&limit=");
+		url.append(maxResults);
+		if (query != null)
+			url.append("&query=" + URLEncoder.encode(query));
 		return url.toString();
 	}
 
 	/**
-	 * @param fullUrl ...
+	 * @param fullUrl
+	 *            ...
 	 * @return the list of POI
 	 */
 	public ArrayList<POI> getThem(String fullUrl) {
@@ -80,22 +100,27 @@ public class FourSquareProvider {
 				JSONObject jVenue = jVenueArray.getJSONObject(i);
 
 				POI poi = new POI(POI.POI_SERVICE_4SQUARE);
-				JSONObject jLocation = jVenue.getJSONObject("location");
-				poi.location = new GeoPoint(
-						jLocation.getDouble("lat"),
-						jLocation.getDouble("lng"));
-
 				poi.id = jVenue.getString("id");
 				poi.type = jVenue.getString("name");
+				//				poi.url = jVenue.optString("url", null);
+				poi.url = "https://foursquare.com/v/" + poi.id;
 
-				//	poi.category = 
-				//				poi.thumbnailPath = jVenue.getString("url_sq");
-				//  String owner = jVenue.getString("owner");
-				//	poi.url = "http://www.flickr.com/photos/" + owner + "/" + photoId;
+				JSONObject jLocation = jVenue.getJSONObject("location");
+				poi.location = new GeoPoint(
+				jLocation.getDouble("lat"),
+				jLocation.getDouble("lng"));
+				poi.description = jLocation.optString("address", null);
+
+				JSONArray jCategories = jVenue.getJSONArray("categories");
+				if (jCategories.length() > 0) {
+					JSONObject jCategory = jCategories.getJSONObject(0);
+					String icon = jCategory.getJSONObject("icon").getString("prefix");
+					poi.thumbnailPath = icon + 44 + ".png";
+					poi.category = jCategory.optString("name");
+				}
 				pois.add(poi);
 			}
-			//			int total = jPhotos.getInt("total");
-			//			Log.d(BonusPackHelper.LOG_TAG, "done:" + n + " got, on a total of:" + total);
+
 			return pois;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -104,13 +129,57 @@ public class FourSquareProvider {
 	}
 
 	/**
-	 * @param boundingBox ...
-	 * @param maxResults ...
-	 * @return list of POI, Flickr photos inside the bounding box. Null if
+	 * @param boundingBox
+	 *            ...
+	 * @param maxResults
+	 *            ...
+	 * @return list of POI, Flickr photos inside the bounding box.
+	 *         Null if
 	 *         technical issue.
 	 */
-	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, int maxResults) {
-		String url = getUrlInside(boundingBox, maxResults);
+	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
+		String url = getUrlInside(boundingBox, query, maxResults);
 		return getThem(url);
+	}
+
+	public static void browse(final Context context, POI poi) {
+		// get the right url from redirect, could also parse the result from querying venueid...
+		new AsyncTask<POI, Void, String>() {
+
+			@Override
+			protected String doInBackground(POI... params) {
+				POI poi = params[0];
+				if (poi == null)
+					return null;
+				try {
+					URL url = new URL(poi.url);
+					HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+					conn.setInstanceFollowRedirects(false);
+					
+					String redirect = conn.getHeaderField("Location");
+					if (redirect != null){
+					Log.d(BonusPackHelper.LOG_TAG, redirect);
+					return redirect;
+					}
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(String result) {
+				if (result == null)
+					return;
+				
+				Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://foursquare.com" + result));
+				context.startActivity(myIntent);
+				
+			}
+		}.execute(poi);
+
 	}
 }

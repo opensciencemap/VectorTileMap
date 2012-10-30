@@ -23,6 +23,7 @@ import android.preference.PreferenceActivity;
  * Activity to edit the application preferences.
  */
 public class EditPreferences extends PreferenceActivity {
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

@@ -121,6 +121,7 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 	private File[] files;
 	private File[] filesWithParentFolder;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		File selectedFile = this.files[(int) id];

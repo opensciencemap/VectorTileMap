@@ -1,5 +1,6 @@
 package org.osmdroid.utils;
 
+import java.io.FileNotFoundException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,6 +12,7 @@ import org.apache.http.NameValuePair;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.util.Log;
 
 /**
  * Useful functions and common constants.
@@ -94,6 +96,8 @@ public class BonusPackHelper {
 			 * FlushedInputStream(is), null); if (is != null) is.close(); if (d
 			 * != null) bitmap = ((BitmapDrawable)d).getBitmap();
 			 */
+		} catch (FileNotFoundException e){
+			Log.d(BonusPackHelper.LOG_TAG, "image not available: " + url);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

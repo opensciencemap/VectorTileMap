@@ -1,6 +1,7 @@
 package org.osmdroid.location;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -13,12 +14,14 @@ import android.util.Log;
 
 /**
  * POI Provider using Flickr service to get geolocalized photos.
+ * 
  * @see "http://www.flickr.com/services/api/flickr.photos.search.html"
  * @author M.Kergall
  */
-public class FlickrPOIProvider {
+public class FlickrPOIProvider implements POIProvider {
 
 	protected String mApiKey;
+	private final static String PHOTO_URL = "http://www.flickr.com/photos/%s/%s/sizes/o/in/photostream/";
 
 	/**
 	 * @param apiKey
@@ -31,7 +34,7 @@ public class FlickrPOIProvider {
 
 	private String getUrlInside(BoundingBox boundingBox, int maxResults) {
 		StringBuffer url = new StringBuffer(
-				"http://api.flickr.com/services/rest/?method=flickr.photos.search");
+		"http://api.flickr.com/services/rest/?method=flickr.photos.search");
 		url.append("&api_key=" + mApiKey);
 		url.append("&bbox=" + boundingBox.getMinLongitude());
 		url.append("," + boundingBox.getMinLatitude());
@@ -53,35 +56,48 @@ public class FlickrPOIProvider {
 		return url.toString();
 	}
 
-	/* public POI getPhoto(String photoId){ String url =
-	 * "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo" +
+	/*
+	 * public POI getPhoto(String photoId){ String url =
+	 * "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo"
+	 * +
 	 * "&api_key=" + mApiKey + "&photo_id=" + photo Id +
 	 * "&format=json&nojsoncallback=1"; Log.d(BonusPackHelper.LOG_TAG,
 	 * "getPhoto:"+url); String jString =
-	 * BonusPackHelper.requestStringFromUrl(url); if (jString == null) {
-	 * Log.e(BonusPackHelper.LOG_TAG, "FlickrPOIProvider: request failed.");
+	 * BonusPackHelper.requestStringFromUrl(url); if (jString == null)
+	 * {
+	 * Log.e(BonusPackHelper.LOG_TAG,
+	 * "FlickrPOIProvider: request failed.");
 	 * return null; } try { POI poi = new POI(POI.POI_SERVICE_FLICKR);
 	 * JSONObject jRoot = new JSONObject(jString); JSONObject jPhoto =
 	 * jRoot.getJSONObject("photo"); JSONObject jLocation =
 	 * jPhoto.getJSONObject("location"); poi.mLocation = new GeoPoint(
-	 * jLocation.getDouble("latitude"), jLocation.getDouble("longitude"));
+	 * jLocation.getDouble("latitude"),
+	 * jLocation.getDouble("longitude"));
 	 * poi.mId = Long.parseLong(photoId); JSONObject jTitle =
-	 * jPhoto.getJSONObject("title"); poi.mType = jTitle.getString("_content");
+	 * jPhoto.getJSONObject("title"); poi.mType =
+	 * jTitle.getString("_content");
 	 * JSONObject jDescription = jPhoto.getJSONObject("description");
-	 * poi.mDescription = jDescription.getString("_content"); //truncate
+	 * poi.mDescription = jDescription.getString("_content");
+	 * //truncate
 	 * description if too long: if (poi.mDescription.length() > 300){
-	 * poi.mDescription = poi.mDescription.substring(0, 300) + " (...)"; }
+	 * poi.mDescription = poi.mDescription.substring(0, 300) +
+	 * " (...)"; }
 	 * String farm = jPhoto.getString("farm"); String server =
-	 * jPhoto.getString("server"); String secret = jPhoto.getString("secret");
-	 * JSONObject jOwner = jPhoto.getJSONObject("owner"); String nsid =
+	 * jPhoto.getString("server"); String secret =
+	 * jPhoto.getString("secret");
+	 * JSONObject jOwner = jPhoto.getJSONObject("owner"); String nsid
+	 * =
 	 * jOwner.getString("nsid"); poi.mThumbnailPath =
 	 * "http://farm"+farm+".staticflickr.com/"
 	 * +server+"/"+photoId+"_"+secret+"_s.jpg"; poi.mUrl =
-	 * "http://www.flickr.com/photos/"+nsid+"/"+photoId; return poi; }catch
-	 * (JSONException e) { e.printStackTrace(); return null; } } */
+	 * "http://www.flickr.com/photos/"+nsid+"/"+photoId; return poi;
+	 * }catch
+	 * (JSONException e) { e.printStackTrace(); return null; } }
+	 */
 
 	/**
-	 * @param fullUrl ...
+	 * @param fullUrl
+	 *            ...
 	 * @return the list of POI
 	 */
 	public ArrayList<POI> getThem(String fullUrl) {
@@ -100,20 +116,28 @@ public class FlickrPOIProvider {
 			ArrayList<POI> pois = new ArrayList<POI>(n);
 			for (int i = 0; i < n; i++) {
 				JSONObject jPhoto = jPhotoArray.getJSONObject(i);
+
 				String photoId = jPhoto.getString("id");
+				if (mPrevious != null && mPrevious.containsKey(photoId))
+					continue;
+
 				POI poi = new POI(POI.POI_SERVICE_FLICKR);
 				poi.location = new GeoPoint(
-						jPhoto.getDouble("latitude"),
-						jPhoto.getDouble("longitude"));
+				jPhoto.getDouble("latitude"),
+				jPhoto.getDouble("longitude"));
 				poi.id = photoId; //Long.parseLong(photoId);
 				poi.type = jPhoto.getString("title");
 				poi.thumbnailPath = jPhoto.getString("url_sq");
 				String owner = jPhoto.getString("owner");
-				poi.url = "http://www.flickr.com/photos/" + owner + "/" + photoId;
+				// the default flickr link viewer doesnt work with mobile browsers... 
+				//	poi.url = "http://www.flickr.com/photos/" + owner + "/" + photoId + "/sizes/o/in/photostream/";
+
+				poi.url = String.format(PHOTO_URL, owner, photoId);
+
 				pois.add(poi);
 			}
-			int total = jPhotos.getInt("total");
-			Log.d(BonusPackHelper.LOG_TAG, "done:" + n + " got, on a total of:" + total);
+			//			int total = jPhotos.getInt("total");
+			//			Log.d(BonusPackHelper.LOG_TAG, "done:" + n + " got, on a total of:" + total);
 			return pois;
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -122,14 +146,23 @@ public class FlickrPOIProvider {
 	}
 
 	/**
-	 * @param boundingBox ...
-	 * @param maxResults ...
-	 * @return list of POI, Flickr photos inside the bounding box. Null if
+	 * @param boundingBox
+	 *            ...
+	 * @param maxResults
+	 *            ...
+	 * @return list of POI, Flickr photos inside the bounding box.
+	 *         Null if
 	 *         technical issue.
 	 */
-	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, int maxResults) {
+	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
 		String url = getUrlInside(boundingBox, maxResults);
 		return getThem(url);
+	}
+
+	HashMap<String, POI> mPrevious;
+
+	public void setPrevious(HashMap<String, POI> previous) {
+		mPrevious = previous;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -24,7 +25,7 @@ import android.util.Log;
  * @see "https://developers.google.com/picasa-web/docs/2.0/reference"
  * @author M.Kergall
  */
-public class PicasaPOIProvider {
+public class PicasaPOIProvider implements POIProvider{
 
 	String mAccessToken;
 
@@ -37,6 +38,7 @@ public class PicasaPOIProvider {
 		mAccessToken = accessToken;
 	}
 
+	@SuppressWarnings("deprecation")
 	private String getUrlInside(BoundingBox boundingBox, int maxResults, String query) {
 		StringBuffer url = new StringBuffer("http://picasaweb.google.com/data/feed/api/all?");
 		url.append("bbox=" + boundingBox.getMinLongitude());
@@ -95,7 +97,7 @@ public class PicasaPOIProvider {
 	 * @return list of POI, Picasa photos inside the bounding box. Null if
 	 *         technical issue.
 	 */
-	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, int maxResults, String query) {
+	public List<POI> getPOIInside(BoundingBox boundingBox, String query, int maxResults) {
 		String url = getUrlInside(boundingBox, maxResults, query);
 		return getThem(url);
 	}

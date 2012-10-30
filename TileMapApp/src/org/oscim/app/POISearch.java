@@ -45,6 +45,13 @@ public class POISearch {
 	private final ArrayList<POI> mPOIs;
 	ItemizedOverlayWithBubble<ExtendedOverlayItem> poiMarkers;
 	final TileMap tileMap;
+	Drawable[] mMarkers;
+
+	private final static int MDEFAULT = 0;
+	private final static int MFLICKR = 1;
+	private final static int MPICASA = 2;
+	private final static int MWIKI16 = 3;
+	private final static int MWIKI32 = 4;
 
 	POISearch(TileMap tileMap) {
 		this.tileMap = tileMap;
@@ -53,7 +60,7 @@ public class POISearch {
 		final ArrayList<ExtendedOverlayItem> poiItems = new ArrayList<ExtendedOverlayItem>();
 
 		poiMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(App.map, tileMap,
-				poiItems, new POIInfoWindow(App.map));
+		poiItems, new POIInfoWindow(App.map));
 
 		App.map.getOverlays().add(poiMarkers);
 
@@ -61,17 +68,24 @@ public class POISearch {
 		//					mPOIs = savedInstanceState.getParcelableArrayList("poi");
 		//					updateUIWithPOI(mPOIs);
 		//				}
+
+		mMarkers = new Drawable[5];
+		mMarkers[MDEFAULT] = App.res.getDrawable(R.drawable.marker_poi_default);
+		mMarkers[MFLICKR] = App.res.getDrawable(R.drawable.marker_poi_flickr);
+		mMarkers[MPICASA] = App.res.getDrawable(R.drawable.marker_poi_picasa_24);
+		mMarkers[MWIKI16] = App.res.getDrawable(R.drawable.marker_poi_wikipedia_16);
+		mMarkers[MWIKI32] = App.res.getDrawable(R.drawable.marker_poi_wikipedia_32);
 	}
 
 	public List<POI> getPOIs() {
 		return mPOIs;
 	}
 
-	class POITask extends AsyncTask<Object, Void, ArrayList<POI>> {
+	class POITask extends AsyncTask<Object, Void, List<POI>> {
 		String mTag;
 
 		@Override
-		protected ArrayList<POI> doInBackground(Object... params) {
+		protected List<POI> doInBackground(Object... params) {
 			mTag = (String) params[0];
 
 			if (mTag == null || mTag.equals("")) {
@@ -85,22 +99,23 @@ public class POISearch {
 				return pois;
 			} else if (mTag.equals("flickr")) {
 				FlickrPOIProvider poiProvider = new FlickrPOIProvider(
-						"c39be46304a6c6efda8bc066c185cd7e");
+				"c39be46304a6c6efda8bc066c185cd7e");
 				BoundingBox bb = App.map.getBoundingBox();
-				ArrayList<POI> pois = poiProvider.getPOIInside(bb, 20);
+				ArrayList<POI> pois = poiProvider.getPOIInside(bb, null, 20);
 				return pois;
 			} else if (mTag.startsWith("picasa")) {
 				PicasaPOIProvider poiProvider = new PicasaPOIProvider(null);
 				BoundingBox bb = App.map.getBoundingBox();
 				String q = mTag.substring("picasa".length());
-				ArrayList<POI> pois = poiProvider.getPOIInside(bb, 20, q);
+				List<POI> pois = poiProvider.getPOIInside(bb, q, 20);
 				return pois;
 			}
 			else if (mTag.startsWith("foursquare")) {
 				FourSquareProvider poiProvider = new FourSquareProvider(null, null);
 				BoundingBox bb = App.map.getBoundingBox();
+				String q = mTag.substring("foursquare".length());
 				//				String q = mTag.substring("picasa".length());
-				ArrayList<POI> pois = poiProvider.getPOIInside(bb, 20);
+				ArrayList<POI> pois = poiProvider.getPOIInside(bb, q, 40);
 				return pois;
 			}
 			else {
@@ -119,16 +134,18 @@ public class POISearch {
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<POI> pois) {
+		protected void onPostExecute(List<POI> pois) {
 			if (mTag.equals("")) {
 				//no search, no message
 			} else if (pois == null) {
-				Toast.makeText(tileMap.getApplicationContext(),
-						"Technical issue when getting " + mTag + " POI.", Toast.LENGTH_LONG).show();
+				Toast
+				.makeText(tileMap.getApplicationContext(),
+							"Technical issue when getting " + mTag + " POI.", Toast.LENGTH_LONG)
+				.show();
 			} else {
 				Toast.makeText(tileMap.getApplicationContext(),
-						"" + pois.size() + " " + mTag + " entries found",
-						Toast.LENGTH_LONG).show();
+								"" + pois.size() + " " + mTag + " entries found",
+								Toast.LENGTH_LONG).show();
 				//	if (mTag.equals("flickr") || mTag.startsWith("picasa") || mTag.equals("wikipedia"))
 				//	startAsyncThumbnailsLoading(mPOIs);
 			}
@@ -137,7 +154,7 @@ public class POISearch {
 		}
 	}
 
-	void updateUIWithPOI(ArrayList<POI> pois) {
+	void updateUIWithPOI(List<POI> pois) {
 		mPOIs.clear();
 		if (pois != null) {
 			mPOIs.addAll(pois);
@@ -145,9 +162,10 @@ public class POISearch {
 			for (POI poi : pois) {
 				int end = 0, first = 0;
 				String desc = null;
-				String name = poi.description;
+				String name = null;
 
 				if (poi.serviceId == POI.POI_SERVICE_NOMINATIM) {
+					name = poi.description;
 					if (name != null) {
 						// FIXME or nominatim...
 						for (int i = 0; i < 3; i++) {
@@ -163,25 +181,31 @@ public class POISearch {
 
 						if (end > 0)
 							desc = poi.description.substring(first, end - 1);
-						else
-							desc = poi.description;
+
 					}
+				} else {
+					desc = poi.description;
 				}
+
 				ExtendedOverlayItem poiMarker = new ExtendedOverlayItem(
-						poi.type + (name == null ? "" : ": " + name), desc, poi.location);
+				poi.type + (name == null ? "" : ": " + name), desc, poi.location);
 				Drawable marker = null;
 
 				if (poi.serviceId == POI.POI_SERVICE_NOMINATIM) {
-					marker = App.res.getDrawable(R.drawable.marker_poi_default);
+
+					marker = mMarkers[MDEFAULT];
 				} else if (poi.serviceId == POI.POI_SERVICE_GEONAMES_WIKIPEDIA) {
 					if (poi.rank < 90)
-						marker = App.res.getDrawable(R.drawable.marker_poi_wikipedia_16);
+						marker = mMarkers[MWIKI16];
 					else
-						marker = App.res.getDrawable(R.drawable.marker_poi_wikipedia_32);
+						marker = mMarkers[MWIKI32];
 				} else if (poi.serviceId == POI.POI_SERVICE_FLICKR) {
-					marker = App.res.getDrawable(R.drawable.marker_poi_flickr);
+					marker = mMarkers[MFLICKR];
 				} else if (poi.serviceId == POI.POI_SERVICE_PICASA) {
-					marker = App.res.getDrawable(R.drawable.marker_poi_picasa_24);
+					marker = mMarkers[MPICASA];
+					poiMarker.setSubDescription(poi.category);
+				} else if (poi.serviceId == POI.POI_SERVICE_4SQUARE) {
+					marker = mMarkers[MDEFAULT];
 					poiMarker.setSubDescription(poi.category);
 				}
 
@@ -224,9 +248,15 @@ public class POISearch {
 				public void onClick(View view) {
 					POI poi = (POI) view.getTag();
 
-					if (poi != null && poi.url != null) {
-						Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(poi.url));
-						view.getContext().startActivity(myIntent);
+					if (poi == null)
+						return;
+
+					if (poi.serviceId == POI.POI_SERVICE_4SQUARE) {
+						FourSquareProvider.browse(view.getContext(), poi);
+					} else if (poi.url != null) {
+						Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(poi.url));
+						i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+						view.getContext().startActivity(i);
 					}
 				}
 			});
@@ -270,12 +300,12 @@ public class POISearch {
 
 	public boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_nearby:
-				Intent intent = new Intent(tileMap, POIActivity.class);
-				intent.putExtra("ID", poiMarkers.getBubbledItemId());
-				tileMap.startActivityForResult(intent, TileMap.POIS_REQUEST);
-				return true;
-			default:
+		case R.id.menu_nearby:
+			Intent intent = new Intent(tileMap, POIActivity.class);
+			intent.putExtra("ID", poiMarkers.getBubbledItemId());
+			tileMap.startActivityForResult(intent, TileMap.POIS_REQUEST);
+			return true;
+		default:
 		}
 		return false;
 

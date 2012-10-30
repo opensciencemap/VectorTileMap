@@ -19,7 +19,7 @@ import android.util.Log;
  * and http://open.mapquestapi.com/nominatim/<br>
  * @author M.Kergall
  */
-public class NominatimPOIProvider {
+public class NominatimPOIProvider implements POIProvider{
 	/* As the doc lacks a lot of features, source code may help:
 	 * https://trac.openstreetmap
 	 * .org/browser/applications/utils/nominatim/website/search.php featuretype=
@@ -39,6 +39,7 @@ public class NominatimPOIProvider {
 		mService = serviceUrl;
 	}
 
+	@SuppressWarnings("deprecation")
 	private StringBuffer getCommonUrl(String type, int maxResults) {
 		StringBuffer urlString = new StringBuffer(mService);
 		urlString.append("search?");
@@ -141,7 +142,7 @@ public class NominatimPOIProvider {
 	 *            ...
 	 * @return list of POIs, null if technical issue.
 	 */
-	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String type, int maxResults) {
+	public ArrayList<POI> getPOIInside(BoundingBox boundingBox,  String type, int maxResults) {
 		String url = getUrlInside(boundingBox, type, maxResults);
 		return getThem(url);
 	}
