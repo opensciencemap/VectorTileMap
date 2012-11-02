@@ -15,5 +15,5 @@
     <!-- <item
         android:id="@+id/menu_clear"
         android:title="Clear Route"/> -->
-    <item android:id="@+id/menu_clear" android:title="Clear Map"></item>
+    <item android:id="@+id/menu_clear" android:title="Clear ..."></item>
 </menu>
