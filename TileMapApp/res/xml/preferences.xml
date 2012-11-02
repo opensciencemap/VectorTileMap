@@ -2,17 +2,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/menu_preferences" >
 
-    <PreferenceCategory android:title="@string/preferences_map" >
+    <!-- <PreferenceCategory android:title="@string/preferences_map" >
 
-        <!--
+        
       <CheckBoxPreference android:title="@string/preferences_show_scale_bar" android:summary="@string/preferences_show_scale_bar_desc"
 			android:key="showScaleBar" />
-        -->
-        <!--
+       
+        
       <ListPreference android:title="@string/preferences_scale_bar_unit" android:summary="@string/preferences_scale_bar_unit_desc"
 			android:entryValues="@array/preferences_scale_bar_unit_keys" android:entries="@array/preferences_scale_bar_unit_values"
 			android:key="scaleBarUnit" android:defaultValue="@string/preferences_scale_bar_unit_default" android:dependency="showScaleBar" />
-        -->
+       
         <ListPreference
             android:defaultValue="@string/preferences_map_database_default"
             android:entries="@array/preferences_map_generator_values"
@@ -20,13 +20,15 @@
             android:key="mapDatabase"
             android:summary="@string/preferences_map_view_mode_desc"
             android:title="@string/preferences_map_view_mode" />
-        <!--
+        
        	<ListPreference android:title="@string/preferences_text_scale" android:summary="@string/preferences_text_scale_desc"
 			android:entryValues="@array/preferences_text_scale_keys" android:entries="@array/preferences_text_scale_values"
 			android:key="textScale" android:defaultValue="@string/preferences_text_scale_default" />
-        -->
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/preferences_general" >
+       
+    </PreferenceCategory> -->
+    <PreferenceCategory android:title="@string/preferences_theme_title">
+        <ListPreference android:title="@string/preferences_theme" android:summary="@string/preferences_theme_summary" android:key="theme" android:entryValues="@array/preferences_map_theme_keys" android:entries="@array/preferences_map_theme_values" android:defaultValue="@string/preferences_map_theme_default" />
+    </PreferenceCategory><PreferenceCategory android:title="@string/preferences_general" >
         <CheckBoxPreference
             android:key="fullscreen"
             android:summary="@string/preferences_fullscreen_desc"
@@ -67,8 +69,6 @@
             android:summary="@string/preferences_disable_polygons"
             android:title="@string/preferences_disable_polygons" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/preferences_others">
-        <ListPreference android:title="@string/preferences_theme" android:summary="@string/preferences_theme_summary" android:key="theme" android:entryValues="@array/preferences_map_theme_keys" android:entries="@array/preferences_map_theme_values" android:defaultValue="@string/preferences_map_theme_default"/>
-    </PreferenceCategory>
+    
 
 </PreferenceScreen>
