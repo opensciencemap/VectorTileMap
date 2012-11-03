@@ -67,5 +67,8 @@
             android:summary="@string/preferences_disable_polygons"
             android:title="@string/preferences_disable_polygons" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_others">
+        <ListPreference android:title="@string/preferences_theme" android:summary="@string/preferences_theme_summary" android:key="theme" android:entryValues="@array/preferences_map_theme_keys" android:entries="@array/preferences_map_theme_values" android:defaultValue="@string/preferences_map_theme_default"/>
+    </PreferenceCategory>
 
 </PreferenceScreen>

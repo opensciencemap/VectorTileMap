@@ -33,6 +33,8 @@ import org.osmdroid.routing.Road;
 import org.osmdroid.routing.RoadManager;
 import org.osmdroid.routing.RoadNode;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.AsyncTask;
@@ -265,7 +267,58 @@ public class RouteSearch {
 
 		//	((TextView) findViewById(R.id.routeInfo)).setText(road.getLengthDurationText(-1));
 	}
-
+	
+	void removeRoadPath(){
+		List<Overlay> mapOverlays = tileMap.map.getOverlays();
+		if (mRoadOverlay != null) {
+			mapOverlays.remove(mRoadOverlay);
+		}
+		tileMap.map.redrawMap();
+	}
+	
+	void removeRoadNodes(){
+		List<Overlay> mapOverlays = tileMap.map.getOverlays();
+		if (mRoadNodeMarkers != null) {
+			mapOverlays.remove(mRoadNodeMarkers);
+		}
+		
+		final ArrayList<ExtendedOverlayItem> roadItems = new ArrayList<ExtendedOverlayItem>();
+		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
+				tileMap.map);
+		tileMap.map.getOverlays().add(mRoadNodeMarkers);
+//		itineraryMarkers.removeAllItems();
+//		mRoadNodeMarkers.removeAllItems();
+//		//Start marker:
+//		if (startPoint != null) {
+//			markerStart = putMarkerItem(null, startPoint, START_INDEX,
+//					R.string.departure, R.drawable.marker_departure, -1);
+//		}
+//		//Destination marker if any:
+//		if (destinationPoint != null) {
+//			markerDestination = putMarkerItem(null, destinationPoint, DEST_INDEX,
+//					R.string.destination,
+//					R.drawable.marker_destination, -1);
+//		}
+		tileMap.map.redrawMap();
+	}
+	
+	void removeAllOverlay(){
+		List<Overlay> mapOverlays = tileMap.map.getOverlays();
+		if (mRoadOverlay != null) {
+			mapOverlays.remove(mRoadOverlay);
+		}
+		if (mRoadNodeMarkers != null) {
+			mapOverlays.remove(mRoadNodeMarkers);
+		}
+		final ArrayList<ExtendedOverlayItem> roadItems = new ArrayList<ExtendedOverlayItem>();
+		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
+				tileMap.map);
+		tileMap.map.getOverlays().add(mRoadNodeMarkers);
+		
+		//removePoint(-2);
+		removePoint(-1);
+		tileMap.map.redrawMap();
+	}
 	/**
 	 * Async task to get the road in a separate thread.
 	 */
@@ -350,6 +403,61 @@ public class RouteSearch {
 				addViaPoint(viaPoint);
 				getRoadAsync();
 				return true;
+			case R.id.menu_clear:
+				AlertDialog.Builder builder = new AlertDialog.Builder(tileMap);
+//				if (mRoadOverlay != null) {
+//					mapOverlays.remove(mRoadOverlay);
+//				}
+//				if (mRoadNodeMarkers != null) {
+//					mapOverlays.remove(mRoadNodeMarkers);
+//				}
+				List<Overlay> mapOverlays = tileMap.map.getOverlays();
+				ArrayList<String> list = new ArrayList<String>();
+				
+				if(!mapOverlays.contains(mRoadOverlay)&&mRoadNodeMarkers.size()!=0){
+					list.clear();
+					list.add("Clear Route Node Only");
+					list.add("Clear All");
+				}else if(mRoadNodeMarkers.size()==0 && mapOverlays.contains(mRoadOverlay)){
+					list.clear();
+					list.add("Clear Route Only");
+					list.add("Clear All");
+				}else if(!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size()==0 && markerDestination == null){
+					list.clear();
+					list.add("Nothing to Clear");
+				}else if(!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size()==0 && markerDestination != null){
+					list.clear();
+					list.add("Clear All");
+				}else{
+					list.clear();
+					list.add("Clear Route Node Only");
+					list.add("Clear Route Only");
+					list.add("Clear All");
+				}
+				final String[] test = new String[list.size()];
+				for(int i=0;i<list.size();i++){
+					test[i] = list.get(i);
+				}
+			    builder.setTitle("Clear");
+			    builder.setItems(test, new DialogInterface.OnClickListener() {
+			          public void onClick(DialogInterface dialog, int which) {
+			        	  if(test[which].equals("Clear Route Only")){
+			        		  removeRoadPath();
+			        	  }else if(test[which].equals("Clear Route Node Only")){
+			        		  removeRoadNodes();
+			        	  }else if(test[which].equals("Clear All")){
+			        		  removeAllOverlay();
+			        	  }
+			          // The 'which' argument contains the index position
+			          // of the selected item
+			       }
+			    });
+				AlertDialog alertDialog = builder.create();
+ 
+				// show it
+				alertDialog.show();
+				return true;
+			    //return builder.create();
 			default:
 		}
 		return false;

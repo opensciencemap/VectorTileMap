@@ -35,5 +35,10 @@
         <item>Overlays</item>
         <item>etc</item>
     </string-array>
+    <string-array name="preferences_map_theme_keys">
+        <item >OSMARENDER</item>
+        <item >TRONRENDER</item>
+    </string-array>
+    <string name="preferences_map_theme_default">OSMARENDER</string>
 
 </resources>

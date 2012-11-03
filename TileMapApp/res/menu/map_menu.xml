@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
         android:id="@+id/menu_nearby"
-        android:title="Search Nearby"/>
+        android:title="@string/menu_find"/>
     <item
         android:id="@+id/menu_departure"
         android:title="Set Departure"/>
@@ -15,7 +15,5 @@
     <!-- <item
         android:id="@+id/menu_clear"
         android:title="Clear Route"/> -->
-    <item
-        android:id="@+id/menu_none"
-        android:title="Cancel"/>
+    <item android:id="@+id/menu_clear" android:title="Clear Map"></item>
 </menu>

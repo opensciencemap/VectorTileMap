@@ -163,7 +163,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.options_menu, menu);
 		mMenu = menu;
-
+		toggleMenuCheck();
 		return true;
 	}
 
@@ -177,26 +177,44 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		case R.id.menu_position:
 			return true;
-
 		case R.id.menu_rotation_enable:
-			map.enableRotation(true);
-			toggleMenuRotation();
+			if(!item.isChecked()){
+				item.setChecked(true);
+				map.enableRotation(true);
+			}else{
+				item.setChecked(false);
+				map.enableRotation(false);
+			}
+			
+			//toggleMenuRotation();
+			toggleMenuCheck();
 			return true;
 
-		case R.id.menu_rotation_disable:
-			map.enableRotation(false);
-			toggleMenuRotation();
+//		case R.id.menu_rotation_disable:
+//			map.enableRotation(false);
+//			toggleMenuRotation();
+//			return true;
+		case R.id.menu_nearby:
+			Intent intent = new Intent(this, POIActivity.class);
+			startActivityForResult(intent, TileMap.POIS_REQUEST);
 			return true;
-
 		case R.id.menu_compass_enable:
-			map.enableCompass(true);
-			toggleMenuRotation();
+			if(!item.isChecked()){
+				item.setChecked(true);
+				map.enableCompass(true);
+			}else{
+				item.setChecked(false);
+				map.enableCompass(false);
+			}
+			toggleMenuCheck();
+			//map.enableCompass(true);
+			//toggleMenuRotation();
 			return true;
 
-		case R.id.menu_compass_disable:
-			map.enableCompass(false);
-			toggleMenuRotation();
-			return true;
+//		case R.id.menu_compass_disable:
+//			map.enableCompass(false);
+//			toggleMenuRotation();
+//			return true;
 
 		case R.id.menu_position_my_location_enable:
 			toggleMenuItem(mMenu,
@@ -220,20 +238,20 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			startActivity(new Intent(this, EditPreferences.class));
 			return true;
 
-		case R.id.menu_render_theme:
-			return true;
-
-		case R.id.menu_render_theme_osmarender:
-			map.setRenderTheme(InternalRenderTheme.OSMARENDER);
-			return true;
-
-		case R.id.menu_render_theme_tronrender:
-			map.setRenderTheme(InternalRenderTheme.TRONRENDER);
-			return true;
-
-		case R.id.menu_render_theme_select_file:
-			startRenderThemePicker();
-			return true;
+//		case R.id.menu_render_theme:
+//			return true;
+//
+//		case R.id.menu_render_theme_osmarender:
+//			map.setRenderTheme(InternalRenderTheme.OSMARENDER);
+//			return true;
+//
+//		case R.id.menu_render_theme_tronrender:
+//			map.setRenderTheme(InternalRenderTheme.TRONRENDER);
+//			return true;
+//
+//		case R.id.menu_render_theme_select_file:
+//			startRenderThemePicker();
+//			return true;
 
 			// case R.id.menu_position_map_center:
 			// // disable GPS follow mode if it is enabled
@@ -246,36 +264,40 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			// startMapFilePicker();
 			// return true;
 
-		case R.id.menu_pois:
-			mPoiSearch.getPOIAsync("bar");
-			//				Intent myIntent = new Intent(this, POIActivity.class);
-			//				myIntent.putParcelableArrayListExtra("POI", mPOIs);
-			//				//				myIntent.putExtra("ID", poiMarkers.getBubbledItemId());
-			//				startActivityForResult(myIntent, POIS_REQUEST);
-			return true;
-
-		case R.id.menu_poi_list:
-			Intent myIntent = new Intent(this, POIActivity.class);
-			myIntent.putExtra("ID", mPoiSearch.poiMarkers.getBubbledItemId());
-			startActivityForResult(myIntent, POIS_REQUEST);
-			return true;
+//		case R.id.menu_pois:
+//			mPoiSearch.getPOIAsync("bar");
+//			//				Intent myIntent = new Intent(this, POIActivity.class);
+//			//				myIntent.putParcelableArrayListExtra("POI", mPOIs);
+//			//				//				myIntent.putExtra("ID", poiMarkers.getBubbledItemId());
+//			//				startActivityForResult(myIntent, POIS_REQUEST);
+//			return true;
+//
+//		case R.id.menu_poi_list:
+//			Intent myIntent = new Intent(this, POIActivity.class);
+//			myIntent.putExtra("ID", mPoiSearch.poiMarkers.getBubbledItemId());
+//			startActivityForResult(myIntent, POIS_REQUEST);
+//			return true;
 		default:
 			return false;
 		}
 	}
-
-	private void toggleMenuRotation() {
-
-		toggleMenuItem(mMenu,
-						R.id.menu_rotation_enable,
-						R.id.menu_rotation_disable,
-						!map.enableRotation);
-
-		toggleMenuItem(mMenu,
-						R.id.menu_compass_enable,
-						R.id.menu_compass_disable,
-						!map.enableCompass);
+	
+	private void toggleMenuCheck(){
+		mMenu.findItem(R.id.menu_rotation_enable).setChecked(map.enableRotation);
+		mMenu.findItem(R.id.menu_compass_enable).setChecked(map.enableCompass);
 	}
+//	private void toggleMenuRotation() {
+//
+//		toggleMenuItem(mMenu,
+//						R.id.menu_rotation_enable,
+//						R.id.menu_rotation_disable,
+//						!map.enableRotation);
+//
+//		toggleMenuItem(mMenu,
+//						R.id.menu_compass_enable,
+//						R.id.menu_compass_disable,
+//						!map.enableCompass);
+//	}
 
 	private static void toggleMenuItem(Menu menu, int id, int id2, boolean enable) {
 		menu.findItem(id).setVisible(enable);
@@ -299,14 +321,14 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		if (mMapDatabase == MapDatabases.MAP_READER) {
 			//menu.findItem(R.id.menu_mapfile).setVisible(true);
-			menu.findItem(R.id.menu_position_map_center).setVisible(true);
+			//menu.findItem(R.id.menu_position_map_center).setVisible(true);
 		}
 		// else {
 		// menu.findItem(R.id.menu_mapfile).setVisible(false);
 		// menu.findItem(R.id.menu_position_map_center).setVisible(false);
 		// }
 
-		toggleMenuRotation();
+		//toggleMenuRotation();
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -331,6 +353,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 								SELECT_RENDER_THEME_FILE);
 	}
 
+	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		switch (requestCode) {
@@ -476,7 +499,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				mMapDatabase = mapDatabaseNew;
 			}
 		}
-
+		if (preferences.contains("theme")){
+			String name = preferences.getString("theme",
+					"OSMARENDER");
+			map.setRenderTheme(InternalRenderTheme.OSMARENDER);
+		}
 		// try {
 		// String textScaleDefault =
 		// getString(R.string.preferences_text_scale_default);
@@ -527,7 +554,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 			map.setDebugSettings(debugSettings);
 		}
-
+//		if (preferences.contains("about")){
+//			startActivity(new Intent(this, InfoView.class));
+//			Log.i("mapviewer", "klick about");
+//			return;
+//		}
 		// if (mMapDatabase == MapDatabases.MAP_READER) {
 		// if (map.getMapFile() == null)
 		// startMapFilePicker();
