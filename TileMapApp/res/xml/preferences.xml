@@ -2,7 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/menu_preferences" >
 
-    <!-- <PreferenceCategory android:title="@string/preferences_map" >
+    <!--
+    <PreferenceCategory android:title="@string/preferences_map" >
 
         
       <CheckBoxPreference android:title="@string/preferences_show_scale_bar" android:summary="@string/preferences_show_scale_bar_desc"
@@ -25,10 +26,18 @@
 			android:entryValues="@array/preferences_text_scale_keys" android:entries="@array/preferences_text_scale_values"
 			android:key="textScale" android:defaultValue="@string/preferences_text_scale_default" />
        
-    </PreferenceCategory> -->
-    <PreferenceCategory android:title="@string/preferences_theme_title">
-        <ListPreference android:title="@string/preferences_theme" android:summary="@string/preferences_theme_summary" android:key="theme" android:entryValues="@array/preferences_map_theme_keys" android:entries="@array/preferences_map_theme_values" android:defaultValue="@string/preferences_map_theme_default" />
-    </PreferenceCategory><PreferenceCategory android:title="@string/preferences_general" >
+    </PreferenceCategory>
+    -->
+    <PreferenceCategory android:title="@string/preferences_theme_title" >
+        <ListPreference
+            android:defaultValue="@string/preferences_map_theme_default"
+            android:entries="@array/preferences_map_theme_values"
+            android:entryValues="@array/preferences_map_theme_keys"
+            android:key="theme"
+            android:summary="@string/preferences_theme_summary"
+            android:title="@string/preferences_theme" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/preferences_general" >
         <CheckBoxPreference
             android:key="fullscreen"
             android:summary="@string/preferences_fullscreen_desc"
@@ -69,6 +78,5 @@
             android:summary="@string/preferences_disable_polygons"
             android:title="@string/preferences_disable_polygons" />
     </PreferenceCategory>
-    
 
 </PreferenceScreen>

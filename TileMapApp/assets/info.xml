@@ -6,7 +6,7 @@
 		<meta http-equiv="Content-Style-Type" content="text/css" />
 	</head>
 	<body style="padding: 0.5em;">
-		<p style="text-align: center;"><img src="file:///android_asset/globe2.png" style="width: 72px; height: 72px;" /><br />Version 0.2.1</p>
+		<p style="text-align: center;"><img src="file:///android_asset/globe2.png" style="width: 72px; height: 72px;" /><br />Version 0.3</p>
 		<p> 
 		    <li><a href="https://code.google.com/p/vector-tile-map">OpenScienceMap</a> is distributed under the <a href="http://www.gnu.org/licenses/lgpl.html">LGPL3</a>. 
 		    Please report any  bugs, problems or feature requests via our <a href="https://code.google.com/p/vector-tile-map/issues/list">issue tracker</a></li></p>

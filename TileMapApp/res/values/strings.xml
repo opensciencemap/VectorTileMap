@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-	<string-array name="preferences_map_theme_values">
 
-        <!-- <item>Mapfile</item> -->
-        <!-- <item>PostGIS</item> -->
-        <item>OSMARENDER</item>
-        <item>TRONRENDER</item>
+    <string-array name="preferences_map_theme_values">
+        <item>Default</item>
+        <item>Tubes</item>
     </string-array>
     <string-array name="preferences_map_generator_values">
 
@@ -126,8 +124,9 @@
     <string name="zoomLevel">Zoom level</string>
     <string name="menu_options">Options</string>
     <string name="menu_pois">Bars nearby</string>
-     <string name="menu_poi_list">List POIs</string>
+    <string name="menu_poi_list">List POIs</string>
     <string name="departure">Departure</string>
     <string name="destination">Destination</string>
     <string name="viapoint">Via-Point</string>
+
 </resources>
