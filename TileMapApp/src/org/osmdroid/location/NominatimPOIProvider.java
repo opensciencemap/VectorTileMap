@@ -44,9 +44,9 @@ public class NominatimPOIProvider implements POIProvider{
 		StringBuffer urlString = new StringBuffer(mService);
 		urlString.append("search?");
 		urlString.append("format=json");
-		urlString.append("&q=[" + URLEncoder.encode(type) + "]");
+		urlString.append("&q=" + URLEncoder.encode(type));
 		urlString.append("&limit=" + maxResults);
-		urlString.append("&bounded=1");
+		//urlString.append("&bounded=1");
 		//		urlString.append("&addressdetails=0");
 		return urlString;
 	}
@@ -147,6 +147,10 @@ public class NominatimPOIProvider implements POIProvider{
 		return getThem(url);
 	}
 
+	public ArrayList<POI> getPOI(String query, int maxResults){
+		String url = getCommonUrl(query, maxResults).toString();
+		return getThem(url);
+	}
 	/**
 	 * @param path
 	 *            Warning: a long path may cause a failure due to the url to be
@@ -159,7 +163,7 @@ public class NominatimPOIProvider implements POIProvider{
 	 * @param maxWidth
 	 *            to the path. Certainly not in degrees. Probably in km.
 	 * @return list of POIs, null if technical issue.
-	 */
+	 */ 
 	public ArrayList<POI> getPOIAlong(ArrayList<GeoPoint> path, String type,
 			int maxResults, double maxWidth) {
 		StringBuffer urlString = getCommonUrl(type, maxResults);

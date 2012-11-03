@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.oscim.core.BoundingBox;
+import org.oscim.core.GeoPoint;
 import org.oscim.overlay.OverlayItem;
 import org.oscim.view.MapView;
 import org.osmdroid.location.FlickrPOIProvider;
@@ -125,7 +126,9 @@ public class POISearch {
 				ArrayList<POI> pois;
 				//				if (destinationPoint == null) {
 				BoundingBox bb = App.map.getBoundingBox();
-				pois = poiProvider.getPOIInside(bb, mTag, 100);
+				pois = poiProvider.getPOIInside(bb, mTag, 10);
+				
+				//pois = poiProvider.getPOI( mTag, 10);
 				//	} else {
 				//		pois = poiProvider.getPOIAlong(mRoad.getRouteLow(), mTag, 100, 2.0);
 				//	}
@@ -160,29 +163,20 @@ public class POISearch {
 			mPOIs.addAll(pois);
 
 			for (POI poi : pois) {
-				int end = 0, first = 0;
 				String desc = null;
 				String name = null;
 
 				if (poi.serviceId == POI.POI_SERVICE_NOMINATIM) {
 					name = poi.description;
-					if (name != null) {
-						// FIXME or nominatim...
-						for (int i = 0; i < 3; i++) {
-							int pos = poi.description.indexOf(',', end);
-							if (pos > 0) {
-								if (i == 0) {
-									name = poi.description.substring(0, pos);
-									first = pos + 2;
-								}
-								end = pos + 1;
-							}
-						}
-
-						if (end > 0)
-							desc = poi.description.substring(first, end - 1);
-
+					String[] split = name.split(", ");
+					if (split != null && split.length > 1) {
+						name = split[0];
+						desc = split[1];
+ 
+						for (int i = 2; i < 3 && i < split.length; i++)
+							desc += "," + split[i];
 					}
+
 				} else {
 					desc = poi.description;
 				}
