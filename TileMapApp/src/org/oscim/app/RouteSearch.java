@@ -67,7 +67,7 @@ public class RouteSearch {
 		//			startPoint = new GeoPoint(l.getLatitude(), l.getLongitude());
 		//		} else {
 		//			//we put a hard-coded start
-		startPoint = new GeoPoint(53.067221, 8.78767);
+		startPoint = null; //new GeoPoint(53.067221, 8.78767);
 		//		}
 		destinationPoint = null;
 		viaPoints = new ArrayList<GeoPoint>();
