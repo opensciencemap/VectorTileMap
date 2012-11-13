@@ -2,7 +2,6 @@ package org.ocsim.app;
 
 import org.oscim.view.MapView;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -20,8 +19,8 @@ public class MapActivity extends org.oscim.view.MapActivity {
 
 		// configure the MapView and activate the zoomLevel buttons
 		mMap.setClickable(true);
-		// map.setBuiltInZoomControls(true);
 		mMap.setFocusable(true);
+		mMap.getOverlayManager().add(new EventsOverlay());
     }
 
     @Override
