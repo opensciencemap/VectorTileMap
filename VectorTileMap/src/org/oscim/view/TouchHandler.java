@@ -486,6 +486,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 		if (!mBeginScale) {
 			if (mSumScale > 1.1 || mSumScale < 0.9) {
 				// Log.d("...", "begin scale " + mSumScale);
+				longpressTimer.cancel();
 				mBeginScale = true;
 				// scale = mSumScale;
 			}
@@ -540,7 +541,6 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 			}.start();
 		} else {
 			mScaling = false;
-			Log.i(TAG, "this is bug?");
 		}
 
 		mBeginScale = false;
@@ -551,9 +551,9 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 	boolean mZooutOut;
 
 	boolean scaleAnim(long tick) {
-
 		if (mPrevScale >= 1) {
 			mTimer = null;
+			longpressTimer.cancel();
 			return false;
 		}
 
@@ -572,9 +572,9 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 		mMapView.redrawMap();
 
-		if (tick == 0)
+		if (tick == 0) {
 			mTimer = null;
-
+		}
 		return true;
 	}
 }

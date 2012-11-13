@@ -374,7 +374,19 @@ public class RouteSearch {
 		tempClickedGeoPoint = p;
 		return true;
 	}
-
+	boolean longPress2Point(GeoPoint p1,GeoPoint p2){
+		removeAllOverlay();
+		startPoint = p1;
+		markerStart = putMarkerItem(markerStart, startPoint, START_INDEX,
+				R.string.departure, R.drawable.marker_departure, -1);
+		destinationPoint = p2;
+		//new GeoPoint((GeoPoint) tempClickedGeoPoint);
+		markerDestination = putMarkerItem(markerDestination, destinationPoint, DEST_INDEX,
+				R.string.destination,
+				R.drawable.marker_destination, -1);
+		getRoadAsync();
+		return true;
+	}
 	void singleTapUp() {
 		mRoadNodeMarkers.hideBubble();
 		itineraryMarkers.hideBubble();

@@ -647,4 +647,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		return true;
 	}
 
+	@Override
+	public boolean longPressHelperFor2Finger(GeoPoint p1, GeoPoint p2) {
+		// TODO Auto-generated method stub
+		mRouteSearch.longPress2Point(p1, p2);
+		return true;
+	}
+
 }

@@ -53,11 +53,11 @@ public class MapEventsOverlay extends Overlay {
 			GeoPoint p = mapView.getMapViewPosition().fromScreenPixels(e.getX(), e.getY());
 
 			// throw event to the receiver:
-			Log.i(TAG, "longpress with 1 finger");
 			return mReceiver.longPressHelper(p);
 		}else if(e.getPointerCount() == 2){
-			Log.i(TAG, String.valueOf(e.getPointerCount()));
-			return true;
+			GeoPoint p1 = mapView.getMapViewPosition().fromScreenPixels(e.getX(0), e.getY(0));
+			GeoPoint p2 = mapView.getMapViewPosition().fromScreenPixels(e.getX(1), e.getY(1));
+			return mReceiver.longPressHelperFor2Finger(p1, p2);
 		}else{
 			return true;
 		}
