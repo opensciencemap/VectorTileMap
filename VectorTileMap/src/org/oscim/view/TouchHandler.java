@@ -16,6 +16,9 @@
 
 package org.oscim.view;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import org.oscim.core.Tile;
 import org.oscim.overlay.OverlayManager;
 
@@ -42,7 +45,9 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 	private static final float SCALE_DURATION = 500;
 	private static final float ROTATION_DELAY = 200; // ms
-
+	static final int LONGPRESS_THRESHOLD = 800;
+	private Timer longpressTimer = new Timer();
+	boolean mMultiLongPress = true;
 	private static final int INVALID_POINTER_ID = -1;
 
 	private final MapView mMapView;
@@ -146,6 +151,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 	private boolean mScaling = false;
 
 	private boolean onActionMove(MotionEvent event) {
+		mMultiLongPress = false;
 		int id = event.findPointerIndex(mActivePointerId);
 
 		float py = event.getY(id);
@@ -175,13 +181,12 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 		double rad = Math.atan2(dy, dx);
 		double r = rad - mAngle;
-
 		if (!mBeginRotate && !mBeginScale) {
 			/* our naive gesture detector for rotation and tilt.. */
-
 			if (Math.abs(rad) < 0.25 || Math.abs(rad) > Math.PI - 0.25) {
 				mBeginTilt = true;
 				if (mMapPosition.tilt(moveY / 4)) {
+					longpressTimer.cancel();
 					mMapView.redrawMap();
 				}
 
@@ -190,7 +195,6 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 			if (!mBeginTilt) {
 				if (Math.abs(r) > 0.05) {
-					// Log.d(TAG, "begin rotate");
 					mAngle = rad;
 					mBeginRotate = true;
 				}
@@ -198,6 +202,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 		}
 
 		if (mBeginRotate) {
+			longpressTimer.cancel();
 			double rsin = Math.sin(r);
 			double rcos = Math.cos(r);
 
@@ -219,10 +224,22 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 	private int multi = 0;
 	private long mMultiTouchDownTime;
 
-	private boolean onActionPointerDown(MotionEvent event) {
-
+	private boolean onActionPointerDown(final MotionEvent event) {
 		mMultiTouchDownTime = event.getEventTime();
+		mMultiLongPress = true;
+		longpressTimer = new Timer();
+		longpressTimer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				if (mLongPress)
+					return;
 
+				if (mOverlayManager.onLongPress(event, mMapView)) {
+					return;
+				}
+			}
+
+		}, LONGPRESS_THRESHOLD);
 		multi++;
 
 		if (multi == 1) {
@@ -256,7 +273,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 		mLongPress = false;
 		// Log.d("...", "multi up " + multi);
-
+		longpressTimer.cancel();
 		return true;
 	}
 
@@ -454,7 +471,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 	@Override
 	public boolean onScale(ScaleGestureDetector gd) {
-
+		//longpressTimer.cancel();
 		if (mBeginTilt)
 			return true;
 
@@ -482,6 +499,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 	@Override
 	public boolean onScaleBegin(ScaleGestureDetector gd) {
+		longpressTimer.cancel();
 		mScaling = true;
 		mBeginScale = false;
 
@@ -501,7 +519,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 	public void onScaleEnd(ScaleGestureDetector gd) {
 		// Log.d("ScaleListener", "Sum " + mSumScale + " " + (mTimeEnd -
 		// mTimeStart));
-
+		longpressTimer.cancel();
 		if (mTimer == null && mTimeEnd - mTimeStart < 150
 				&& (mSumScale < 0.99 || mSumScale > 1.01)) {
 
@@ -522,6 +540,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 			}.start();
 		} else {
 			mScaling = false;
+			Log.i(TAG, "this is bug?");
 		}
 
 		mBeginScale = false;

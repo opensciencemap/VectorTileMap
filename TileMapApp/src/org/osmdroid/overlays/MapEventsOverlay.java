@@ -3,8 +3,8 @@ package org.osmdroid.overlays;
 import org.oscim.core.GeoPoint;
 import org.oscim.overlay.Overlay;
 import org.oscim.view.MapView;
-
 import android.content.Context;
+import android.util.Log;
 import android.view.MotionEvent;
 
 /**
@@ -17,6 +17,7 @@ import android.view.MotionEvent;
 public class MapEventsOverlay extends Overlay {
 
 	private MapEventsReceiver mReceiver;
+	private static final String TAG = MapEventsOverlay.class.getSimpleName();
 
 	/**
 	 * @param ctx
@@ -48,11 +49,18 @@ public class MapEventsOverlay extends Overlay {
 	public boolean onLongPress(MotionEvent e, MapView mapView) {
 		//		Projection proj = mapView.getProjection();
 		//		GeoPoint p = proj.fromPixels(e.getX(), e.getY());
+		if(e.getPointerCount() == 1){
+			GeoPoint p = mapView.getMapViewPosition().fromScreenPixels(e.getX(), e.getY());
 
-		GeoPoint p = mapView.getMapViewPosition().fromScreenPixels(e.getX(), e.getY());
-
-		// throw event to the receiver:
-		return mReceiver.longPressHelper(p);
+			// throw event to the receiver:
+			Log.i(TAG, "longpress with 1 finger");
+			return mReceiver.longPressHelper(p);
+		}else if(e.getPointerCount() == 2){
+			Log.i(TAG, String.valueOf(e.getPointerCount()));
+			return true;
+		}else{
+			return true;
+		}
 	}
 
 }
