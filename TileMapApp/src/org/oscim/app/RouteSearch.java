@@ -315,9 +315,17 @@ public class RouteSearch {
 				tileMap.map);
 		tileMap.map.getOverlays().add(mRoadNodeMarkers);
 		
-		//removePoint(-2);
+		removePoint(-2);
 		removePoint(-1);
-		tileMap.map.redrawMap();
+		//tileMap.map.redrawMap();
+		getRoadAsync();
+		updateUIWithItineraryMarkers();
+	}
+	
+	void setDistanceTextInvisible(){
+		if(tileMap.mapInfo != null){
+			tileMap.mapInfo.setVisibility(View.INVISIBLE);
+		}
 	}
 	/**
 	 * Async task to get the road in a separate thread.
@@ -340,11 +348,12 @@ public class RouteSearch {
 		protected void onPostExecute(Road result) {
 			mRoad = result;
 			updateUIWithRoad(result);
+			tileMap.mapInfo.setText(tileMap.mapInfo.getText()+
+					"\n The route length is: "+result.length+"km \n Needed time: "+result.duration+"s");
 
 			/// ??? getPOIAsync(poiTagText.getText().toString());
 		}
 	}
-
 	// Just to make JAVA shut up!
 	class WayPoints {
 		public ArrayList<GeoPoint> waypoints;
@@ -459,6 +468,7 @@ public class RouteSearch {
 			        		  removeRoadNodes();
 			        	  }else if(test[which].equals("Clear All")){
 			        		  removeAllOverlay();
+			        		  setDistanceTextInvisible();
 			        	  }
 			          // The 'which' argument contains the index position
 			          // of the selected item

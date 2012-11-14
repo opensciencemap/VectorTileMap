@@ -36,6 +36,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -156,7 +157,31 @@ public class POISearch {
 			updateUIWithPOI(pois);
 		}
 	}
-
+	
+	void updateUIWithRoutePoint(GeoPoint p1,GeoPoint p2){
+//		String desc = null;
+//		String name1 = null;
+//		String name2 = null;
+//		name1 = p1.description;
+//		String[] split = name.split(", ");
+//		if (split != null && split.length > 1) {
+//			name = split[0];
+//			desc = split[1];
+//
+//			for (int i = 2; i < 3 && i < split.length; i++)
+//				desc += "," + split[i];
+//		}
+//		desc = "Distance between"+p1.g
+		ExtendedOverlayItem poiMarker = new ExtendedOverlayItem(
+				"first try", "Distance: "+String.valueOf(p1.distanceTo(p2)), p1);
+		Drawable marker = mMarkers[MDEFAULT];;
+		poiMarker.setMarker(marker);
+		poiMarker.setMarkerHotspot(OverlayItem.HotspotPlace.CENTER);
+		poiMarkers.addItem(poiMarker);
+		poiMarker.setRelatedObject(p1);
+		Log.i("poisearch","draw fenster");
+		App.map.redrawMap();
+	}
 	void updateUIWithPOI(List<POI> pois) {
 		mPOIs.clear();
 		if (pois != null) {

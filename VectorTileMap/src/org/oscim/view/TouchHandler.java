@@ -50,9 +50,9 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 	boolean mMultiLongPress = true;
 	private static final int INVALID_POINTER_ID = -1;
 
-	private final MapView mMapView;
+	final MapView mMapView;
 	private final MapViewPosition mMapPosition;
-	private final OverlayManager mOverlayManager;
+	final OverlayManager mOverlayManager;
 
 	private final DecelerateInterpolator mInterpolator;
 	private final DecelerateInterpolator mLinearInterpolator;
@@ -61,7 +61,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 	private boolean mBeginRotate;
 	private boolean mBeginTilt;
-	private boolean mLongPress;
+	boolean mLongPress;
 
 	//	private float mPosX;
 	private float mPosY;

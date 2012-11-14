@@ -21,6 +21,16 @@
         android:textOff=""
         android:textOn=""
         android:visibility="gone" />
+    
+     <TextView
+            android:id="@+id/mapInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:ellipsize="end"
+            android:maxEms="17"
+            android:textColor="#404040" />
+    
     <!-- android:background="@drawable/snap_to_position" -->
 
 </RelativeLayout>
