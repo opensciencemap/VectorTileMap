@@ -32,7 +32,6 @@ import org.oscim.view.MapActivity;
 import org.oscim.view.MapView;
 import org.osmdroid.overlays.MapEventsOverlay;
 import org.osmdroid.overlays.MapEventsReceiver;
-import org.osmdroid.routing.Road;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -60,7 +59,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 public class TileMap extends MapActivity implements MapEventsReceiver {
 	static final String TAG = TileMap.class.getSimpleName();
@@ -93,6 +91,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	private WakeLock mWakeLock;
 	private Menu mMenu = null;
 	TextView mapInfo = null;
+	TextView mapInfoView = null;
 
 	POISearch mPoiSearch;
 	RouteSearch mRouteSearch;
@@ -658,9 +657,8 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	public boolean longPressHelperFor2Finger(GeoPoint p1, GeoPoint p2) {
 		// TODO Auto-generated method stub
 		mRouteSearch.longPress2Point(p1, p2);
-		//mPoiSearch.updateUIWithRoutePoint(p1, p2);
 		Message msg = new Message();
-		String textTochange = " The distance between the places is: "+p1.distanceTo(p2)/1000+"km";
+		String textTochange = " The distance between the places: "+p1.distanceTo(p2)/1000+"km";
 		msg.obj = textTochange;
 		mHandler.sendMessage(msg);
 		return true;
@@ -669,6 +667,14 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	Handler mHandler = new Handler(){
 		public void handleMessage(Message msg){
 			mapInfo = (TextView)findViewById(R.id.mapInfo);
+			mapInfo.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					mapInfo.setVisibility(View.INVISIBLE);
+					mRouteSearch.removeAllOverlay();
+				}
+			});
 			mapInfo.setText(msg.obj.toString());
 			mapInfo.setTextColor(Color.RED);
 			mapInfo.setVisibility(View.VISIBLE);

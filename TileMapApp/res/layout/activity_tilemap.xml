@@ -26,9 +26,15 @@
             android:id="@+id/mapInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/bonuspack_bubble"
             android:layout_gravity="left"
             android:ellipsize="end"
             android:maxEms="17"
+            android:layout_marginLeft="45dip"
+            android:layout_marginTop="20dip"
+            android:onClick="onClick"
+			android:clickable="true"
+            android:visibility="invisible"
             android:textColor="#404040" />
     
     <!-- android:background="@drawable/snap_to_position" -->

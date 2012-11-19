@@ -16,6 +16,7 @@
 package org.oscim.app;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -303,23 +305,32 @@ public class RouteSearch {
 	}
 	
 	void removeAllOverlay(){
+		removePoint(-2);
+		removePoint(-1);
+		this.viaPoints.clear();
 		List<Overlay> mapOverlays = tileMap.map.getOverlays();
+		//mapOverlays.clear();
 		if (mRoadOverlay != null) {
 			mapOverlays.remove(mRoadOverlay);
 		}
 		if (mRoadNodeMarkers != null) {
 			mapOverlays.remove(mRoadNodeMarkers);
 		}
+		if (itineraryMarkers != null){
+			mapOverlays.remove(itineraryMarkers);
+		}
+		final ArrayList<ExtendedOverlayItem> waypointsItems = new ArrayList<ExtendedOverlayItem>();
+		itineraryMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap.map, tileMap,
+				waypointsItems, new ViaPointInfoWindow(R.layout.itinerary_bubble, tileMap.map));
+		tileMap.map.getOverlays().add(itineraryMarkers);
+		
 		final ArrayList<ExtendedOverlayItem> roadItems = new ArrayList<ExtendedOverlayItem>();
 		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
 				tileMap.map);
 		tileMap.map.getOverlays().add(mRoadNodeMarkers);
 		
-		removePoint(-2);
-		removePoint(-1);
-		//tileMap.map.redrawMap();
-		getRoadAsync();
-		updateUIWithItineraryMarkers();
+		
+		tileMap.map.redrawMap();
 	}
 	
 	void setDistanceTextInvisible(){
@@ -348,8 +359,10 @@ public class RouteSearch {
 		protected void onPostExecute(Road result) {
 			mRoad = result;
 			updateUIWithRoad(result);
+			DecimalFormat twoDForm = new DecimalFormat("#.##");
 			tileMap.mapInfo.setText(tileMap.mapInfo.getText()+
-					"\n The route length is: "+result.length+"km \n Needed time: "+result.duration+"s");
+					"\n The route length: "+Double.valueOf(twoDForm.format(result.length))+"km \n Needed time: "
+					+Double.valueOf(twoDForm.format(result.duration/3600))+"hour");
 
 			/// ??? getPOIAsync(poiTagText.getText().toString());
 		}
