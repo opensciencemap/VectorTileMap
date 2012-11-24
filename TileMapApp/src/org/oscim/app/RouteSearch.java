@@ -328,7 +328,6 @@ public class RouteSearch {
 			ArrayList<GeoPoint> waypoints = wp[0].waypoints;
 			//RoadManager roadManager = new GoogleRoadManager();
 			RoadManager roadManager = new OSRMRoadManager();
-			roadManager.addRequestOption("");
 			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
 			 * locale = Locale.getDefault();
 			 * roadManager.addRequestOption("locale="+locale.getLanguage
