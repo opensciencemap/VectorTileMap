@@ -51,13 +51,13 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:windowSoftInputMode="stateHidden" />
 
-        <receiver 
+       <!--  <receiver 
             android:name=".ConnectionHandler"
             android:label="NetworkConnection" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
-        </receiver>
+        </receiver> -->
     </application>
 
 </manifest><!--
