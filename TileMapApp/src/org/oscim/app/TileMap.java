@@ -146,6 +146,39 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		}
 	}
 
+	private void setMapDatabase(SharedPreferences preferences) {
+		MapDatabases mapDatabaseNew;
+		String dbname = preferences.getString("mapDatabase",
+				MapDatabases.PBMAP_READER.name());
+
+		try {
+			mapDatabaseNew = MapDatabases.valueOf(dbname);
+		} catch (IllegalArgumentException e) {
+			mapDatabaseNew = MapDatabases.PBMAP_READER;
+		}
+
+		if (mapDatabaseNew != mMapDatabase) {
+			Log.d(TAG, "set map database " + mapDatabaseNew);
+			MapOptions options = new MapOptions(mapDatabaseNew);
+
+			switch (mapDatabaseNew) {
+			case PBMAP_READER:
+				options.put("url",
+						"http://city.informatik.uni-bremen.de:80/osmstache/test/");
+				break;
+			case OSCIMAP_READER:
+				options.put("url",
+						"http://city.informatik.uni-bremen.de:80/osci/oscim/");
+				break;
+			default:
+				break;
+			}
+
+			map.setMapDatabase(options);
+			mMapDatabase = mapDatabaseNew;
+		}
+	}
+	
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -460,39 +493,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		} else {
 			super.onPrepareDialog(id, dialog);
-		}
-	}
-
-	private void setMapDatabase(SharedPreferences preferences) {
-		MapDatabases mapDatabaseNew;
-		String dbname = preferences.getString("mapDatabase",
-				MapDatabases.PBMAP_READER.name());
-
-		try {
-			mapDatabaseNew = MapDatabases.valueOf(dbname);
-		} catch (IllegalArgumentException e) {
-			mapDatabaseNew = MapDatabases.PBMAP_READER;
-		}
-
-		if (mapDatabaseNew != mMapDatabase) {
-			Log.d(TAG, "set map database " + mapDatabaseNew);
-			MapOptions options = new MapOptions(mapDatabaseNew);
-
-			switch (mapDatabaseNew) {
-			case PBMAP_READER:
-				options.put("url",
-						"http://city.informatik.uni-bremen.de:80/osmstache/test/");
-				break;
-			case OSCIMAP_READER:
-				options.put("url",
-						"http://city.informatik.uni-bremen.de:80/osci/oscim/");
-				break;
-			default:
-				break;
-			}
-
-			map.setMapDatabase(options);
-			mMapDatabase = mapDatabaseNew;
 		}
 	}
 
