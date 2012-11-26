@@ -26,7 +26,7 @@
             android:id="@+id/mapInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bonuspack_bubble"
+            android:background="@drawable/info_window"
             android:layout_gravity="left"
             android:ellipsize="end"
             android:maxEms="17"

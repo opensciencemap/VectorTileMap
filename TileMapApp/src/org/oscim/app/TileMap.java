@@ -668,7 +668,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		public void handleMessage(Message msg){
 			mapInfo = (TextView)findViewById(R.id.mapInfo);
 			mapInfo.setOnClickListener(new View.OnClickListener() {
-				
 				@Override
 				public void onClick(View v) {
 					mapInfo.setVisibility(View.INVISIBLE);

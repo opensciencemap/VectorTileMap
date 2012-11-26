@@ -29,6 +29,7 @@ import org.osmdroid.location.GeocoderNominatim;
 import org.osmdroid.overlays.DefaultInfoWindow;
 import org.osmdroid.overlays.ExtendedOverlayItem;
 import org.osmdroid.overlays.ItemizedOverlayWithBubble;
+import org.osmdroid.routing.GoogleRoadManager;
 import org.osmdroid.routing.OSRMRoadManager;
 import org.osmdroid.routing.Road;
 import org.osmdroid.routing.RoadManager;
@@ -346,7 +347,7 @@ public class RouteSearch {
 		protected Road doInBackground(WayPoints... wp) {
 			ArrayList<GeoPoint> waypoints = wp[0].waypoints;
 			//RoadManager roadManager = new GoogleRoadManager();
-			RoadManager roadManager = new OSRMRoadManager();
+			RoadManager roadManager = new GoogleRoadManager();
 			roadManager.addRequestOption("");
 			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
 			 * locale = Locale.getDefault();
