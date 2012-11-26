@@ -12,23 +12,32 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oscim.renderer;
+package org.oscim.database;
 
-/**
- * use with TileManager.getActiveTiles(Tiles) to get the current tiles. tiles
- * are locked to not be modifed until getActiveTiles passes them back on a
- * second invocation or TODO: implement TileManager.releaseTiles(Tiles).
- */
-public final class Tiles {
-	public int cnt = 0;
-	public MapTile[] tiles;
+import java.util.HashMap;
 
-	int serial;
+public class MapOptions extends HashMap<String, String> {
 
-	Tiles() {
+	private static final long serialVersionUID = 1L;
+
+	public final MapDatabases db;
+
+	public MapOptions(MapDatabases db) {
+		this.db = db;
 	}
 
-	Tiles(int numTiles) {
-		tiles = new MapTile[numTiles];
+	@Override
+	public boolean equals(Object other) {
+		if (!(other instanceof MapOptions))
+			return false;
+
+		if (this.db != ((MapOptions) other).db)
+			return false;
+
+		// FIXME test if this is correct!
+		if (!this.entrySet().equals(((MapOptions) other).entrySet()))
+			return false;
+
+		return true;
 	}
 }

@@ -1,6 +1,9 @@
 VectorTileMap/backup/*
 VectorTileMap/gen/*
 VectorTileMap/local.properties
+TileMapApp/gen/*
+TileMapApp/proguard/*
+TileMapExample/gen/*
 backup/*
 VectorTileMap/proguard/*
 */target/*

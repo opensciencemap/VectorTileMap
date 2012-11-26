@@ -61,8 +61,8 @@ public class TileManager {
 
 	static int mUpdateCnt;
 	static Object tilelock = new Object();
-	static Tiles mCurrentTiles;
-	/* package */static Tiles mNewTiles;
+	static TileSet mCurrentTiles;
+	/* package */static TileSet mNewTiles;
 
 	static int tileCounter;
 
@@ -171,8 +171,6 @@ public class TileManager {
 			// clear all tiles references
 			Log.d(TAG, "CLEAR " + mInitial);
 
-			mUpdateCnt = 0;
-
 			if (clear) {
 				// pass VBOs and VertexItems back to pools
 				for (MapTile t : mTiles)
@@ -187,16 +185,20 @@ public class TileManager {
 			mTiles.clear();
 			mTilesLoaded.clear();
 
+			//mUpdateCnt = 0;
+			for (TileSet td : mTileSets)
+				td.cnt = 0;
+
 			// set up TileData arrays that are passed to gl-thread
 			int num = Math.max(mWidth, mHeight);
 			int size = Tile.TILE_SIZE >> 1;
 			int numTiles = (num * num) / (size * size) * 4;
-			mNewTiles = new Tiles(numTiles);
-			mCurrentTiles = new Tiles(numTiles);
+			mNewTiles = new TileSet(numTiles);
+			mCurrentTiles = new TileSet(numTiles);
 
 			GLRenderer.drawlock.unlock();
 
-			// .. make sure mMapPosition will be updated
+			// make sure mMapPosition will be updated
 			mMapPosition.zoomLevel = -1;
 			mInitial = false;
 		}
@@ -239,7 +241,10 @@ public class TileManager {
 		}
 	}
 
-	public static Tiles getActiveTiles(Tiles td) {
+	/// EEEK, need to keep track of TileSets to clear on reset...
+	private static ArrayList<TileSet> mTileSets = new ArrayList<TileSet>(2);
+
+	public static TileSet getActiveTiles(TileSet td) {
 		if (mCurrentTiles == null)
 			return td;
 
@@ -258,12 +263,14 @@ public class TileManager {
 			MapTile[] nextTiles;
 
 			if (td == null) {
-				td = new Tiles(newTiles.length);
-			} else if (td.serial > mUpdateCnt) {
-				Log.d(TAG, "ignore previous tile data " + td.cnt);
-				// tile data was cleared, ignore tiles
-				td.cnt = 0;
+				td = new TileSet(newTiles.length);
+				mTileSets.add(td);
 			}
+			// else if (td.serial > mUpdateCnt) {
+			// Log.d(TAG, "ignore previous tile data " + td.cnt);
+			// // tile data was cleared, ignore tiles
+			// td.cnt = 0;
+			// }
 			nextTiles = td.tiles;
 
 			// unlock previously active tiles
@@ -280,7 +287,7 @@ public class TileManager {
 		return td;
 	}
 
-	// public void releaseTiles(Tiles tiles) {
+	// public void releaseTiles(TileSet tiles) {
 	//
 	// }
 
@@ -332,7 +339,7 @@ public class TileManager {
 				for (int i = 0, n = mCurrentTiles.cnt; i < n; i++)
 					curTiles[i].unlock();
 
-				Tiles tmp = mCurrentTiles;
+				TileSet tmp = mCurrentTiles;
 				mCurrentTiles = mNewTiles;
 				mNewTiles = tmp;
 
@@ -536,7 +543,7 @@ public class TileManager {
 
 			if (t.isLocked()) {
 				// dont remove tile used by GLRenderer, or somewhere else
-				Log.d(TAG, "X not removing " + t + " " + t.distance);
+				Log.d(TAG, "limitCache: tile still locked " + t + " " + t.distance);
 				mTiles.add(t);
 			} else if (t.isLoading) {
 				// NOTE: if we add tile back and set loading=false, on next
@@ -548,7 +555,7 @@ public class TileManager {
 				// processed in TileGenerator => need tile.cancel flag.
 				// t.isLoading = false;
 				mTiles.add(t);
-				Log.d(TAG, "X cancel loading " + t + " " + t.distance);
+				Log.d(TAG, "limitCache: cancel loading " + t + " " + t.distance);
 			} else {
 				clearTile(t);
 			}

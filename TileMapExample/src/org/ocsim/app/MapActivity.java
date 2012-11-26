@@ -1,8 +1,10 @@
 package org.ocsim.app;
 
+import org.oscim.database.MapDatabases;
+import org.oscim.database.MapOptions;
 import org.oscim.view.MapView;
 
-import android.app.Activity;
+import android.R;
 import android.os.Bundle;
 import android.view.Menu;
 
@@ -16,12 +18,15 @@ public class MapActivity extends org.oscim.view.MapActivity {
         setContentView(R.layout.activity_map);
         
         mMap = (MapView) findViewById(R.id.mapView);
-
-
+        
+        MapOptions options = new MapOptions(MapDatabases.PBMAP_READER);
+        options.put("url", "http://city.informatik.uni-bremen.de:80/osmstache/test/");
+        mMap.setMapDatabase(options);
+        
 		// configure the MapView and activate the zoomLevel buttons
 		mMap.setClickable(true);
-		// map.setBuiltInZoomControls(true);
 		mMap.setFocusable(true);
+		//mMap.getOverlayManager().add(new EventsOverlay());
     }
 
     @Override

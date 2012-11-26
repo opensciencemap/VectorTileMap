@@ -26,8 +26,6 @@ import org.oscim.renderer.layer.Layer;
 import org.oscim.renderer.layer.Layers;
 import org.oscim.renderer.layer.LineLayer;
 import org.oscim.renderer.layer.PolygonLayer;
-import org.oscim.renderer.layer.SymbolItem;
-import org.oscim.renderer.layer.SymbolLayer;
 import org.oscim.renderer.layer.TextItem;
 import org.oscim.theme.IRenderCallback;
 import org.oscim.theme.RenderTheme;
@@ -303,18 +301,18 @@ public class TileGenerator implements IRenderCallback, IMapDatabaseCallback {
 	public void renderPointOfInterestSymbol(Bitmap bitmap) {
 		// Log.d(TAG, "add symbol");
 
-		if (mLayers.textureLayers == null)
-			mLayers.textureLayers = new SymbolLayer();
-
-		SymbolLayer sl = (SymbolLayer) mLayers.textureLayers;
-
-		SymbolItem it = SymbolItem.get();
-		it.x = mPoiX;
-		it.y = mPoiY;
-		it.bitmap = bitmap;
-		it.billboard = true;
-
-		sl.addSymbol(it);
+		//		if (mLayers.textureLayers == null)
+		//			mLayers.textureLayers = new SymbolLayer();
+		//
+		//		SymbolLayer sl = (SymbolLayer) mLayers.textureLayers;
+		//
+		//		SymbolItem it = SymbolItem.get();
+		//		it.x = mPoiX;
+		//		it.y = mPoiY;
+		//		it.bitmap = bitmap;
+		//		it.billboard = true;
+		//
+		//		sl.addSymbol(it);
 	}
 
 	@Override
@@ -480,6 +478,9 @@ public class TileGenerator implements IRenderCallback, IMapDatabaseCallback {
 	private String mMapProjection;
 
 	public void setMapDatabase(IMapDatabase mapDatabase) {
+		if (mMapDatabase != null)
+			mMapDatabase.close();
+
 		mMapDatabase = mapDatabase;
 		mMapProjection = mMapDatabase.getMapProjection();
 	}
