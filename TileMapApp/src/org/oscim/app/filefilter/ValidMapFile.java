@@ -15,11 +15,12 @@
 package org.oscim.app.filefilter;
 
 import java.io.File;
-import java.util.HashMap;
 
 import org.oscim.database.IMapDatabase;
+import org.oscim.database.MapDatabases;
 import org.oscim.database.OpenResult;
 import org.oscim.database.mapfile.MapDatabase;
+import org.oscim.database.MapOptions;
 
 /**
  * Accepts all valid map files.
@@ -30,8 +31,8 @@ public final class ValidMapFile implements ValidFileFilter {
 	@Override
 	public boolean accept(File file) {
 		IMapDatabase mapDatabase = new MapDatabase();
-		HashMap<String, String> options = new HashMap<String, String>();
-		options.put("mapfile", file.getAbsolutePath());
+		MapOptions options = new MapOptions(MapDatabases.MAP_READER);
+		options.put("file", file.getAbsolutePath());
 
 		this.openResult = mapDatabase.open(options);
 
