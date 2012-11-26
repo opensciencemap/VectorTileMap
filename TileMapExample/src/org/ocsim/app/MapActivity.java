@@ -25,7 +25,7 @@ public class MapActivity extends org.oscim.view.MapActivity {
 		// configure the MapView and activate the zoomLevel buttons
 		mMap.setClickable(true);
 		mMap.setFocusable(true);
-		mMap.getOverlayManager().add(new EventsOverlay());
+		//mMap.getOverlayManager().add(new EventsOverlay());
     }
 
     @Override
