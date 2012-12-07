@@ -17,9 +17,9 @@ package org.oscim.renderer.layer;
 import org.oscim.core.Tile;
 import org.oscim.renderer.GLRenderer;
 import org.oscim.theme.renderinstruction.Line;
+import org.oscim.view.MapView;
 
 import android.graphics.Paint.Cap;
-import android.util.FloatMath;
 
 public final class LineLayer extends Layer {
 
@@ -83,6 +83,10 @@ public final class LineLayer extends Layer {
 		short v[] = si.vertices;
 		int opos = si.used;
 
+		// FIXME: remove this when switching to oscimap MapDatabase
+		if (!MapView.enableClosePolygons)
+			closed = false;
+
 		for (int i = 0, pos = 0, n = index.length; i < n; i++) {
 
 			int length = index[i];
@@ -100,9 +104,6 @@ public final class LineLayer extends Layer {
 				pos += length;
 				continue;
 			}
-
-			// FIXME: remove this when switching to oscimap MapDatabase
-			closed = false;
 
 			// amount of vertices used
 			// + 2 for drawing triangle-strip
@@ -122,7 +123,7 @@ public final class LineLayer extends Layer {
 			vx = nextX - x;
 			vy = nextY - y;
 
-			a = FloatMath.sqrt(vx * vx + vy * vy);
+			a = (float) Math.sqrt(vx * vx + vy * vy);
 
 			vx = (vx / a);
 			vy = (vy / a);
@@ -289,14 +290,14 @@ public final class LineLayer extends Layer {
 				// Unit vector pointing back to previous node
 				vx = prevX - x;
 				vy = prevY - y;
-				a = FloatMath.sqrt(vx * vx + vy * vy);
+				a = (float) Math.sqrt(vx * vx + vy * vy);
 				vx = (vx / a);
 				vy = (vy / a);
 
 				// Unit vector pointing forward to next node
 				wx = nextX - x;
 				wy = nextY - y;
-				a = FloatMath.sqrt(wx * wx + wy * wy);
+				a = (float) Math.sqrt(wx * wx + wy * wy);
 				wx = (wx / a);
 				wy = (wy / a);
 
@@ -369,7 +370,7 @@ public final class LineLayer extends Layer {
 			vx = prevX - x;
 			vy = prevY - y;
 
-			a = FloatMath.sqrt(vx * vx + vy * vy);
+			a = (float) Math.sqrt(vx * vx + vy * vy);
 
 			vx = (vx / a);
 			vy = (vy / a);

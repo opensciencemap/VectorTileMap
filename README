@@ -1,7 +1,2 @@
-VectorTileMap is a vector-tile map viewer currently developed at University of Bremen. 
-This application is based on mapsforge and extends it with an OpenGL renderer to enable 
-continuous scaling of the map view (http://code.google.com/p/mapsforge/). An additional 
-PostGIS backend is also under develpment which is intended to ease creation and 
-compilation of multi-resolution maps from different data sources. 
-
-precompiled binaries and maps are at http://code.google.com/p/vector-tile-map/downloads
+VectorTileMap is part of the OpenScienceMap project, developed at University of Bremen. 
+http://www.opensciencemap.org
