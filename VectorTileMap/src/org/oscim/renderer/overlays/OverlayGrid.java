@@ -16,6 +16,9 @@ package org.oscim.renderer.overlays;
 
 import org.oscim.core.MapPosition;
 import org.oscim.core.Tile;
+import org.oscim.renderer.MapTile;
+import org.oscim.renderer.TileManager;
+import org.oscim.renderer.TileSet;
 import org.oscim.renderer.layer.Layer;
 import org.oscim.renderer.layer.LineLayer;
 import org.oscim.renderer.layer.TextItem;
@@ -30,9 +33,11 @@ import android.util.Log;
 
 public class OverlayGrid extends RenderOverlay {
 
+	private TileSet tiles;
 	private float[] mPoints;
 	private short[] mIndex;
 	private Text mText;
+	final static String TAG = "OverlayGrid";
 
 	public OverlayGrid(MapView mapView) {
 		super(mapView);
@@ -74,24 +79,57 @@ public class OverlayGrid extends RenderOverlay {
 		int size = Tile.TILE_SIZE;
 
 		TextLayer tl = new TextLayer();
-
+		tiles = TileManager.getActiveTiles(tiles);
+		//for (int index = 0; index < tiles.cnt; index++) {
+		//Log.d(TAG, "tile is: " + tiles.tiles[index].isVisible);
+		//if (!tiles.tiles[index].isVisible) {
 		for (int i = -2; i < 2; i++) {
 			for (int j = -2; j < 2; j++) {
-				TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
-						(x + j) + " / " + (y + i) + " / " + z, mText);
+				//tiles = TileManager.getActiveTiles(tiles);
+				//Log.d(TAG, "tiles number: " + tiles.cnt);
+				//TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
+				//	(x + j) + " / " + (y + i) + " / " + z, mText);
+				for (MapTile t : tiles.tiles) {
+					if (t != null && t.tileX == x + j && t.tileY == y + i && t.isEmpty) {
+						//						Log.d(TAG, "tileX: " + t.tileX + "; tileY: " + t.tileY + "; x: " + x
+						//								+ "; y: " + y + "; z:" + z + "; i:" + i + "; j:" + j);
+						//						TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
+						//								(x + j) + " / " + (y + i) + " / " + z, mText);
+						TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
+								"no data", mText);
+						TextItem ti2 = TextItem.get().set(size * j + size / 2,
+								size * i + size / 2 + mText.fontDescent + mText.fontHeight,
+								"check the connection", mText);
+						ti.x1 = 0;
+						ti.y1 = 1; // (short) (size / 2);
+						ti.x2 = 1; // (short) size;
+						ti.y2 = 1; // (short) (size / 2);
+
+						ti2.x1 = 0;
+						ti2.y1 = 1; // (short) (size / 2);
+						ti2.x2 = 1; // (short) size;
+						ti2.y2 = 1; // (short) (size / 2);
+						tl.addText(ti);
+						tl.addText(ti2);
+					}
+
+				}
 
 				// TextItem ti = new TextItem(size * j + size / 2, size * i +
 				// size / 2,
 				// (x + j) + " / " + (y + i) + " / " + z, mText);
 
 				// rotation, TODO could also be used for slide range
-				ti.x1 = 0;
-				ti.y1 = 1; // (short) (size / 2);
-				ti.x2 = 1; // (short) size;
-				ti.y2 = 1; // (short) (size / 2);
-				tl.addText(ti);
+				//				ti.x1 = 0;
+				//				ti.y1 = 1; // (short) (size / 2);
+				//				ti.x2 = 1; // (short) size;
+				//				ti.y2 = 1; // (short) (size / 2);
+				//				tl.addText(ti);
 			}
+			//}
+			//}
 		}
+
 		tl.prepare();
 
 		layers.textureLayers = tl;
@@ -110,7 +148,8 @@ public class OverlayGrid extends RenderOverlay {
 	}
 
 	@Override
-	public synchronized void update(MapPosition curPos, boolean positionChanged, boolean tilesChanged) {
+	public synchronized void update(MapPosition curPos, boolean positionChanged,
+			boolean tilesChanged) {
 
 		updateMapPosition();
 
@@ -135,7 +174,7 @@ public class OverlayGrid extends RenderOverlay {
 			LineLayer ll = (LineLayer) layers.getLayer(1, Layer.LINE);
 			ll.line = new Line(Color.BLUE, 1.0f, Cap.BUTT);
 			ll.width = 1.5f;
-			ll.addLine(mPoints, mIndex, false);
+			//ll.addLine(mPoints, mIndex, false);
 
 			Log.d("...", "update labels");
 

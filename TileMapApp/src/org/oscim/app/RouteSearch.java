@@ -47,11 +47,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class RouteSearch {
+	private static final String TAG = "RouteSearch";
 	protected Road mRoad;
 	protected PathOverlay mRoadOverlay;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> mRoadNodeMarkers;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> itineraryMarkers;
-
+	
 	protected GeoPoint startPoint, destinationPoint;
 	protected ArrayList<GeoPoint> viaPoints;
 	protected static int START_INDEX = -2, DEST_INDEX = -1;
@@ -351,7 +352,8 @@ public class RouteSearch {
 			//			RoadManager roadManager = new GoogleRoadManager();
 			//			roadManager.addRequestOption("");
 			//=======
-			RoadManager roadManager = new OSRMRoadManager();
+			//RoadManager roadManager = new OSRMRoadManager();
+			RoadManager roadManager = new GoogleRoadManager();
 			//>>>>>>> master
 			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
 			 * locale = Locale.getDefault();
@@ -365,10 +367,21 @@ public class RouteSearch {
 			mRoad = result;
 			updateUIWithRoad(result);
 			DecimalFormat twoDForm = new DecimalFormat("#.##");
-			tileMap.mapInfo.setText(tileMap.mapInfo.getText() +
-					"\n The route length: " + Double.valueOf(twoDForm.format(result.length))
-					+ "km \n Needed time: "
-					+ Double.valueOf(twoDForm.format(result.duration / 3600)) + "hour");
+			int hour =  ((int)result.duration / 3600);
+			int minute = ((int)result.duration%3600)/60;
+			String time = "";
+			if(hour == 0){
+				time = minute+"min";
+			}else{
+				time = hour+"hour "+minute+"min";
+			}
+			Log.d(TAG,"Hour: "+hour+" Min: "+minute+" Duration: "+result.duration);
+			tileMap.mapInfo.setVisibility(View.VISIBLE);
+			tileMap.mapInfo.setText(" Direct dicetance: "+Double.valueOf(twoDForm.format(Double.valueOf(startPoint.distanceTo(destinationPoint))/1000))+" km" +
+					"\n Shortest path: " + Double.valueOf(twoDForm.format(result.length))
+					+ " km \n By car: "
+					+time);
+					//+ Double.valueOf(twoDForm.format(result.duration / 3600)) + " hour");
 
 			/// ??? getPOIAsync(poiTagText.getText().toString());
 		}

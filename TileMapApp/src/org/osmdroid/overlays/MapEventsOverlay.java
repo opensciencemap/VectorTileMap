@@ -4,7 +4,6 @@ import org.oscim.core.GeoPoint;
 import org.oscim.overlay.Overlay;
 import org.oscim.view.MapView;
 import android.content.Context;
-import android.util.Log;
 import android.view.MotionEvent;
 
 /**

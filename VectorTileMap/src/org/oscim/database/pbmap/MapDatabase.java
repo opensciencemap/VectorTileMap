@@ -16,9 +16,6 @@ package org.oscim.database.pbmap;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,6 +31,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.oscim.cache.CachingManager;
+import org.oscim.cache.MultiCachingFileManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.Tag;
@@ -64,7 +63,7 @@ public class MapDatabase implements IMapDatabase {
 
 	private boolean mOpenFile = false;
 
-	private static final boolean USE_CACHE = false;
+	private static final boolean USE_CACHE = true;
 
 	//	private static final boolean USE_APACHE_HTTP = false;
 	//	private static final boolean USE_LW_HTTP = true;
@@ -95,13 +94,15 @@ public class MapDatabase implements IMapDatabase {
 	private IMapDatabaseCallback mMapGenerator;
 	private float mScaleFactor;
 	private JobTile mTile;
-	private FileOutputStream mCacheFile;
+	//private FileOutputStream mCacheFile;
 
 	private String mHost;
 	private int mPort;
 	private long mContentLenth;
 	private InputStream mInputStream;
+	CachingManager cManager = new MultiCachingFileManager();
 
+	private boolean mCaching;
 	private static final int MAX_TAGS_CACHE = 100;
 
 	private static Map<String, Tag> tagHash = Collections
@@ -121,7 +122,8 @@ public class MapDatabase implements IMapDatabase {
 	@Override
 	public QueryResult executeQuery(JobTile tile, IMapDatabaseCallback mapDatabaseCallback) {
 		QueryResult result = QueryResult.SUCCESS;
-		mCacheFile = null;
+		//mCacheFile = null;
+		mCaching = false;
 
 		mTile = tile;
 
@@ -143,8 +145,22 @@ public class MapDatabase implements IMapDatabase {
 					Integer.valueOf(tile.tileX),
 					Integer.valueOf(tile.tileY)));
 
-			if (cacheRead(tile, f))
-				return QueryResult.SUCCESS;
+			//			if (cacheRead(tile, f))
+			//				return QueryResult.SUCCESS;
+			try {
+				mInputStream = cManager.cacheReadBegin(tile);
+				if (mInputStream != null) {
+					mContentLenth = f.length();
+					tile.isEmpty = false;
+					decode();
+					cManager.cacheReadFinish();
+					return QueryResult.SUCCESS;
+				}
+				//return QueryResult.FAILED;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return QueryResult.FAILED;
+			}
 		}
 
 		//		String url = null;
@@ -165,7 +181,10 @@ public class MapDatabase implements IMapDatabase {
 		try {
 			//			if (USE_LW_HTTP) {
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() > 0) {
-				cacheBegin(tile, f);
+				//cacheBegin(tile, f);
+				cManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+				mCaching = true;
+				tile.isEmpty = false;
 				decode();
 			} else {
 				result = QueryResult.FAILED;
@@ -225,6 +244,7 @@ public class MapDatabase implements IMapDatabase {
 			result = QueryResult.FAILED;
 		} catch (UnknownHostException ex) {
 			Log.d(TAG, "no network");
+			//tile.isEmpty = true;
 			result = QueryResult.FAILED;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -236,10 +256,27 @@ public class MapDatabase implements IMapDatabase {
 		//		if (USE_APACHE_HTTP)
 		//			mRequest = null;
 
-		cacheFinish(tile, f, result == QueryResult.SUCCESS);
+		cManager.cacheFinish(tile, result == QueryResult.SUCCESS);
+		//cacheFinish(tile, f, result == QueryResult.SUCCESS);
 
 		return result;
 	}
+
+	//	private boolean CachingManagerRead(Tile tile, File f) {
+	//		try {
+	//			mInputStream = cManager.cacheReadBegin(tile);
+	//			if (mInputStream != null) {
+	//				mContentLenth = f.length();
+	//				decode();
+	//				cManager.cacheReadFinish();
+	//				return true;
+	//			}
+	//		} catch (IOException e) {
+	//			// TODO Auto-generated catch block
+	//			e.printStackTrace();
+	//		}
+	//		return false;
+	//	}
 
 	private static File cacheDir;
 
@@ -885,9 +922,9 @@ public class MapDatabase implements IMapDatabase {
 			read += len;
 			mReadPos += len;
 
-			if (mCacheFile != null)
-				mCacheFile.write(mReadBuffer, mBufferSize, len);
-
+			if (mCaching)
+				//mCacheFile.write(mReadBuffer, mBufferSize, len);
+				cManager.cacheWrite(mReadBuffer, mBufferSize, len);
 			//			if (USE_LW_HTTP) {
 			if (mReadPos == mContentLenth)
 				break;
@@ -1059,11 +1096,10 @@ public class MapDatabase implements IMapDatabase {
 		return resp_len;
 	}
 
-	private boolean lwHttpSendRequest(Tile tile) throws IOException {
+	private boolean lwHttpSendRequest(JobTile tile) throws IOException {
 		if (mSockAddr == null) {
 			mSockAddr = new InetSocketAddress(mHost, mPort);
 		}
-
 		if (mSocket != null && ((mMaxReq-- <= 0)
 				|| (SystemClock.elapsedRealtime() - mLastRequest
 				> RESPONSE_EXPECTED_TIMEOUT))) {
@@ -1074,17 +1110,25 @@ public class MapDatabase implements IMapDatabase {
 
 			}
 
-			// Log.d(TAG, "not alive  - recreate connection " + mMaxReq);
+			//Log.d(TAG, "not alive  - recreate connection " + mMaxReq);
 			mSocket = null;
 		}
 
 		if (mSocket == null) {
-			lwHttpConnect();
+			if (!lwHttpConnect(tile)) {
+				Log.d(TAG, "EEEEK! " + tile);
+				return false;
+			}
 			// we know our server
 			mMaxReq = RESPONSE_EXPECTED_LIVES;
-			// Log.d(TAG, "create connection");
+			//Log.d(TAG, "create connection");
 		} else {
 			// should not be needed
+			if (mResponseStream == null) {
+				mSocket = null;
+				lwHttpConnect(tile);
+				mMaxReq = RESPONSE_EXPECTED_LIVES;
+			}
 			int avail = mResponseStream.available();
 			if (avail > 0) {
 				Log.d(TAG, "Consume left-over bytes: " + avail);
@@ -1118,7 +1162,7 @@ public class MapDatabase implements IMapDatabase {
 			Log.d(TAG, "retry - recreate connection");
 		}
 
-		lwHttpConnect();
+		lwHttpConnect(tile);
 
 		mCommandStream.write(request, 0, len);
 		mCommandStream.flush();
@@ -1126,21 +1170,30 @@ public class MapDatabase implements IMapDatabase {
 		return true;
 	}
 
-	private boolean lwHttpConnect() throws IOException {
+	private boolean lwHttpConnect(JobTile tile) {
 		//		if (mRequestBuffer == null) {
 		//			mRequestBuffer = new byte[1024];
 		//			System.arraycopy(REQUEST_GET_START,
 		//					0, mRequestBuffer, 0,
 		//					REQUEST_GET_START.length);
 		//		}
+		try {
+			mSocket = new Socket();
+			mSocket.connect(mSockAddr, 30000);
+			mSocket.setTcpNoDelay(true);
+			// mCmdBuffer = new PrintStream(mSocket.getOutputStream());
+			mCommandStream = new BufferedOutputStream(mSocket.getOutputStream());
+			mResponseStream = mSocket.getInputStream();
 
-		mSocket = new Socket();
-		mSocket.connect(mSockAddr, 30000);
-		mSocket.setTcpNoDelay(true);
-		// mCmdBuffer = new PrintStream(mSocket.getOutputStream());
-		mCommandStream = new BufferedOutputStream(mSocket.getOutputStream());
-		mResponseStream = mSocket.getInputStream();
+		} catch (Exception e) {
+			//e.printStackTrace();
+			Log.d(TAG, "no network in LW_HTTP_CONNECTION");
+			tile.isEmpty = true;
+			mSocket = null;
+			return false;
+		}
 		return true;
+
 	}
 
 	// write (positive) integer as char sequence to buffer
@@ -1167,77 +1220,77 @@ public class MapDatabase implements IMapDatabase {
 
 	// //////////////////////////// Tile cache ///////////////////////////////
 
-	private boolean cacheRead(Tile tile, File f) {
-		if (f.exists() && f.length() > 0) {
-			FileInputStream in;
+	//	private boolean cacheRead(Tile tile, File f) {
+	//		if (f.exists() && f.length() > 0) {
+	//			FileInputStream in;
+	//
+	//			try {
+	//				in = new FileInputStream(f);
+	//
+	//				mContentLenth = f.length();
+	//				Log.d(TAG, tile + " using cache: " + mContentLenth);
+	//				mInputStream = in;
+	//
+	//				decode();
+	//				in.close();
+	//
+	//				return true;
+	//
+	//			} catch (FileNotFoundException e) {
+	//				e.printStackTrace();
+	//			} catch (Exception ex) {
+	//				ex.printStackTrace();
+	//			}
+	//
+	//			f.delete();
+	//			return false;
+	//		}
+	//
+	//		return false;
+	//	}
 
-			try {
-				in = new FileInputStream(f);
-
-				mContentLenth = f.length();
-				Log.d(TAG, tile + " using cache: " + mContentLenth);
-				mInputStream = in;
-
-				decode();
-				in.close();
-
-				return true;
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-
-			f.delete();
-			return false;
-		}
-
-		return false;
-	}
-
-	private boolean cacheBegin(Tile tile, File f) {
-		if (USE_CACHE) {
-			try {
-				Log.d(TAG, "writing cache: " + tile);
-				mCacheFile = new FileOutputStream(f);
-
-				if (mReadPos > 0) {
-					try {
-						mCacheFile.write(mReadBuffer, mBufferPos,
-								mBufferSize - mBufferPos);
-
-					} catch (IOException e) {
-						e.printStackTrace();
-						mCacheFile = null;
-						return false;
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				mCacheFile = null;
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private void cacheFinish(Tile tile, File file, boolean success) {
-		if (USE_CACHE) {
-			if (success) {
-				try {
-					mCacheFile.flush();
-					mCacheFile.close();
-					Log.d(TAG, tile + " cache written " + file.length());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				file.delete();
-			}
-		}
-		mCacheFile = null;
-	}
+	//	private boolean cacheBegin(Tile tile, File f) {
+	//		if (USE_CACHE) {
+	//			try {
+	//				Log.d(TAG, "writing cache: " + tile);
+	//				mCacheFile = new FileOutputStream(f);
+	//
+	//				if (mReadPos > 0) {
+	//					try {
+	//						mCacheFile.write(mReadBuffer, mBufferPos,
+	//								mBufferSize - mBufferPos);
+	//
+	//					} catch (IOException e) {
+	//						e.printStackTrace();
+	//						mCacheFile = null;
+	//						return false;
+	//					}
+	//				}
+	//			} catch (FileNotFoundException e) {
+	//				e.printStackTrace();
+	//				mCacheFile = null;
+	//				return false;
+	//			}
+	//		}
+	//		return true;
+	//	}
+	//
+	//	private void cacheFinish(Tile tile, File file, boolean success) {
+	//		if (USE_CACHE) {
+	//			if (success) {
+	//				try {
+	//					mCacheFile.flush();
+	//					mCacheFile.close();
+	//					Log.d(TAG, tile + " cache written " + file.length());
+	//				} catch (IOException e) {
+	//					e.printStackTrace();
+	//				}
+	//			} else {
+	//				file.delete();
+	//			}
+	//		}
+	//		mCacheFile = null;
+	//	}
 
 	/* All code below is taken from or based on Google's Protocol Buffers
 	 * implementation: */

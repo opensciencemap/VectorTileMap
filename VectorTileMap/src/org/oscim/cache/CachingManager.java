@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Hannes Janetzek
+ * Copyright 2010, 2011, 2012 mapsforge.org
  *
  * This program is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free Software
@@ -12,28 +12,20 @@
  * You should have received a copy of the GNU Lesser General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.oscim.app;
+package org.oscim.cache;
 
-import org.oscim.view.MapView;
+import java.io.InputStream;
 
-import android.app.Application;
-import android.content.res.Resources;
+import org.oscim.core.Tile;
 
-// see http://androidcookbook.com : Android's Application Object as a "Singleton"
-public class App extends Application {
+public interface CachingManager {
+	boolean cacheBegin(Tile tile, byte[] readBuffer, int bufferPos, int bufferSize);
 
-	public static final String TAG = "TileMap";
-	static MapView map;
-	static POISearch poiSearch;
-	static Resources res;
-	public static TileMap mainActivity;
+	void cacheFinish(Tile tile, boolean success);
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
-		res = getResources();
-		// Log.d("...", ">>>>>>>>  INIT <<<<<<<");
-		// sInstance = this;
-		// sInstance.initializeInstance();
-	}
+	InputStream cacheReadBegin(Tile tile);
+
+	void cacheReadFinish();
+
+	void cacheWrite(byte[] readBuffer, int bufferSize, int len);
 }

@@ -41,8 +41,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
@@ -150,6 +148,16 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				Log.d(TAG, "got intent >>> " + (scheme == null ? "" : scheme));
 			}
 		}
+		mapInfo = (TextView)findViewById(R.id.mapInfo);
+		mapInfo.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				mapInfo.setVisibility(View.INVISIBLE);
+				mRouteSearch.removeAllOverlay();
+			}
+		});
+		mapInfo.setTextColor(Color.RED);
+		mapInfo.setVisibility(View.INVISIBLE);
 	}
 
 	private void setMapDatabase(SharedPreferences preferences) {
@@ -174,7 +182,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				break;
 			case OSCIMAP_READER:
 				options.put("url",
-						"http://city.informatik.uni-bremen.de:80/osci/oscim/");
+						"http://city.informatik.uni-bremen.de:8000/");
 				break;
 			default:
 				break;
@@ -665,30 +673,16 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	}
 
 	@Override
-	public boolean longPressHelperFor2Finger(GeoPoint p1, GeoPoint p2) {
+	public boolean longPressHelperFor2Finger(final GeoPoint p1, final GeoPoint p2) {
 		// TODO Auto-generated method stub
-		mRouteSearch.longPress2Point(p1, p2);
-		Message msg = new Message();
-		String textTochange = " The distance between the places: "+p1.distanceTo(p2)/1000+"km";
-		msg.obj = textTochange;
-		mHandler.sendMessage(msg);
+		TileMap.this.runOnUiThread(new Runnable(){
+			public void run(){
+				mRouteSearch.longPress2Point(p1, p2);
+			}
+		});
+		
 		return true;
 	}
 	
-	Handler mHandler = new Handler(){
-		public void handleMessage(Message msg){
-			mapInfo = (TextView)findViewById(R.id.mapInfo);
-			mapInfo.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					mapInfo.setVisibility(View.INVISIBLE);
-					mRouteSearch.removeAllOverlay();
-				}
-			});
-			mapInfo.setText(msg.obj.toString());
-			mapInfo.setTextColor(Color.RED);
-			mapInfo.setVisibility(View.VISIBLE);
-		}
-	};
 
 }

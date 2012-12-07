@@ -2,6 +2,7 @@ package org.osmdroid.overlays;
 
 // TODO composite view as texture overlay and only allow one bubble at a time.
 
+import org.oscim.app.App;
 import org.oscim.view.MapView;
 
 import android.content.Context;
@@ -99,7 +100,12 @@ public abstract class InfoWindow {
 		close(); // if it was already opened
 		//		mView.requestLayout();
 		mView.buildDrawingCache();
-		mMapView.addView(mLayout);
+		App.mainActivity.runOnUiThread(new Runnable(){
+			public void run(){
+				mMapView.addView(mLayout);
+		}
+	});
+		//mMapView.addView(mLayout);
 		mIsVisible = true;
 	}
 

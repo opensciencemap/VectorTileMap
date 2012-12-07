@@ -37,6 +37,8 @@ public class JobTile extends Tile implements Comparable<JobTile> {
 	 */
 	public float distance;
 
+	public boolean isEmpty;
+
 	/**
 	 * @param tileX
 	 *            ...
@@ -47,6 +49,7 @@ public class JobTile extends Tile implements Comparable<JobTile> {
 	 */
 	public JobTile(int tileX, int tileY, byte zoomLevel) {
 		super(tileX, tileY, zoomLevel);
+		isEmpty = false;
 	}
 
 	@Override
