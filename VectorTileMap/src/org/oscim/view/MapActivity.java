@@ -100,7 +100,6 @@ public abstract class MapActivity extends Activity {
 
 	/**
 	 * This method is called once by each MapView during its setup process.
-	 * 
 	 * @param mapView
 	 *            the calling MapView.
 	 */

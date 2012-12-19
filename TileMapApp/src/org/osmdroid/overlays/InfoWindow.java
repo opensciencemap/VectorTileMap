@@ -129,7 +129,11 @@ public abstract class InfoWindow {
 	public void close() {
 		if (mIsVisible) {
 			mIsVisible = false;
-			((ViewGroup) mLayout.getParent()).removeView(mLayout);
+			App.mainActivity.runOnUiThread(new Runnable(){
+				public void run(){
+					((ViewGroup) mLayout.getParent()).removeView(mLayout);
+				}
+			});
 			onClose();
 		}
 	}

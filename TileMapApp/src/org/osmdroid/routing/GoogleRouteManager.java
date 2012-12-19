@@ -29,7 +29,7 @@ import android.util.Log;
  * 
  * @author M.Kergall
  */
-public class GoogleRoadManager extends RoadManager {
+public class GoogleRouteManager extends RouteManager {
 
 	static final String GOOGLE_DIRECTIONS_SERVICE = "http://maps.googleapis.com/maps/api/directions/xml?";
 
@@ -73,10 +73,10 @@ public class GoogleRoadManager extends RoadManager {
 	 * @return the road
 	 */
 	@Override
-	public Road getRoad(ArrayList<GeoPoint> waypoints) {
+	public Route getRoad(ArrayList<GeoPoint> waypoints) {
 		String url = getUrl(waypoints);
 		Log.d(BonusPackHelper.LOG_TAG, "GoogleRoadManager.getRoad:" + url);
-		Road road = null;
+		Route road = null;
 		HttpConnection connection = new HttpConnection();
 		connection.doGet(url);
 		InputStream stream = connection.getStream();
@@ -85,20 +85,20 @@ public class GoogleRoadManager extends RoadManager {
 		connection.close();
 		if (road == null || road.routeHigh.size() == 0) {
 			//Create default road:
-			road = new Road(waypoints);
+			road = new Route(waypoints);
 		} else {
 			//finalize road data update:
-			for (RoadLeg leg : road.legs) {
+			for (RouteLeg leg : road.legs) {
 				road.duration += leg.duration;
 				road.length += leg.length;
 			}
-			road.status = Road.STATUS_OK;
+			road.status = Route.STATUS_OK;
 		}
 		Log.d(BonusPackHelper.LOG_TAG, "GoogleRoadManager.getRoad - finished");
 		return road;
 	}
 
-	protected Road getRoadXML(InputStream is) {
+	protected Route getRoadXML(InputStream is) {
 		GoogleDirectionsHandler handler = new GoogleDirectionsHandler();
 		try {
 			SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -116,9 +116,9 @@ public class GoogleRoadManager extends RoadManager {
 }
 
 class GoogleDirectionsHandler extends DefaultHandler {
-	Road mRoad;
-	RoadLeg mLeg;
-	RoadNode mNode;
+	Route mRoad;
+	RouteLeg mLeg;
+	RouteNode mNode;
 	boolean isPolyline, isOverviewPolyline, isLeg, isStep, isDuration, isDistance, isBB;
 	int mValue;
 	double mLat, mLng;
@@ -127,7 +127,7 @@ class GoogleDirectionsHandler extends DefaultHandler {
 
 	public GoogleDirectionsHandler() {
 		isOverviewPolyline = isBB = isPolyline = isLeg = isStep = isDuration = isDistance = false;
-		mRoad = new Road();
+		mRoad = new Route();
 	}
 
 	@Override
@@ -138,10 +138,10 @@ class GoogleDirectionsHandler extends DefaultHandler {
 		} else if (localName.equals("overview_polyline")) {
 			isOverviewPolyline = true;
 		} else if (localName.equals("leg")) {
-			mLeg = new RoadLeg();
+			mLeg = new RouteLeg();
 			isLeg = true;
 		} else if (localName.equals("step")) {
-			mNode = new RoadNode();
+			mNode = new RouteNode();
 			isStep = true;
 		} else if (localName.equals("duration")) {
 			isDuration = true;

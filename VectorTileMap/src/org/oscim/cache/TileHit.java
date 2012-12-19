@@ -14,20 +14,24 @@
  */
 package org.oscim.cache;
 
-import java.io.InputStream;
+public class TileHit {
+	private String tileFile;
+	private int hit;
 
-import org.oscim.core.Tile;
+	public String getTileFile() {
+		return tileFile;
+	}
 
-public interface CachingManager {
-	boolean cacheBegin(Tile tile, byte[] readBuffer, int bufferPos, int bufferSize);
+	public void setTileFile(String tileFile) {
+		this.tileFile = tileFile;
+	}
 
-	void cacheFinish(Tile tile, boolean success);
+	public int getHit() {
+		return hit;
+	}
 
-	InputStream cacheReadBegin(Tile tile);
+	public void setHit(int hit) {
+		this.hit = hit;
+	}
 
-	void cacheReadFinish();
-
-	void cacheWrite(byte[] readBuffer, int bufferSize, int len);
-
-	void cacheCheck();
 }

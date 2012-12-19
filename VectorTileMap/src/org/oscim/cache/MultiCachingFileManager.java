@@ -27,6 +27,8 @@ import android.os.Environment;
 import android.util.Log;
 
 public class MultiCachingFileManager implements CachingManager {
+
+	private static final long MAX_SIZE = 10485760L; // 10MB
 	private FileOutputStream mCacheFile;
 	private InputStream mInputStream = null;
 	//int mReadPos;
@@ -42,6 +44,7 @@ public class MultiCachingFileManager implements CachingManager {
 	private static File cacheDir;
 	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
+	private TileHitDataSource datasource;
 
 	public MultiCachingFileManager() {
 		if (cacheDir == null) {
@@ -51,6 +54,13 @@ public class MultiCachingFileManager implements CachingManager {
 			String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
 			cacheDir = createDirectory(cacheDirectoryPath);
 		}
+		//		datasource = new TileHitDataSource(App.mainActivity.getApplicationContext());
+		//		if (datasource == null) {
+		//			Log.d("TileHitDataSource", "datasource is null");
+		//		} else {
+		//			Log.d("TileHitDataSource", "datasource is not null");
+		//		}
+		//		datasource.open();
 	}
 
 	private static File createDirectory(String pathName) {
@@ -76,6 +86,11 @@ public class MultiCachingFileManager implements CachingManager {
 				Integer.valueOf(tile.zoomLevel),
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
+		//		String tileFile = String.format(CACHE_FILE,
+		//				Integer.valueOf(tile.zoomLevel),
+		//				Integer.valueOf(tile.tileX),
+		//				Integer.valueOf(tile.tileY));
+		//		datasource.setTileHit(tileFile);
 		try {
 			mCacheFile = new FileOutputStream(f);
 			written = 0;
@@ -140,6 +155,11 @@ public class MultiCachingFileManager implements CachingManager {
 		if (f.exists() && f.length() > 0) {
 			try {
 				mInputStream = new FileInputStream(f);
+				//				String tileFile = String.format(CACHE_FILE,
+				//						Integer.valueOf(tile.zoomLevel),
+				//						Integer.valueOf(tile.tileX),
+				//						Integer.valueOf(tile.tileY));
+				//				datasource.setTileHit(tileFile);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (Exception ex) {
@@ -163,6 +183,26 @@ public class MultiCachingFileManager implements CachingManager {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	@Override
+	public void cacheCheck() {
+
+	}
+
+	private static long getCacheDirSize() {
+		if (cacheDir != null) {
+			long size = 0;
+			File[] files = cacheDir.listFiles();
+
+			for (File file : files) {
+				if (file.isFile()) {
+					size += file.length();
+				}
+			}
+			return size;
+		}
+		return -1;
 	}
 
 }

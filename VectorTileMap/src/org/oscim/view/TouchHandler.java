@@ -44,7 +44,7 @@ final class TouchHandler implements OnGestureListener, OnScaleGestureListener, O
 
 	private static final float SCALE_DURATION = 500;
 	private static final float ROTATION_DELAY = 200; // ms
-	static final int LONGPRESS_THRESHOLD = 800;
+	static final int LONGPRESS_THRESHOLD = 500;
 	private Timer longpressTimer = new Timer();
 	boolean mMultiLongPress = true;
 	private static final int INVALID_POINTER_ID = -1;

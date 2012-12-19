@@ -53,6 +53,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -91,7 +93,16 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 	POISearch mPoiSearch;
 	RouteSearch mRouteSearch;
-
+	
+	TextView distance = null;
+	TextView routeLength = null;
+	TextView carTime = null;
+	ImageView distanceView = null;
+	ImageView routeLengthView = null;
+	ImageView carTimeView = null;
+	ImageView Yes = null;
+	ImageView No = null;
+	RelativeLayout routeBar = null;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -158,8 +169,83 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		});
 		mapInfo.setTextColor(Color.RED);
 		mapInfo.setVisibility(View.INVISIBLE);
+		initRouteBar();
 	}
 
+	private void initRouteBar(){
+		routeBar = (RelativeLayout)findViewById(R.id.routeBar);
+		distance = (TextView)findViewById(R.id.distance);
+		routeLength = (TextView)findViewById(R.id.routeLength);
+		carTime = (TextView)findViewById(R.id.carTime);
+		distanceView = (ImageView)findViewById(R.id.distanceView);
+		routeLengthView = (ImageView)findViewById(R.id.routeLengthView);
+		carTimeView = (ImageView)findViewById(R.id.carTimeView);
+		Yes = (ImageView)findViewById(R.id.yes);
+		No = (ImageView)findViewById(R.id.no);
+		routeBar.setVisibility(View.INVISIBLE);
+		distance.setVisibility(View.INVISIBLE);
+		routeLength.setVisibility(View.INVISIBLE);
+		carTime.setVisibility(View.INVISIBLE);
+		distanceView.setVisibility(View.INVISIBLE);
+		routeLengthView.setVisibility(View.INVISIBLE);
+		carTimeView.setVisibility(View.INVISIBLE);
+		Yes.setVisibility(View.INVISIBLE);
+		Yes.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				HideRouteBar();
+			}
+		});
+		No.setVisibility(View.INVISIBLE);
+		No.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				HideAllRouteBar();
+				mRouteSearch.removeAllOverlay();
+			}
+		});
+	}
+	
+	public void setRouteBar(String dis,String route,String time){
+		routeBar.setVisibility(View.VISIBLE);
+		distance.setVisibility(View.VISIBLE);
+		routeLength.setVisibility(View.VISIBLE);
+		carTime.setVisibility(View.VISIBLE);
+		distanceView.setVisibility(View.VISIBLE);
+		routeLengthView.setVisibility(View.VISIBLE);
+		carTimeView.setVisibility(View.VISIBLE);
+		distance.setText(dis);
+		distance.setTextColor(Color.WHITE);
+		routeLength.setText(route);
+		routeLength.setTextColor(Color.WHITE);
+		carTime.setText(time);
+		carTime.setTextColor(Color.WHITE);
+		Yes.setVisibility(View.VISIBLE);
+		No.setVisibility(View.VISIBLE);
+	}
+	
+	private void HideRouteBar(){
+		routeBar.setVisibility(View.INVISIBLE);
+		distance.setVisibility(View.INVISIBLE);
+		routeLength.setVisibility(View.INVISIBLE);
+		carTime.setVisibility(View.INVISIBLE);
+		distanceView.setVisibility(View.INVISIBLE);
+		routeLengthView.setVisibility(View.INVISIBLE);
+		carTimeView.setVisibility(View.INVISIBLE);
+	}
+	
+	private void HideAllRouteBar(){
+		routeBar.setVisibility(View.INVISIBLE);
+		distance.setVisibility(View.INVISIBLE);
+		routeLength.setVisibility(View.INVISIBLE);
+		carTime.setVisibility(View.INVISIBLE);
+		distanceView.setVisibility(View.INVISIBLE);
+		routeLengthView.setVisibility(View.INVISIBLE);
+		carTimeView.setVisibility(View.INVISIBLE);
+		Yes.setVisibility(View.INVISIBLE);
+		No.setVisibility(View.INVISIBLE);
+	}
+	
 	private void setMapDatabase(SharedPreferences preferences) {
 		MapDatabases mapDatabaseNew;
 		String dbname = preferences.getString("mapDatabase",

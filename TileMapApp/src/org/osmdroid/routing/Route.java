@@ -15,11 +15,11 @@ import android.util.Log;
  * describes the way to go from a position to an other. Normally returned by a
  * call to a Directions API (from MapQuest, GoogleMaps or other)
  * @see MapQuestRoadManager
- * @see GoogleRoadManager
- * @see OSRMRoadManager
+ * @see GoogleRouteManager
+ * @see OSRMRouteManager
  * @author M.Kergall
  */
-public class Road implements Parcelable {
+public class Route implements Parcelable {
 	/**
 	 * @see #STATUS_INVALID STATUS_INVALID
 	 * @see #STATUS_OK STATUS_OK
@@ -31,10 +31,10 @@ public class Road implements Parcelable {
 	public double length;
 	/** duration of the whole trip in sec. */
 	public double duration;
-	public ArrayList<RoadNode> nodes;
+	public ArrayList<RouteNode> nodes;
 	/** */
 	/** there is one leg between each waypoint */
-	public ArrayList<RoadLeg> legs;
+	public ArrayList<RouteLeg> legs;
 	/** full shape: polyline, as an array of GeoPoints */
 	public ArrayList<GeoPoint> routeHigh;
 	/** the same, in low resolution (less points) */
@@ -56,14 +56,14 @@ public class Road implements Parcelable {
 		status = STATUS_INVALID;
 		length = 0.0;
 		duration = 0.0;
-		nodes = new ArrayList<RoadNode>();
+		nodes = new ArrayList<RouteNode>();
 		routeHigh = new ArrayList<GeoPoint>();
 		routeLow = null;
-		legs = new ArrayList<RoadLeg>();
+		legs = new ArrayList<RouteLeg>();
 		boundingBox = null;
 	}
 
-	public Road() {
+	public Route() {
 		init();
 	}
 
@@ -74,7 +74,7 @@ public class Road implements Parcelable {
 	 * @param waypoints
 	 *            ...
 	 */
-	public Road(ArrayList<GeoPoint> waypoints) {
+	public Route(ArrayList<GeoPoint> waypoints) {
 		init();
 		int n = waypoints.size();
 		for (int i = 0; i < n; i++) {
@@ -82,7 +82,7 @@ public class Road implements Parcelable {
 			routeHigh.add(p);
 		}
 		for (int i = 0; i < n - 1; i++) {
-			RoadLeg leg = new RoadLeg(/* i, i+1, mLinks */);
+			RouteLeg leg = new RouteLeg(/* i, i+1, mLinks */);
 			legs.add(leg);
 		}
 		boundingBox = BoundingBox.fromGeoPoints(routeHigh);
@@ -168,7 +168,7 @@ public class Road implements Parcelable {
 	 *            ...
 	 */
 	public void buildLegs(ArrayList<GeoPoint> waypoints) {
-		legs = new ArrayList<RoadLeg>();
+		legs = new ArrayList<RouteLeg>();
 		int firstNodeIndex = 0;
 		// For all intermediate waypoints, search the node closest to the
 		// waypoint
@@ -187,12 +187,12 @@ public class Road implements Parcelable {
 				}
 			}
 			// Build the leg as ending with this closest node:
-			RoadLeg leg = new RoadLeg(firstNodeIndex, nodeIndexMin, nodes);
+			RouteLeg leg = new RouteLeg(firstNodeIndex, nodeIndexMin, nodes);
 			legs.add(leg);
 			firstNodeIndex = nodeIndexMin + 1; // restart next leg from end
 		}
 		// Build last leg ending with last node:
-		RoadLeg lastLeg = new RoadLeg(firstNodeIndex, n - 1, nodes);
+		RouteLeg lastLeg = new RouteLeg(firstNodeIndex, n - 1, nodes);
 		legs.add(lastLeg);
 	}
 
@@ -214,26 +214,26 @@ public class Road implements Parcelable {
 		out.writeParcelable(boundingBox, 0);
 	}
 
-	public static final Parcelable.Creator<Road> CREATOR = new Parcelable.Creator<Road>() {
+	public static final Parcelable.Creator<Route> CREATOR = new Parcelable.Creator<Route>() {
 		@Override
-		public Road createFromParcel(Parcel source) {
-			return new Road(source);
+		public Route createFromParcel(Parcel source) {
+			return new Route(source);
 		}
 
 		@Override
-		public Road[] newArray(int size) {
-			return new Road[size];
+		public Route[] newArray(int size) {
+			return new Route[size];
 		}
 	};
 
 	@SuppressWarnings("unchecked")
-	private Road(Parcel in) {
+	private Route(Parcel in) {
 		status = in.readInt();
 		length = in.readDouble();
 		duration = in.readDouble();
 
-		nodes = in.readArrayList(RoadNode.class.getClassLoader());
-		legs = in.readArrayList(RoadLeg.class.getClassLoader());
+		nodes = in.readArrayList(RouteNode.class.getClassLoader());
+		legs = in.readArrayList(RouteLeg.class.getClassLoader());
 		routeHigh = in.readArrayList(GeoPoint.class.getClassLoader());
 		boundingBox = in.readParcelable(BoundingBox.class.getClassLoader());
 	}

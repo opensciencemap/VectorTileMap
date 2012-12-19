@@ -24,7 +24,7 @@ import android.util.Log;
  * TODO: improve internationalization of instructions
  * @author M.Kergall
  */
-public class OSRMRoadManager extends RoadManager {
+public class OSRMRouteManager extends RouteManager {
 
 	static final String OSRM_SERVICE = "http://router.project-osrm.org/viaroute?";
 	//Note that the result of OSRM is quite close to Cloudmade NavEngine format:
@@ -142,7 +142,7 @@ public class OSRMRoadManager extends RoadManager {
 		directions.put("15", "Dotarłeś do celu podróży");
 	}
 
-	public OSRMRoadManager() {
+	public OSRMRouteManager() {
 		super();
 		mServiceUrl = OSRM_SERVICE;
 		mUserAgent = BonusPackHelper.DEFAULT_USER_AGENT; //set user agent to the default one. 
@@ -178,7 +178,7 @@ public class OSRMRoadManager extends RoadManager {
 	}
 
 	@Override
-	public Road getRoad(ArrayList<GeoPoint> waypoints) {
+	public Route getRoad(ArrayList<GeoPoint> waypoints) {
 		String url = getUrl(waypoints);
 		Log.d(BonusPackHelper.LOG_TAG, "OSRMRoadManager.getRoad:" + url);
 
@@ -191,23 +191,23 @@ public class OSRMRoadManager extends RoadManager {
 
 		if (jString == null) {
 			Log.e(BonusPackHelper.LOG_TAG, "OSRMRoadManager::getRoad: request failed.");
-			return new Road(waypoints);
+			return new Route(waypoints);
 		}
 		Locale l = Locale.getDefault();
 		HashMap<String, String> directions = DIRECTIONS.get(l.getLanguage());
 		if (directions == null)
 			directions = DIRECTIONS.get("en");
-		Road road = new Road();
+		Route road = new Route();
 		try {
 			JSONObject jObject = new JSONObject(jString);
 			String route_geometry = jObject.getString("route_geometry");
 			road.routeHigh = PolylineEncoder.decode(route_geometry, 10);
 			JSONArray jInstructions = jObject.getJSONArray("route_instructions");
 			int n = jInstructions.length();
-			RoadNode lastNode = null;
+			RouteNode lastNode = null;
 			for (int i = 0; i < n; i++) {
 				JSONArray jInstruction = jInstructions.getJSONArray(i);
-				RoadNode node = new RoadNode();
+				RouteNode node = new RouteNode();
 				int positionIndex = jInstruction.getInt(3);
 				node.location = road.routeHigh.get(positionIndex);
 				node.length = jInstruction.getInt(2) / 1000.0;
@@ -231,11 +231,11 @@ public class OSRMRoadManager extends RoadManager {
 			road.duration = jSummary.getInt("total_time");
 		} catch (JSONException e) {
 			e.printStackTrace();
-			return new Road(waypoints);
+			return new Route(waypoints);
 		}
 		if (road.routeHigh.size() == 0) {
 			//Create default road:
-			road = new Road(waypoints);
+			road = new Route(waypoints);
 		} else {
 			road.buildLegs(waypoints);
 			BoundingBox bb = BoundingBox.fromGeoPoints(road.routeHigh);
@@ -243,7 +243,7 @@ public class OSRMRoadManager extends RoadManager {
 			road.boundingBox = bb;
 			//	new BoundingBox(
 			//	bb.getLatSouthE6(), bb.getLonWestE6(), bb.getLatNorthE6(), bb.getLonEastE6());
-			road.status = Road.STATUS_OK;
+			road.status = Route.STATUS_OK;
 		}
 		Log.d(BonusPackHelper.LOG_TAG, "OSRMRoadManager.getRoad - finished");
 		return road;

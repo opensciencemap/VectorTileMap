@@ -40,7 +40,7 @@ public class MapViewPosition {
 
 	private static final String TAG = MapViewPosition.class.getSimpleName();
 
-	public final static int MAX_ZOOMLEVEL = 17;
+	public final static int MAX_ZOOMLEVEL = 19;
 	public final static int MIN_ZOOMLEVEL = 2;
 
 	private final static float MAX_ANGLE = 40;

@@ -10,6 +10,78 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
+    <RelativeLayout
+        android:id="@+id/routeBar"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="25dip" 
+        android:background="#ff000000">
+
+        <ImageView
+                android:id="@+id/distanceView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/plane" />
+
+            <TextView
+                android:id="@+id/distance"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_toRightOf="@+id/distanceView"/>
+
+            <ImageView
+                android:id="@+id/routeLengthView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/car" 
+                android:layout_toRightOf="@+id/distance"/>
+
+            <TextView
+                android:id="@+id/routeLength"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_toRightOf="@+id/routeLengthView"/>
+
+
+            
+            <ImageView
+                android:id="@+id/carTimeView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/time" 
+                android:layout_toRightOf="@+id/routeLength"/>
+
+            <TextView
+                android:id="@+id/carTime"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_toRightOf="@+id/carTimeView" />
+            
+           
+            
+            <ImageView
+                android:id="@+id/no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/no" 
+                android:clickable="true"
+                android:layout_alignParentRight="true"/>
+            
+             <ImageView
+                android:id="@+id/yes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/yes" 
+                android:clickable="true"
+                android:layout_toLeftOf="@+id/no"/>
+
+    </RelativeLayout>
     <ToggleButton
         android:id="@+id/snapToLocationView"
         android:layout_width="57dp"

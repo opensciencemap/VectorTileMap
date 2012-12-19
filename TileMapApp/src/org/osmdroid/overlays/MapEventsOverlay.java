@@ -16,7 +16,7 @@ import android.view.MotionEvent;
 public class MapEventsOverlay extends Overlay {
 
 	private MapEventsReceiver mReceiver;
-	private static final String TAG = MapEventsOverlay.class.getSimpleName();
+//	private static final String TAG = MapEventsOverlay.class.getSimpleName();
 
 	/**
 	 * @param ctx

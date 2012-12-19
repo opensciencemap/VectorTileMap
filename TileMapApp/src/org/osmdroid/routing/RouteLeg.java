@@ -14,7 +14,7 @@ import android.util.Log;
  * 
  * @author M.Kergall
  */
-public class RoadLeg implements Parcelable {
+public class RouteLeg implements Parcelable {
 	/** in km */
 	public double length;
 	/** in sec */
@@ -24,19 +24,19 @@ public class RoadLeg implements Parcelable {
 	/** and ending node */
 	public int endNodeIndex;
 
-	public RoadLeg() {
+	public RouteLeg() {
 		length = duration = 0.0;
 		startNodeIndex = endNodeIndex = 0;
 	}
 
-	public RoadLeg(int startNodeIndex, int endNodeIndex,
-			ArrayList<RoadNode> nodes) {
+	public RouteLeg(int startNodeIndex, int endNodeIndex,
+			ArrayList<RouteNode> nodes) {
 		this.startNodeIndex = startNodeIndex;
 		this.endNodeIndex = endNodeIndex;
 		length = duration = 0.0;
 
 		for (int i = startNodeIndex; i <= endNodeIndex; i++) {
-			RoadNode node = nodes.get(i);
+			RouteNode node = nodes.get(i);
 			length += node.length;
 			duration += node.duration;
 		}
@@ -59,10 +59,10 @@ public class RoadLeg implements Parcelable {
 		out.writeInt(endNodeIndex);
 	}
 
-	public static final Parcelable.Creator<RoadLeg> CREATOR = new Parcelable.Creator<RoadLeg>() {
+	public static final Parcelable.Creator<RouteLeg> CREATOR = new Parcelable.Creator<RouteLeg>() {
 		@Override
-		public RoadLeg createFromParcel(Parcel in) {
-			RoadLeg rl = new RoadLeg();
+		public RouteLeg createFromParcel(Parcel in) {
+			RouteLeg rl = new RouteLeg();
 			rl.length = in.readDouble();
 			rl.duration = in.readDouble();
 			rl.startNodeIndex = in.readInt();
@@ -71,8 +71,8 @@ public class RoadLeg implements Parcelable {
 		}
 
 		@Override
-		public RoadLeg[] newArray(int size) {
-			return new RoadLeg[size];
+		public RouteLeg[] newArray(int size) {
+			return new RouteLeg[size];
 		}
 	};
 }

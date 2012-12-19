@@ -29,11 +29,11 @@ import org.osmdroid.location.GeocoderNominatim;
 import org.osmdroid.overlays.DefaultInfoWindow;
 import org.osmdroid.overlays.ExtendedOverlayItem;
 import org.osmdroid.overlays.ItemizedOverlayWithBubble;
-import org.osmdroid.routing.GoogleRoadManager;
-import org.osmdroid.routing.OSRMRoadManager;
-import org.osmdroid.routing.Road;
-import org.osmdroid.routing.RoadManager;
-import org.osmdroid.routing.RoadNode;
+import org.osmdroid.routing.GoogleRouteManager;
+//import org.osmdroid.routing.OSRMRoadManager;
+import org.osmdroid.routing.Route;
+import org.osmdroid.routing.RouteManager;
+import org.osmdroid.routing.RouteNode;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -48,7 +48,7 @@ import android.widget.Toast;
 
 public class RouteSearch {
 	private static final String TAG = "RouteSearch";
-	protected Road mRoad;
+	protected Route mRoad;
 	protected PathOverlay mRoadOverlay;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> mRoadNodeMarkers;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> itineraryMarkers;
@@ -224,13 +224,13 @@ public class RouteSearch {
 
 	//------------ Route and Directions
 
-	private void putRoadNodes(Road road) {
+	private void putRoadNodes(Route road) {
 		mRoadNodeMarkers.removeAllItems();
 		Drawable marker = App.res.getDrawable(R.drawable.marker_node);
 		int n = road.nodes.size();
 		//		TypedArray iconIds = App.res.obtainTypedArray(R.array.direction_icons);
 		for (int i = 0; i < n; i++) {
-			RoadNode node = road.nodes.get(i);
+			RouteNode node = road.nodes.get(i);
 			String instructions = (node.instructions == null ? "" : node.instructions);
 			ExtendedOverlayItem nodeMarker = new ExtendedOverlayItem(
 					"Step " + (i + 1), instructions, node.location);
@@ -247,7 +247,7 @@ public class RouteSearch {
 		}
 	}
 
-	void updateUIWithRoad(Road road) {
+	void updateUIWithRoad(Route road) {
 		mRoadNodeMarkers.removeAllItems();
 		List<Overlay> mapOverlays = tileMap.map.getOverlays();
 		if (mRoadOverlay != null) {
@@ -255,10 +255,10 @@ public class RouteSearch {
 		}
 		if (road == null)
 			return;
-		if (road.status == Road.STATUS_DEFAULT)
+		if (road.status == Route.STATUS_DEFAULT)
 			Toast.makeText(tileMap, "We have a problem to get the route",
 					Toast.LENGTH_SHORT).show();
-		mRoadOverlay = RoadManager.buildRoadOverlay(tileMap.map, road, tileMap);
+		mRoadOverlay = RouteManager.buildRoadOverlay(tileMap.map, road, tileMap);
 		Overlay removedOverlay = mapOverlays.set(1, mRoadOverlay);
 		//we set the road overlay at the "bottom", just above the MapEventsOverlay,
 		//to avoid covering the other overlays. 
@@ -343,9 +343,9 @@ public class RouteSearch {
 	/**
 	 * Async task to get the road in a separate thread.
 	 */
-	class UpdateRoadTask extends AsyncTask<WayPoints, Void, Road> {
+	class UpdateRoadTask extends AsyncTask<WayPoints, Void, Route> {
 		@Override
-		protected Road doInBackground(WayPoints... wp) {
+		protected Route doInBackground(WayPoints... wp) {
 			ArrayList<GeoPoint> waypoints = wp[0].waypoints;
 			//RoadManager roadManager = new GoogleRoadManager();
 			//<<<<<<< HEAD
@@ -353,7 +353,7 @@ public class RouteSearch {
 			//			roadManager.addRequestOption("");
 			//=======
 			//RoadManager roadManager = new OSRMRoadManager();
-			RoadManager roadManager = new GoogleRoadManager();
+			RouteManager roadManager = new GoogleRouteManager();
 			//>>>>>>> master
 			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
 			 * locale = Locale.getDefault();
@@ -363,27 +363,45 @@ public class RouteSearch {
 		}
 
 		@Override
-		protected void onPostExecute(Road result) {
+		protected void onPostExecute(Route result) {
 			mRoad = result;
 			updateUIWithRoad(result);
-			DecimalFormat twoDForm = new DecimalFormat("#.##");
+			DecimalFormat twoDForm = new DecimalFormat("#.#");
+			DecimalFormat oneDForm = new DecimalFormat("#");
 			int hour =  ((int)result.duration / 3600);
 			int minute = ((int)result.duration%3600)/60;
 			String time = "";
-			if(hour == 0){
-				time = minute+"min";
-			}else{
-				time = hour+"hour "+minute+"min";
+			if(hour == 0 && minute == 0){
+				time = "?";
 			}
-			Log.d(TAG,"Hour: "+hour+" Min: "+minute+" Duration: "+result.duration);
-			tileMap.mapInfo.setVisibility(View.VISIBLE);
-			tileMap.mapInfo.setText(" Direct dicetance: "+Double.valueOf(twoDForm.format(Double.valueOf(startPoint.distanceTo(destinationPoint))/1000))+" km" +
-					"\n Shortest path: " + Double.valueOf(twoDForm.format(result.length))
-					+ " km \n By car: "
-					+time);
-					//+ Double.valueOf(twoDForm.format(result.duration / 3600)) + " hour");
-
-			/// ??? getPOIAsync(poiTagText.getText().toString());
+			else if(hour == 0 && minute != 0){
+				time = minute+"m";
+			}else{
+				time = hour+"h "+minute+"m";
+			}
+			//Log.d(TAG,"Hour: "+hour+" Min: "+minute+" Duration: "+result.duration);
+//			tileMap.mapInfo.setVisibility(View.VISIBLE);//			tileMap.mapInfo.setTextSize((float) 20.0);
+			double dis = ((double)(startPoint.distanceTo(destinationPoint)))/1000;
+			String distance;
+			String shortpath;
+			if(dis<100){
+				distance = twoDForm.format(dis);
+			}else {
+				distance = oneDForm.format(dis);
+			}
+			if(result.length == 0){
+				shortpath = "?";
+			}
+			else if(result.length<100){
+				shortpath = twoDForm.format(result.length);
+			}else{
+				shortpath = oneDForm.format(result.length);
+			}
+//			tileMap.mapInfo.setText(" Direct distance: "+distance+" km" +
+//					"\n Shortest path: " + shortpath
+//					+ " km \n By car: "
+//					+time);
+			tileMap.setRouteBar(distance+" km ", shortpath+" km ", time);
 		}
 	}
 

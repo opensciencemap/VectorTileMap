@@ -14,17 +14,17 @@ import android.graphics.Paint;
  * through a list of waypoints.
  * 
  * @see MapQuestRoadManager
- * @see GoogleRoadManager
- * @see OSRMRoadManager
+ * @see GoogleRouteManager
+ * @see OSRMRouteManager
  * @author M.Kergall
  */
-public abstract class RoadManager {
+public abstract class RouteManager {
 
 	protected String mOptions;
 
-	public abstract Road getRoad(ArrayList<GeoPoint> waypoints);
+	public abstract Route getRoad(ArrayList<GeoPoint> waypoints);
 
-	public RoadManager() {
+	public RouteManager() {
 		mOptions = "";
 	}
 
@@ -49,7 +49,7 @@ public abstract class RoadManager {
 		return result.toString();
 	}
 
-	public static PathOverlay buildRoadOverlay(MapView mapView, Road road, Paint paint,
+	public static PathOverlay buildRoadOverlay(MapView mapView, Route road, Paint paint,
 			Context context) {
 		PathOverlay roadOverlay = new PathOverlay(mapView, 0, context);
 		roadOverlay.setPaint(paint);
@@ -73,7 +73,7 @@ public abstract class RoadManager {
 	 *            ..
 	 * @return route shape overlay
 	 */
-	public static PathOverlay buildRoadOverlay(MapView mapView, Road road, Context context) {
+	public static PathOverlay buildRoadOverlay(MapView mapView, Route road, Context context) {
 		Paint paint = new Paint();
 		paint.setColor(0x800000FF);
 		paint.setStyle(Paint.Style.STROKE);

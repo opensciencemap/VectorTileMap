@@ -147,6 +147,7 @@ public class MapDatabase implements IMapDatabase {
 
 			//			if (cacheRead(tile, f))
 			//				return QueryResult.SUCCESS;
+			cManager.cacheCheck();
 			try {
 				mInputStream = cManager.cacheReadBegin(tile);
 				if (mInputStream != null) {
