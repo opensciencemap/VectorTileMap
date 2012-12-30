@@ -28,6 +28,7 @@ import org.oscim.utils.AndroidUtils;
 import org.oscim.view.DebugSettings;
 import org.oscim.view.MapActivity;
 import org.oscim.view.MapView;
+import org.osmdroid.location.POI;
 import org.osmdroid.overlays.MapEventsOverlay;
 import org.osmdroid.overlays.MapEventsReceiver;
 
@@ -159,21 +160,29 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		if (mapDatabaseNew != mMapDatabase) {
 			Log.d(TAG, "set map database " + mapDatabaseNew);
-			MapOptions options = new MapOptions(mapDatabaseNew);
+			MapOptions options = null;
 
 			switch (mapDatabaseNew) {
 			case PBMAP_READER:
+				options = new MapOptions(mapDatabaseNew);
 				options.put("url",
 						"http://city.informatik.uni-bremen.de:80/osmstache/test/");
 				break;
 			case OSCIMAP_READER:
+				options = new MapOptions(mapDatabaseNew);
 				options.put("url",
-						"http://city.informatik.uni-bremen.de:80/osci/oscim/");
+						//"http://city.informatik.uni-bremen.de:8000/");
+						"http://city.informatik.uni-bremen.de:80/osci/map-live/");
+						//"http://city.informatik.uni-bremen.de:80/osci/oscim/");
 				break;
+			case TEST_READER:
+				options = new MapOptions(MapDatabases.OSCIMAP_READER);
+				options.put("url",
+						"http://city.informatik.uni-bremen.de:8000/");
 			default:
 				break;
 			}
-
+			
 			map.setMapDatabase(options);
 			mMapDatabase = mapDatabaseNew;
 		}
@@ -396,7 +405,12 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 				mPoiSearch.poiMarkers.showBubbleOnItem(id, map);
 
-				map.getMapViewPosition().animateTo(mPoiSearch.getPOIs().get(id).location);
+				POI poi = mPoiSearch.getPOIs().get(id);
+				
+				if (poi.bbox != null)
+					map.getMapViewPosition().animateTo(poi.bbox);
+				else
+					map.getMapViewPosition().animateTo(poi.location);
 			}
 			break;
 		case SELECT_RENDER_THEME_FILE:

@@ -93,10 +93,20 @@ public class NominatimPOIProvider implements POIProvider{
 				poi.id = jPlace.getString("osm_id");
 				//	jPlace.optLong("osm_id");
 				poi.location = new GeoPoint(jPlace.getDouble("lat"), jPlace.getDouble("lon"));
+				JSONArray bbox = jPlace.optJSONArray("boundingbox");
+				if (bbox != null){
+					try {
+					poi.bbox = new BoundingBox(bbox.getDouble(0), bbox.getDouble(2),  bbox.getDouble(1),  bbox.getDouble(3));
+					} catch (Exception e){
+						Log.d("NominatimPOIProvider", "could not parse " + bbox);
+					}
+					//Log.d("NominatimPOIProvider", "bbox " + poi.bbox);
+				}
 				poi.category = jPlace.optString("class");
 				poi.type = jPlace.getString("type");
 				poi.description = jPlace.optString("display_name");
 				poi.thumbnailPath = jPlace.optString("icon", null);
+				
 				if (i == 0 && poi.thumbnailPath != null) {
 					//first POI, and we have a thumbnail: load it
 					thumbnail = BonusPackHelper.loadBitmap(poi.thumbnailPath);

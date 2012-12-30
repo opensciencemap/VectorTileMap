@@ -1,6 +1,7 @@
 package org.osmdroid.location;
 
 import org.oscim.app.R;
+import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.osmdroid.utils.BonusPackHelper;
 
@@ -32,6 +33,7 @@ public class POI implements Parcelable {
 	public String id;
 	/** location of the POI */
 	public GeoPoint location;
+	public BoundingBox bbox;
 	/** Nominatim "class", GeoNames "feature" */
 	public String category;
 	/** type or title */
@@ -49,6 +51,7 @@ public class POI implements Parcelable {
 	 * defined.
 	 */
 	public int rank;
+	
 	/** number of attempts to load the thumbnail that have failed */
 	protected int mThumbnailLoadingFailures;
 

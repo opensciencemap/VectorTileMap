@@ -139,7 +139,7 @@ public class POIActivity extends Activity {
 				hideKeyboard();
 				String text = poiTagText.getText().toString();
 				if (text == null || text.length() == 0)
-					App.poiSearch.getPOIAsync("bar");
+					App.poiSearch.getPOIAsync("bremen");
 				else
 					App.poiSearch.getPOIAsync(text);
 			}
