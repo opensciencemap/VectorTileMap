@@ -30,15 +30,8 @@ public class MapEventsOverlay extends Overlay {
 		mReceiver = receiver;
 	}
 
-	//	@Override
-	//	protected void draw(Canvas c, MapView osmv, boolean shadow) {
-	//		// Nothing to draw
-	//	}
-
 	@Override
 	public boolean onSingleTapUp(MotionEvent e, MapView mapView) {
-		//		Projection proj = mapView.getProjection();
-		//		GeoPoint p = proj.fromPixels(e.getX(), e.getY());
 		GeoPoint p = mapView.getMapViewPosition().fromScreenPixels(e.getX(), e.getY());
 
 		return mReceiver.singleTapUpHelper(p);
@@ -46,8 +39,6 @@ public class MapEventsOverlay extends Overlay {
 
 	@Override
 	public boolean onLongPress(MotionEvent e, MapView mapView) {
-		//		Projection proj = mapView.getProjection();
-		//		GeoPoint p = proj.fromPixels(e.getX(), e.getY());
 
 		GeoPoint p = mapView.getMapViewPosition().fromScreenPixels(e.getX(), e.getY());
 

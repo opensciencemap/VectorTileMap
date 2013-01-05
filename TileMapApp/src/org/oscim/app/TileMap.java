@@ -171,7 +171,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			case OSCIMAP_READER:
 				options = new MapOptions(mapDatabaseNew);
 				options.put("url",
-						//"http://city.informatik.uni-bremen.de:8000/");
 						"http://city.informatik.uni-bremen.de:80/osci/map-live/");
 						//"http://city.informatik.uni-bremen.de:80/osci/oscim/");
 				break;
