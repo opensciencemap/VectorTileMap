@@ -59,11 +59,14 @@ public class TileHitDataSource {
 	public void setTileHit(String TileName) {
 		//ContentValues values = new ContentValues();
 		String insert =
-				"INSERT OR IGNORE INTO " + SQLiteHelper.TABLE_NAME + " VALUES (" + TileName
-						+ ", 0);";
+				"INSERT OR IGNORE INTO " + SQLiteHelper.TABLE_NAME + "(_name,hits)"
+						+ " VALUES ('"
+						+ TileName
+						+ "', '0');";
 		String update =
-				"UPDATE " + SQLiteHelper.TABLE_NAME + " SET hits = hits + 1 WHERE _name LIKE "
-						+ TileName;
+				"UPDATE " + SQLiteHelper.TABLE_NAME
+						+ " SET hits = hits + 1 WHERE _name LIKE '"
+						+ TileName + "'";
 		database.execSQL(insert);
 		database.execSQL(update);
 		//values.put(SQLiteHelper.COLUMN_COMMENT, TileHit);
@@ -90,7 +93,7 @@ public class TileHitDataSource {
 	public List<String> getAllTileFileUnderHits(int hit) {
 		List<String> TileFiles = new ArrayList<String>();
 		Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "_name" },
-				"hits>=?", new String[] { String.valueOf(hit) }, null, null, null);
+				"hits<=?", new String[] { String.valueOf(hit) }, null, null, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
 			String File = cursor.getString(0);
@@ -101,9 +104,15 @@ public class TileHitDataSource {
 		return TileFiles;
 	}
 
-	public void deleteTileHit(TileHit th) {
-		String name = th.getTileFile();
+	public void deleteTileFileUnderhits(int hit) {
+		List<String> names = getAllTileFileUnderHits(hit);
+		for (String name : names) {
+			deleteTileFile(name);
+		}
+	}
+
+	public void deleteTileFile(String name) {
 		database.delete(SQLiteHelper.TABLE_NAME, SQLiteHelper.COLUMN_ID
-				+ " = " + name, null);
+				+ " = '" + name + "'", null);
 	}
 }

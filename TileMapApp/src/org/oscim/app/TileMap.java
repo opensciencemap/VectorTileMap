@@ -278,6 +278,9 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			mMapDatabase = mapDatabaseNew;
 		}
 	}
+	private void setCachingSize(long size){
+		map.setCachingSize(size);
+	}
 	
 	@Override
 	protected void onNewIntent(Intent intent) {
@@ -623,6 +626,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				map.setRenderTheme(InternalRenderTheme.OSMARENDER);
 			else
 				map.setRenderTheme(theme);
+		}
+		if (preferences.contains("caching")){
+			//SeekBarPreference sp = (SeekBarPreference)
+			Log.d("TileMap","seekbar value: "+SeekBarPreference.CURRENTVALUE);
+			setCachingSize(SeekBarPreference.CURRENTVALUE);
 		}
 		// try {
 		// String textScaleDefault =

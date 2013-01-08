@@ -15,7 +15,6 @@
  */
 package org.oscim.database;
 
-
 import org.oscim.generator.JobTile;
 
 /**
@@ -67,5 +66,7 @@ public interface IMapDatabase {
 	 * Cancel loading
 	 */
 	public abstract void cancel();
+
+	public abstract void setCachingSize(long size);
 
 }

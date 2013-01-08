@@ -14,6 +14,7 @@
  */
 package org.oscim.database;
 
+import android.content.Context;
 import android.util.AttributeSet;
 
 /**
@@ -25,20 +26,21 @@ public final class MapDatabaseFactory {
 
 	/**
 	 * @param attributeSet
-	 *            A collection of attributes which includes the desired MapDatabase.
+	 *            A collection of attributes which includes the desired
+	 *            MapDatabase.
 	 * @return a new MapDatabase instance.
 	 */
-	public static IMapDatabase createMapDatabase(AttributeSet attributeSet) {
-		String mapDatabaseName = attributeSet.getAttributeValue(null,
-				MAP_DATABASE_ATTRIBUTE_NAME);
-		if (mapDatabaseName == null) {
-			return new org.oscim.database.postgis.MapDatabase();
-		}
-
-		MapDatabases mapDatabaseInternal = MapDatabases.valueOf(mapDatabaseName);
-
-		return MapDatabaseFactory.createMapDatabase(mapDatabaseInternal);
-	}
+	//	public static IMapDatabase createMapDatabase(AttributeSet attributeSet) {
+	//		String mapDatabaseName = attributeSet.getAttributeValue(null,
+	//				MAP_DATABASE_ATTRIBUTE_NAME);
+	//		if (mapDatabaseName == null) {
+	//			return new org.oscim.database.postgis.MapDatabase();
+	//		}
+	//
+	//		MapDatabases mapDatabaseInternal = MapDatabases.valueOf(mapDatabaseName);
+	//
+	//		return MapDatabaseFactory.createMapDatabase(mapDatabaseInternal);
+	//	}
 
 	public static MapDatabases getMapDatabase(AttributeSet attributeSet) {
 		String mapDatabaseName = attributeSet.getAttributeValue(null,
@@ -51,11 +53,13 @@ public final class MapDatabaseFactory {
 	}
 
 	/**
+	 * @param context
+	 *            the context argument for MapDatabase cache using.
 	 * @param mapDatabase
 	 *            the internal MapDatabase implementation.
 	 * @return a new MapDatabase instance.
 	 */
-	public static IMapDatabase createMapDatabase(MapDatabases mapDatabase) {
+	public static IMapDatabase createMapDatabase(Context context, MapDatabases mapDatabase) {
 		switch (mapDatabase) {
 			case MAP_READER:
 				return new org.oscim.database.mapfile.MapDatabase();
@@ -64,9 +68,9 @@ public final class MapDatabaseFactory {
 			case POSTGIS_READER:
 				return new org.oscim.database.postgis.MapDatabase();
 			case PBMAP_READER:
-				return new org.oscim.database.pbmap.MapDatabase();
+				return new org.oscim.database.pbmap.MapDatabase(context);
 			case OSCIMAP_READER:
-				return new org.oscim.database.oscimap.MapDatabase();
+				return new org.oscim.database.oscimap.MapDatabase(context);
 
 		}
 

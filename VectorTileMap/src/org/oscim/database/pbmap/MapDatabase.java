@@ -45,6 +45,7 @@ import org.oscim.database.OpenResult;
 import org.oscim.database.QueryResult;
 import org.oscim.generator.JobTile;
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -100,9 +101,10 @@ public class MapDatabase implements IMapDatabase {
 	private int mPort;
 	private long mContentLenth;
 	private InputStream mInputStream;
-	CachingManager cManager = new MultiCachingFileManager();
+	private CachingManager cManager;
 
 	private boolean mCaching;
+	private Context mContext;
 	private static final int MAX_TAGS_CACHE = 100;
 
 	private static Map<String, Tag> tagHash = Collections
@@ -118,6 +120,12 @@ public class MapDatabase implements IMapDatabase {
 					return true;
 				}
 			});
+
+	public MapDatabase(Context context) {
+		// TODO Auto-generated constructor stub
+		this.mContext = context;
+		this.cManager = new MultiCachingFileManager(this.mContext);
+	}
 
 	@Override
 	public QueryResult executeQuery(JobTile tile, IMapDatabaseCallback mapDatabaseCallback) {
@@ -1341,6 +1349,12 @@ public class MapDatabase implements IMapDatabase {
 
 	private static int decodeZigZag32(final int n) {
 		return (n >>> 1) ^ -(n & 1);
+	}
+
+	@Override
+	public void setCachingSize(long size) {
+		// TODO Auto-generated method stub
+		cManager.setCachingSize(size);
 	}
 
 }

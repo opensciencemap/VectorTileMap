@@ -30,4 +30,6 @@ public interface CachingManager {
 	void cacheWrite(byte[] readBuffer, int bufferSize, int len);
 
 	void cacheCheck();
+
+	void setCachingSize(long size);
 }

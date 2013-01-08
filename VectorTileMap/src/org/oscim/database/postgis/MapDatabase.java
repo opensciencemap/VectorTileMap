@@ -248,9 +248,9 @@ public class MapDatabase implements IMapDatabase {
 	}
 
 	/**
-	 * Parse a binary encoded geometry. Is synchronized to protect offset counter. (Unfortunately, Java does not have
+	 * Parse a binary encoded geometry. Is synchronized to protect offset
+	 * counter. (Unfortunately, Java does not have
 	 * neither call by reference nor multiple return values.)
-	 * 
 	 * @param value
 	 *            ...
 	 * @return ...
@@ -328,7 +328,6 @@ public class MapDatabase implements IMapDatabase {
 
 	/**
 	 * Parse an Array of "full" Geometries
-	 * 
 	 * @param data
 	 *            ...
 	 * @param count
@@ -391,6 +390,12 @@ public class MapDatabase implements IMapDatabase {
 
 	@Override
 	public void cancel() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void setCachingSize(long size) {
 		// TODO Auto-generated method stub
 
 	}

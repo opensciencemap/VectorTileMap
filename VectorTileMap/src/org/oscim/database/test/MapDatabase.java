@@ -14,7 +14,6 @@
  */
 package org.oscim.database.test;
 
-
 import org.oscim.core.BoundingBox;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
@@ -207,6 +206,12 @@ public class MapDatabase implements IMapDatabase {
 
 	@Override
 	public void cancel() {
+	}
+
+	@Override
+	public void setCachingSize(long size) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

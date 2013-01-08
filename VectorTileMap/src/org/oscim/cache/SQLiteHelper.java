@@ -32,9 +32,9 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_CREATE =
 			"create table "
 					+ TABLE_NAME + "("
-					+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ COLUMN_TileName + " VARCHAR(250), "
-					+ COLUMN_Hit + " INTEGER AUTOINCREMENT);";
+					+ COLUMN_ID + " integer primary key, "
+					+ COLUMN_TileName + " text not null, "
+					+ COLUMN_Hit + " integer);";
 
 	public SQLiteHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);

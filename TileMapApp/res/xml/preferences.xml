@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:robobunny="http://app.oscim.org"
     android:title="@string/menu_preferences" >
 
     <PreferenceCategory android:title="@string/preferences_map" >
@@ -44,6 +45,17 @@
             android:key="theme"
             android:summary="@string/preferences_theme_summary"
             android:title="@string/preferences_theme" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title='Caching settings'>
+         <org.oscim.app.SeekBarPreference
+            android:key="caching"
+            android:title="Caching Size"
+            android:summary="Set caching size"
+            android:defaultValue="30"
+            android:max="50"
+            robobunny:min="1"
+            robobunny:unitsLeft=""            robobunny:unitsRight="MB"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/preferences_general" >
         <CheckBoxPreference

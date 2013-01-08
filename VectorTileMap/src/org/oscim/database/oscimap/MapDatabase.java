@@ -16,9 +16,6 @@ package org.oscim.database.oscimap;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,6 +28,8 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
+import org.oscim.cache.CachingManager;
+import org.oscim.cache.MultiCachingFileManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.Tag;
@@ -43,6 +42,7 @@ import org.oscim.database.OpenResult;
 import org.oscim.database.QueryResult;
 import org.oscim.generator.JobTile;
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -81,20 +81,29 @@ public class MapDatabase implements IMapDatabase {
 	private IMapDatabaseCallback mMapGenerator;
 	private float mScaleFactor;
 	private JobTile mTile;
-	private FileOutputStream mCacheFile;
+	//private FileOutputStream mCacheFile;
 
 	private String mHost;
 	private int mPort;
 	private long mContentLenth;
 	private InputStream mInputStream;
 
+	private boolean mCaching;
+	private CachingManager cManager;
+	private Context mContext;
 	private final boolean debug = false;
+
+	public MapDatabase(Context context) {
+		// TODO Auto-generated constructor stub
+		this.mContext = context;
+		this.cManager = new MultiCachingFileManager(this.mContext);
+	}
 
 	@Override
 	public QueryResult executeQuery(JobTile tile, IMapDatabaseCallback mapDatabaseCallback) {
 		QueryResult result = QueryResult.SUCCESS;
-		mCacheFile = null;
-
+		//mCacheFile = null;
+		mCaching = false;
 		mTile = tile;
 
 		mMapGenerator = mapDatabaseCallback;
@@ -114,14 +123,31 @@ public class MapDatabase implements IMapDatabase {
 					Integer.valueOf(tile.tileX),
 					Integer.valueOf(tile.tileY)));
 
-			if (cacheRead(tile, f))
-				return QueryResult.SUCCESS;
+			//			if (cacheRead(tile, f))
+			//				return QueryResult.SUCCESS;
+			cManager.cacheCheck();
+			try {
+				mInputStream = cManager.cacheReadBegin(tile);
+				if (mInputStream != null) {
+					mContentLenth = f.length();
+					tile.isEmpty = false;
+					decode();
+					cManager.cacheReadFinish();
+					return QueryResult.SUCCESS;
+				}
+				//return QueryResult.FAILED;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return QueryResult.FAILED;
+			}
 		}
 
 		try {
 
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() >= 0) {
-				cacheBegin(tile, f);
+				cManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+				mCaching = true;
+				tile.isEmpty = false;
 				decode();
 			} else {
 				Log.d(TAG, "Network Error: " + tile);
@@ -142,22 +168,22 @@ public class MapDatabase implements IMapDatabase {
 		}
 
 		mLastRequest = SystemClock.elapsedRealtime();
-
-		if (result == QueryResult.SUCCESS) {
-
-			cacheFinish(tile, f, true);
-		} else {
-			cacheFinish(tile, f, false);
-			if (mSocket != null) {
-				// clear connection, TODO cleanup properly
-				try {
-					mSocket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				mSocket = null;
-			}
-		}
+		cManager.cacheFinish(tile, result == QueryResult.SUCCESS);
+		//		if (result == QueryResult.SUCCESS) {
+		//
+		//			cacheFinish(tile, f, true);
+		//		} else {
+		//			cacheFinish(tile, f, false);
+		//			if (mSocket != null) {
+		//				// clear connection, TODO cleanup properly
+		//				try {
+		//					mSocket.close();
+		//				} catch (IOException e) {
+		//					e.printStackTrace();
+		//				}
+		//				mSocket = null;
+		//			}
+		//		}
 		return result;
 	}
 
@@ -650,8 +676,9 @@ public class MapDatabase implements IMapDatabase {
 			read += len;
 			mReadPos += len;
 
-			if (mCacheFile != null)
-				mCacheFile.write(mReadBuffer, mBufferSize, len);
+			if (mCaching)
+				//mCacheFile.write(mReadBuffer, mBufferSize, len);
+				cManager.cacheWrite(mReadBuffer, mBufferSize, len);
 
 			if (mReadPos == mContentLenth)
 				break;
@@ -986,77 +1013,9 @@ public class MapDatabase implements IMapDatabase {
 		return true;
 	}
 
-	// ///////////////////////// Tile cache /////////////////////////////////
-
-	private boolean cacheRead(Tile tile, File f) {
-		if (f.exists() && f.length() > 0) {
-			FileInputStream in;
-
-			try {
-				in = new FileInputStream(f);
-
-				mContentLenth = f.length();
-				Log.d(TAG, tile + " - using cache: " + mContentLenth);
-				mInputStream = in;
-
-				decode();
-				in.close();
-
-				return true;
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
-
-			f.delete();
-			return false;
-		}
-
-		return false;
-	}
-
-	private boolean cacheBegin(Tile tile, File f) {
-		if (USE_CACHE) {
-			try {
-				Log.d(TAG, tile + " - writing cache");
-				mCacheFile = new FileOutputStream(f);
-
-				if (mReadPos > 0) {
-					try {
-						mCacheFile.write(mReadBuffer, mBufferPos,
-								mBufferSize - mBufferPos);
-
-					} catch (IOException e) {
-						e.printStackTrace();
-						mCacheFile = null;
-						return false;
-					}
-				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				mCacheFile = null;
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private void cacheFinish(Tile tile, File file, boolean success) {
-		if (USE_CACHE) {
-			if (success) {
-				try {
-					mCacheFile.flush();
-					mCacheFile.close();
-					Log.d(TAG, tile + " - cache written " + file.length());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				file.delete();
-			}
-		}
-		mCacheFile = null;
+	@Override
+	public void setCachingSize(long size) {
+		// TODO Auto-generated method stub
+		cManager.setCachingSize(size);
 	}
 }

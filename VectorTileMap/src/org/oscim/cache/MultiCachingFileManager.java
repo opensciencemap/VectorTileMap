@@ -23,12 +23,13 @@ import java.io.InputStream;
 
 import org.oscim.core.Tile;
 
+import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
 public class MultiCachingFileManager implements CachingManager {
 
-	private static final long MAX_SIZE = 10485760L; // 10MB
+	private long MAX_SIZE = 4000000;//10485760L/2; // 10MB
 	private FileOutputStream mCacheFile;
 	private InputStream mInputStream = null;
 	//int mReadPos;
@@ -46,21 +47,47 @@ public class MultiCachingFileManager implements CachingManager {
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
 	private TileHitDataSource datasource;
 
-	public MultiCachingFileManager() {
+	public MultiCachingFileManager(Context context) {
+		//		boolean mExternalStorageAvailable = false;
+		//		boolean mExternalStorageWriteable = false;
+		String state = Environment.getExternalStorageState();
 		if (cacheDir == null) {
 			String externalStorageDirectory = Environment
 					.getExternalStorageDirectory()
 					.getAbsolutePath();
 			String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
-			cacheDir = createDirectory(cacheDirectoryPath);
+			//			boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(
+			//					android.os.Environment.MEDIA_MOUNTED);
+
+			if (Environment.MEDIA_MOUNTED.equals(state)) {
+				// We can read and write the media
+				cacheDir = createDirectory(cacheDirectoryPath);
+				Log.d("Cache", "SDCARD");
+			} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+				// We can only read the media
+				cacheDir = context.getCacheDir();
+				Log.d("Cache", "SDCARD not writing!");
+			} else {
+				// Something else is wrong. It may be one of many other states, but all we need
+				//  to know is we can neither read nor write
+				cacheDir = context.getCacheDir();
+				Log.d("Cache", "Memery");
+			}
+			//			if (isSDPresent) {
+			//				cacheDir = createDirectory(cacheDirectoryPath);
+			//				Log.d("Cache", "SDCARD");
+			//			} else {
+			//				cacheDir = context.getCacheDir();
+			//				Log.d("Cache", "Memery");
+			//			}
 		}
-		//		datasource = new TileHitDataSource(App.mainActivity.getApplicationContext());
+		datasource = new TileHitDataSource(context);
 		//		if (datasource == null) {
 		//			Log.d("TileHitDataSource", "datasource is null");
 		//		} else {
 		//			Log.d("TileHitDataSource", "datasource is not null");
 		//		}
-		//		datasource.open();
+		datasource.open();
 	}
 
 	private static File createDirectory(String pathName) {
@@ -86,11 +113,15 @@ public class MultiCachingFileManager implements CachingManager {
 				Integer.valueOf(tile.zoomLevel),
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
-		//		String tileFile = String.format(CACHE_FILE,
-		//				Integer.valueOf(tile.zoomLevel),
-		//				Integer.valueOf(tile.tileX),
-		//				Integer.valueOf(tile.tileY));
-		//		datasource.setTileHit(tileFile);
+		String tileFile = String.format(CACHE_FILE,
+				Integer.valueOf(tile.zoomLevel),
+				Integer.valueOf(tile.tileX),
+				Integer.valueOf(tile.tileY));
+		if (getCacheDirSize() > MAX_SIZE) {
+			Log.d("Cache", "MAX_SIZE: " + MAX_SIZE);
+			datasource.deleteTileFileUnderhits(2);
+		}
+		datasource.setTileHit(tileFile);
 		try {
 			mCacheFile = new FileOutputStream(f);
 			written = 0;
@@ -155,11 +186,11 @@ public class MultiCachingFileManager implements CachingManager {
 		if (f.exists() && f.length() > 0) {
 			try {
 				mInputStream = new FileInputStream(f);
-				//				String tileFile = String.format(CACHE_FILE,
-				//						Integer.valueOf(tile.zoomLevel),
-				//						Integer.valueOf(tile.tileX),
-				//						Integer.valueOf(tile.tileY));
-				//				datasource.setTileHit(tileFile);
+				String tileFile = String.format(CACHE_FILE,
+						Integer.valueOf(tile.zoomLevel),
+						Integer.valueOf(tile.tileX),
+						Integer.valueOf(tile.tileY));
+				datasource.setTileHit(tileFile);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (Exception ex) {
@@ -203,6 +234,13 @@ public class MultiCachingFileManager implements CachingManager {
 			return size;
 		}
 		return -1;
+	}
+
+	@Override
+	public void setCachingSize(long size) {
+		// TODO Auto-generated method stub
+		this.MAX_SIZE = size * 1024 * 1024;
+		Log.d("Cache", "set MAX_SIZE to: " + MAX_SIZE);
 	}
 
 }

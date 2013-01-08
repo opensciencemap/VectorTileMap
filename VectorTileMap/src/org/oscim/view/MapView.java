@@ -102,7 +102,7 @@ public class MapView extends RelativeLayout {
 	private String mRenderTheme;
 
 	private boolean mClearTiles;
-
+	private Context mContext;
 	// FIXME: keep until old pbmap reader is removed
 	public static boolean enableClosePolygons = false;
 
@@ -134,7 +134,7 @@ public class MapView extends RelativeLayout {
 			throw new IllegalArgumentException(
 					"context is not an instance of MapActivity");
 		}
-
+		this.mContext = context;
 		this.setWillNotDraw(true);
 
 		// TODO set tilesize, make this dpi dependent
@@ -364,8 +364,8 @@ public class MapView extends RelativeLayout {
 			MapWorker mapWorker = mMapWorkers[i];
 
 			IMapDatabase mapDatabase = MapDatabaseFactory
-					.createMapDatabase(options.db);
-
+					.createMapDatabase(this.mContext, options.db);
+			this.mMapDatabase = mapDatabase;
 			OpenResult result = mapDatabase.open(options);
 
 			if (result != OpenResult.SUCCESS) {
@@ -388,6 +388,10 @@ public class MapView extends RelativeLayout {
 
 	public String getRenderTheme() {
 		return mRenderTheme;
+	}
+
+	public void setCachingSize(long size) {
+		this.mMapDatabase.setCachingSize(size);
 	}
 
 	/**
