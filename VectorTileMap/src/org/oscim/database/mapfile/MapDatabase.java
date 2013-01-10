@@ -20,6 +20,7 @@ import java.io.RandomAccessFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.oscim.cache.CacheManager;
 import org.oscim.core.MercatorProjection;
 import org.oscim.core.Tag;
 import org.oscim.database.IMapDatabase;
@@ -264,7 +265,7 @@ public class MapDatabase implements IMapDatabase {
 	/* (non-Javadoc)
 	 * @see org.oscim.map.reader.IMapDatabase#openFile(java.io.File) */
 	@Override
-	public OpenResult open(MapOptions options) {
+	public OpenResult open(MapOptions options, CacheManager cacheManager) {
 		// if (options == null) {
 		// options = new HashMap<String, String>(1);
 		// options.put("mapfile", "/sdcard/bremen.map");
@@ -1013,12 +1014,6 @@ public class MapDatabase implements IMapDatabase {
 
 	@Override
 	public void cancel() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setCachingSize(long size) {
 		// TODO Auto-generated method stub
 
 	}

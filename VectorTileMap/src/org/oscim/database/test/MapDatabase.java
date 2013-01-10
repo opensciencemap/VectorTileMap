@@ -14,6 +14,7 @@
  */
 package org.oscim.database.test;
 
+import org.oscim.cache.CacheManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.Tag;
 import org.oscim.core.Tile;
@@ -194,7 +195,7 @@ public class MapDatabase implements IMapDatabase {
 	}
 
 	@Override
-	public OpenResult open(MapOptions options) {
+	public OpenResult open(MapOptions options, CacheManager cacheManager) {
 		mOpenFile = true;
 		return OpenResult.SUCCESS;
 	}
@@ -207,11 +208,4 @@ public class MapDatabase implements IMapDatabase {
 	@Override
 	public void cancel() {
 	}
-
-	@Override
-	public void setCachingSize(long size) {
-		// TODO Auto-generated method stub
-
-	}
-
 }

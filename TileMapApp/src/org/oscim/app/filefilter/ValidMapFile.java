@@ -34,7 +34,7 @@ public final class ValidMapFile implements ValidFileFilter {
 		MapOptions options = new MapOptions(MapDatabases.MAP_READER);
 		options.put("file", file.getAbsolutePath());
 
-		this.openResult = mapDatabase.open(options);
+		this.openResult = mapDatabase.open(options, null);
 
 		mapDatabase.close();
 		return this.openResult.isSuccess();

@@ -24,6 +24,8 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.oscim.cache.CacheFileManager;
+import org.oscim.cache.CacheManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.MapPosition;
@@ -102,9 +104,11 @@ public class MapView extends RelativeLayout {
 	private String mRenderTheme;
 
 	private boolean mClearTiles;
-	private Context mContext;
+	//private Context mContext;
 	// FIXME: keep until old pbmap reader is removed
 	public static boolean enableClosePolygons = false;
+
+	private CacheManager mCacheManager;
 
 	/**
 	 * @param context
@@ -134,7 +138,8 @@ public class MapView extends RelativeLayout {
 			throw new IllegalArgumentException(
 					"context is not an instance of MapActivity");
 		}
-		this.mContext = context;
+		//this.mContext = context;
+
 		this.setWillNotDraw(true);
 
 		// TODO set tilesize, make this dpi dependent
@@ -160,6 +165,8 @@ public class MapView extends RelativeLayout {
 		mGLView = new GLView(context, this);
 
 		mMapWorkers = new MapWorker[mNumMapWorkers];
+
+		mCacheManager = new CacheFileManager(context);
 
 		for (int i = 0; i < mNumMapWorkers; i++) {
 			TileGenerator tileGenerator = new TileGenerator(this);
@@ -364,9 +371,9 @@ public class MapView extends RelativeLayout {
 			MapWorker mapWorker = mMapWorkers[i];
 
 			IMapDatabase mapDatabase = MapDatabaseFactory
-					.createMapDatabase(this.mContext, options.db);
+					.createMapDatabase(options.db);
 			this.mMapDatabase = mapDatabase;
-			OpenResult result = mapDatabase.open(options);
+			OpenResult result = mapDatabase.open(options, mCacheManager);
 
 			if (result != OpenResult.SUCCESS) {
 				Log.d(TAG, "failed open db: " + result.getErrorMessage());
@@ -391,7 +398,7 @@ public class MapView extends RelativeLayout {
 	}
 
 	public void setCachingSize(long size) {
-		this.mMapDatabase.setCachingSize(size);
+		mCacheManager.setCachingSize(size);
 	}
 
 	/**

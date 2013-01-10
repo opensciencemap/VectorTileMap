@@ -14,7 +14,6 @@
  */
 package org.oscim.database;
 
-import android.content.Context;
 import android.util.AttributeSet;
 
 /**
@@ -53,13 +52,11 @@ public final class MapDatabaseFactory {
 	}
 
 	/**
-	 * @param context
-	 *            the context argument for MapDatabase cache using.
 	 * @param mapDatabase
 	 *            the internal MapDatabase implementation.
 	 * @return a new MapDatabase instance.
 	 */
-	public static IMapDatabase createMapDatabase(Context context, MapDatabases mapDatabase) {
+	public static IMapDatabase createMapDatabase(MapDatabases mapDatabase) {
 		switch (mapDatabase) {
 			case MAP_READER:
 				return new org.oscim.database.mapfile.MapDatabase();
@@ -68,9 +65,9 @@ public final class MapDatabaseFactory {
 			case POSTGIS_READER:
 				return new org.oscim.database.postgis.MapDatabase();
 			case PBMAP_READER:
-				return new org.oscim.database.pbmap.MapDatabase(context);
+				return new org.oscim.database.pbmap.MapDatabase();
 			case OSCIMAP_READER:
-				return new org.oscim.database.oscimap.MapDatabase(context);
+				return new org.oscim.database.oscimap.MapDatabase();
 
 		}
 

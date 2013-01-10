@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.oscim.cache.CacheManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.Tag;
@@ -210,7 +211,7 @@ public class MapDatabase implements IMapDatabase {
 	}
 
 	@Override
-	public OpenResult open(MapOptions options) {
+	public OpenResult open(MapOptions options, CacheManager cacheManager) {
 		mOpenFile = true;
 		if (mCoords == null) {
 			mCoords = new float[100000];
@@ -390,12 +391,6 @@ public class MapDatabase implements IMapDatabase {
 
 	@Override
 	public void cancel() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void setCachingSize(long size) {
 		// TODO Auto-generated method stub
 
 	}

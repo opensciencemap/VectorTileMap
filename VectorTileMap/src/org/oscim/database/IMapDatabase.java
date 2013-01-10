@@ -15,6 +15,7 @@
  */
 package org.oscim.database;
 
+import org.oscim.cache.CacheManager;
 import org.oscim.generator.JobTile;
 
 /**
@@ -50,9 +51,10 @@ public interface IMapDatabase {
 	 * Opens MapDatabase
 	 * @param options
 	 *            the options.
+	 * @param cacheManager TODO
 	 * @return a OpenResult containing an error message in case of a failure.
 	 */
-	public abstract OpenResult open(MapOptions options);
+	public abstract OpenResult open(MapOptions options, CacheManager cacheManager);
 
 	/**
 	 * Closes the map file and destroys all internal caches. Has no effect if no
@@ -67,6 +69,6 @@ public interface IMapDatabase {
 	 */
 	public abstract void cancel();
 
-	public abstract void setCachingSize(long size);
+	//public abstract void setCachingSize(long size);
 
 }

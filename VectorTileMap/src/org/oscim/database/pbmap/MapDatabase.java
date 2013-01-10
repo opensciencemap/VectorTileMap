@@ -31,8 +31,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.oscim.cache.CachingManager;
-import org.oscim.cache.MultiCachingFileManager;
+import org.oscim.cache.CacheFile;
+import org.oscim.cache.CacheManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
 import org.oscim.core.Tag;
@@ -45,7 +45,6 @@ import org.oscim.database.OpenResult;
 import org.oscim.database.QueryResult;
 import org.oscim.generator.JobTile;
 
-import android.content.Context;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
@@ -89,22 +88,17 @@ public class MapDatabase implements IMapDatabase {
 	private Tag[] curTags = new Tag[MAX_TILE_TAGS];
 	private int mCurTagCnt;
 
-	//	private HttpClient mClient;
-	//	private HttpGet mRequest = null;
-
 	private IMapDatabaseCallback mMapGenerator;
 	private float mScaleFactor;
 	private JobTile mTile;
-	//private FileOutputStream mCacheFile;
 
 	private String mHost;
 	private int mPort;
 	private long mContentLenth;
 	private InputStream mInputStream;
-	private CachingManager cManager;
+	private CacheManager mCacheManager;
+	private CacheFile mCacheFile;
 
-	private boolean mCaching;
-	private Context mContext;
 	private static final int MAX_TAGS_CACHE = 100;
 
 	private static Map<String, Tag> tagHash = Collections
@@ -121,28 +115,18 @@ public class MapDatabase implements IMapDatabase {
 				}
 			});
 
-	public MapDatabase(Context context) {
-		// TODO Auto-generated constructor stub
-		this.mContext = context;
-		this.cManager = new MultiCachingFileManager(this.mContext);
-	}
-
 	@Override
 	public QueryResult executeQuery(JobTile tile, IMapDatabaseCallback mapDatabaseCallback) {
 		QueryResult result = QueryResult.SUCCESS;
-		//mCacheFile = null;
-		mCaching = false;
-
+		mCacheFile = null;
 		mTile = tile;
-
 		mMapGenerator = mapDatabaseCallback;
-		mCurTagCnt = 0;
 
 		// scale coordinates to tile size
 		mScaleFactor = REF_TILE_SIZE / Tile.TILE_SIZE;
 
 		File f = null;
-
+		mCurTagCnt = 0;
 		mBufferSize = 0;
 		mBufferPos = 0;
 		mReadPos = 0;
@@ -152,99 +136,54 @@ public class MapDatabase implements IMapDatabase {
 					Integer.valueOf(tile.zoomLevel),
 					Integer.valueOf(tile.tileX),
 					Integer.valueOf(tile.tileY)));
-
-			//			if (cacheRead(tile, f))
-			//				return QueryResult.SUCCESS;
-			cManager.cacheCheck();
+			mCacheManager.cacheCheck();
 			try {
-				mInputStream = cManager.cacheReadBegin(tile);
+				mInputStream = mCacheManager.getCache(tile);
 				if (mInputStream != null) {
 					mContentLenth = f.length();
 					tile.isEmpty = false;
 					decode();
-					cManager.cacheReadFinish();
+					//mCacheManager.cacheReadFinish();
+
 					return QueryResult.SUCCESS;
 				}
-				//return QueryResult.FAILED;
 			} catch (Exception e) {
 				e.printStackTrace();
-				return QueryResult.FAILED;
+				//return QueryResult.FAILED;
+
+				Log.d(TAG, "failed using cache for " + tile);
+
+				// try loading again
+				mCurTagCnt = 0;
+				mBufferSize = 0;
+				mBufferPos = 0;
+				mReadPos = 0;
+			} finally {
+				if (mInputStream != null)
+					try {
+						mInputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				mInputStream = null;
 			}
 		}
 
-		//		String url = null;
-		//		HttpGet getRequest;
-
-		//		if (!USE_LW_HTTP) {
-		//			url = String.format(URL,
-		//					Integer.valueOf(tile.zoomLevel),
-		//					Integer.valueOf(tile.tileX),
-		//					Integer.valueOf(tile.tileY));
-		//		}
-
-		//		if (USE_APACHE_HTTP) {
-		//			getRequest = new HttpGet(url);
-		//			mRequest = getRequest;
-		//		}
-
 		try {
-			//			if (USE_LW_HTTP) {
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() > 0) {
-				//cacheBegin(tile, f);
-				cManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
-				mCaching = true;
+				///mCacheManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+				mCacheFile = mCacheManager.writeCache(tile);
+				// write byte already read while parsing header
+				if (mCacheFile != null && mBufferSize - mBufferPos > 0) {
+					mCacheFile.write(mReadBuffer, mBufferPos, mBufferSize - mBufferPos);
+				}
+				//mCaching = true;
+
 				tile.isEmpty = false;
 				decode();
 			} else {
 				result = QueryResult.FAILED;
 			}
-
-			//			}
-			//			else if (USE_APACHE_HTTP) {
-			//				HttpResponse response = mClient.execute(getRequest);
-			//				final int statusCode = response.getStatusLine().getStatusCode();
-			//				final HttpEntity entity = response.getEntity();
-			//
-			//				if (statusCode != HttpStatus.SC_OK) {
-			//					Log.d(TAG, "Http response " + statusCode);
-			//					entity.consumeContent();
-			//					return QueryResult.FAILED;
-			//				}
-			//				if (!mTile.isLoading) {
-			//					Log.d(TAG, "1 loading canceled " + mTile);
-			//					entity.consumeContent();
-			//
-			//					return QueryResult.FAILED;
-			//				}
-			//
-			//				InputStream is = null;
-			//				// GZIPInputStream zis = null;
-			//				try {
-			//					is = entity.getContent();
-			//
-			//					mContentLenth = entity.getContentLength();
-			//					mInputStream = is;
-			//					cacheBegin(tile, f);
-			//					// zis = new GZIPInputStream(is);
-			//					decode();
-			//				} finally {
-			//					// if (zis != null)
-			//					// zis.close();
-			//					if (is != null)
-			//						is.close();
-			//					entity.consumeContent();
-			//				}
-			//			} else {
-			//				HttpURLConnection urlConn =
-			//						(HttpURLConnection) new URL(url).openConnection();
-			//
-			//				InputStream in = urlConn.getInputStream();
-			//				try {
-			//					decode();
-			//				} finally {
-			//					urlConn.disconnect();
-			//				}
-			//			}
 		} catch (SocketException ex) {
 			Log.d(TAG, "Socket exception: " + ex.getMessage());
 			result = QueryResult.FAILED;
@@ -253,7 +192,6 @@ public class MapDatabase implements IMapDatabase {
 			result = QueryResult.FAILED;
 		} catch (UnknownHostException ex) {
 			Log.d(TAG, "no network");
-			//tile.isEmpty = true;
 			result = QueryResult.FAILED;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -262,30 +200,13 @@ public class MapDatabase implements IMapDatabase {
 
 		mLastRequest = SystemClock.elapsedRealtime();
 
-		//		if (USE_APACHE_HTTP)
-		//			mRequest = null;
+		if (mCacheFile != null)
+			mCacheFile.cacheFinish(result == QueryResult.SUCCESS);
 
-		cManager.cacheFinish(tile, result == QueryResult.SUCCESS);
-		//cacheFinish(tile, f, result == QueryResult.SUCCESS);
+		//mCacheManager.cacheFinish(tile, result == QueryResult.SUCCESS);
 
 		return result;
 	}
-
-	//	private boolean CachingManagerRead(Tile tile, File f) {
-	//		try {
-	//			mInputStream = cManager.cacheReadBegin(tile);
-	//			if (mInputStream != null) {
-	//				mContentLenth = f.length();
-	//				decode();
-	//				cManager.cacheReadFinish();
-	//				return true;
-	//			}
-	//		} catch (IOException e) {
-	//			// TODO Auto-generated catch block
-	//			e.printStackTrace();
-	//		}
-	//		return false;
-	//	}
 
 	private static File cacheDir;
 
@@ -304,36 +225,8 @@ public class MapDatabase implements IMapDatabase {
 		return mOpenFile;
 	}
 
-	//	private void createClient() {
-	//		mOpenFile = true;
-	//		HttpParams params = new BasicHttpParams();
-	//		HttpConnectionParams.setStaleCheckingEnabled(params, false);
-	//		HttpConnectionParams.setTcpNoDelay(params, true);
-	//		HttpConnectionParams.setConnectionTimeout(params, 20 * 1000);
-	//		HttpConnectionParams.setSoTimeout(params, 60 * 1000);
-	//		HttpConnectionParams.setSocketBufferSize(params, 32768);
-	//		HttpClientParams.setRedirecting(params, false);
-	//
-	//		DefaultHttpClient client = new DefaultHttpClient(params);
-	//		client.removeRequestInterceptorByClass(RequestAddCookies.class);
-	//		client.removeResponseInterceptorByClass(ResponseProcessCookies.class);
-	//		client.removeRequestInterceptorByClass(RequestUserAgent.class);
-	//		client.removeRequestInterceptorByClass(RequestExpectContinue.class);
-	//		client.removeRequestInterceptorByClass(RequestTargetAuthentication.class);
-	//		client.removeRequestInterceptorByClass(RequestProxyAuthentication.class);
-	//
-	//		mClient = client;
-	//
-	//		SchemeRegistry schemeRegistry = new SchemeRegistry();
-	//		schemeRegistry.register(new Scheme("http",
-	//				PlainSocketFactory.getSocketFactory(), 80));
-	//	}
-
 	@Override
-	public OpenResult open(MapOptions options) {
-
-		//if (USE_APACHE_HTTP)
-		//	createClient();
+	public OpenResult open(MapOptions options, CacheManager cacheManager) {
 
 		if (mOpenFile)
 			return OpenResult.SUCCESS;
@@ -349,6 +242,8 @@ public class MapDatabase implements IMapDatabase {
 			e.printStackTrace();
 			return new OpenResult("invalid url: " + options.get("url"));
 		}
+
+		mCacheManager = cacheManager;
 
 		int port = url.getPort();
 		if (port < 0)
@@ -390,14 +285,6 @@ public class MapDatabase implements IMapDatabase {
 	@Override
 	public void close() {
 		mOpenFile = false;
-		//		if (USE_APACHE_HTTP) {
-		//			if (mClient != null) {
-		//				mClient.getConnectionManager().shutdown();
-		//				mClient = null;
-		//			}
-		//		}
-
-		//		if (USE_LW_HTTP) {
 
 		mSockAddr = null;
 
@@ -931,9 +818,11 @@ public class MapDatabase implements IMapDatabase {
 			read += len;
 			mReadPos += len;
 
-			if (mCaching)
+			if (mCacheFile != null) {
 				//mCacheFile.write(mReadBuffer, mBufferSize, len);
-				cManager.cacheWrite(mReadBuffer, mBufferSize, len);
+				//mCacheManager.cacheWrite(mReadBuffer, mBufferSize, len);
+				mCacheFile.write(mReadBuffer, mBufferSize, len);
+			}
 			//			if (USE_LW_HTTP) {
 			if (mReadPos == mContentLenth)
 				break;
@@ -1125,7 +1014,8 @@ public class MapDatabase implements IMapDatabase {
 
 		if (mSocket == null) {
 			if (!lwHttpConnect(tile)) {
-				Log.d(TAG, "EEEEK! " + tile);
+				// FIXME use Android Conneciton to not even try loading in this case::
+				//Log.d(TAG, tile + " loading failed - no connection ");
 				return false;
 			}
 			// we know our server
@@ -1196,10 +1086,19 @@ public class MapDatabase implements IMapDatabase {
 
 		} catch (Exception e) {
 			//e.printStackTrace();
-			Log.d(TAG, "no network in LW_HTTP_CONNECTION");
+			//Log.d(TAG, "no network in LW_HTTP_CONNECTION");
 			tile.isEmpty = true;
+			if (mSocket == null)
+				return false;
+			try {
+				mSocket.close();
+			} catch (Exception ee) {
+				ee.printStackTrace();
+			}
+
 			mSocket = null;
 			return false;
+
 		}
 		return true;
 
@@ -1350,11 +1249,4 @@ public class MapDatabase implements IMapDatabase {
 	private static int decodeZigZag32(final int n) {
 		return (n >>> 1) ^ -(n & 1);
 	}
-
-	@Override
-	public void setCachingSize(long size) {
-		// TODO Auto-generated method stub
-		cManager.setCachingSize(size);
-	}
-
 }
