@@ -29,7 +29,6 @@ import org.oscim.view.MapView;
 
 import android.graphics.Color;
 import android.graphics.Paint.Cap;
-import android.util.Log;
 
 public class OverlayGrid extends RenderOverlay {
 
@@ -91,6 +90,19 @@ public class OverlayGrid extends RenderOverlay {
 				//	(x + j) + " / " + (y + i) + " / " + z, mText);
 				for (MapTile t : tiles.tiles) {
 					if (t != null && t.tileX == x + j && t.tileY == y + i && t.isEmpty) {
+
+						//  check parents
+						if ((t.proxies & 1 << 4) != 0
+								|| (t.proxies & 1 << 5) != 0)
+							continue;
+
+						// check children
+						if ((t.proxies & 1 << 0) != 0
+								&& (t.proxies & 1 << 1) != 0
+								&& (t.proxies & 1 << 2) != 0
+								&& (t.proxies & 1 << 3) != 0)
+							continue;
+
 						//						Log.d(TAG, "tileX: " + t.tileX + "; tileY: " + t.tileY + "; x: " + x
 						//								+ "; y: " + y + "; z:" + z + "; i:" + i + "; j:" + j);
 						//						TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
@@ -142,7 +154,7 @@ public class OverlayGrid extends RenderOverlay {
 	private boolean finished;
 
 	void timerFinished() {
-		Log.d("...", "timer finish!");
+		//Log.d("...", "timer finish!");
 		finished = true;
 		mMapView.redrawMap();
 	}
@@ -176,7 +188,7 @@ public class OverlayGrid extends RenderOverlay {
 			ll.width = 1.5f;
 			//ll.addLine(mPoints, mIndex, false);
 
-			Log.d("...", "update labels");
+			//Log.d("...", "update labels");
 
 			addLabels(x, y, mCurZ);
 

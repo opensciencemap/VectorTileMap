@@ -34,7 +34,7 @@ class QuadTree {
 	final QuadTree[] child = new QuadTree[4];
 	int refs = 0;
 	byte id;
-	MapTile tile;
+	public MapTile tile;
 
 	static void init() {
 		pool = null;

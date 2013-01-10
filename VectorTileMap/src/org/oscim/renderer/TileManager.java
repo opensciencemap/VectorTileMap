@@ -241,7 +241,7 @@ public class TileManager {
 		}
 	}
 
-	/// EEEK, need to keep track of TileSets to clear on reset...
+	/// this is to keep track of TileSets to clear on reset...
 	private static ArrayList<TileSet> mTileSets = new ArrayList<TileSet>(2);
 
 	public static TileSet getActiveTiles(TileSet td) {
@@ -632,6 +632,7 @@ public class TileManager {
 		if (tile.vbo == null) {
 			Log.d(TAG, "no VBOs left for " + tile);
 			tile.isLoading = false;
+			// FIXME clear tile data!
 			return true;
 		}
 
