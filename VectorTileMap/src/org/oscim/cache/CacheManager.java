@@ -19,18 +19,11 @@ import java.io.InputStream;
 import org.oscim.core.Tile;
 
 public interface CacheManager {
-	//boolean cacheBegin(Tile tile, byte[] readBuffer, int bufferPos, int bufferSize);
 	CacheFile writeCache(Tile tile);
-
-	//void cacheFinish(Tile tile, boolean success);
 
 	InputStream getCache(Tile tile);
 
-	//void cacheReadFinish();
-
-	//void cacheWrite(byte[] readBuffer, int offset, int len);
-
-	void cacheCheck();
-
 	void setCachingSize(long size);
+
+	void setCachingPath(String path);
 }

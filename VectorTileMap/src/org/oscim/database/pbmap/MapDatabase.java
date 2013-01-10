@@ -68,7 +68,7 @@ public class MapDatabase implements IMapDatabase {
 	//	private static final boolean USE_APACHE_HTTP = false;
 	//	private static final boolean USE_LW_HTTP = true;
 
-	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
+	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/pbmap";
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
 
 	//	private static final String SERVER_ADDR = "city.informatik.uni-bremen.de";
@@ -136,7 +136,6 @@ public class MapDatabase implements IMapDatabase {
 					Integer.valueOf(tile.zoomLevel),
 					Integer.valueOf(tile.tileX),
 					Integer.valueOf(tile.tileY)));
-			mCacheManager.cacheCheck();
 			try {
 				mInputStream = mCacheManager.getCache(tile);
 				if (mInputStream != null) {
@@ -244,6 +243,7 @@ public class MapDatabase implements IMapDatabase {
 		}
 
 		mCacheManager = cacheManager;
+		mCacheManager.setCachingPath(CACHE_DIRECTORY);
 
 		int port = url.getPort();
 		if (port < 0)

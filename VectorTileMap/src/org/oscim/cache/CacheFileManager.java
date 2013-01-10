@@ -20,8 +20,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.oscim.core.Tile;
+import org.oscim.generator.JobTile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,43 +34,23 @@ import android.util.Log;
 @SuppressLint("DefaultLocale")
 public class CacheFileManager implements CacheManager {
 	private final static String TAG = CacheFileManager.class.getName();
-	private long MAX_SIZE = 4000000;//10485760L/2; // 10MB
+	private long MAX_SIZE;//= 4000000;//10485760L/2; // 10MB
 
-	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
+	private String CACHE_DIRECTORY;
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
 
 	final TileHitDataSource mDatasource;
-	private final File mCacheDir;
+	private File mCacheDir;
 
 	private long mCacheSize = 0;
+	private Context mContext;
 
 	private ArrayList<Tile> mCommitHitList;
 
 	public CacheFileManager(Context context) {
 		//		boolean mExternalStorageAvailable = false;
 		//		boolean mExternalStorageWriteable = false;
-		String state = Environment.getExternalStorageState();
 
-		String externalStorageDirectory = Environment.getExternalStorageDirectory()
-				.getAbsolutePath();
-		String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
-		//			boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(
-		//					android.os.Environment.MEDIA_MOUNTED);
-
-		if (Environment.MEDIA_MOUNTED.equals(state)) {
-			// We can read and write the media
-			mCacheDir = createDirectory(cacheDirectoryPath);
-			Log.d(TAG, "SDCARD");
-		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-			// We can only read the media
-			mCacheDir = context.getCacheDir();
-			Log.d(TAG, "SDCARD not writing!");
-		} else {
-			// Something else is wrong. It may be one of many other states, but all we need
-			//  to know is we can neither read nor write
-			mCacheDir = context.getCacheDir();
-			Log.d(TAG, "Memory");
-		}
 		//			if (isSDPresent) {
 		//				mCacheDir = createDirectory(cacheDirectoryPath);
 		//				Log.d(TAG, "SDCARD");
@@ -76,6 +58,7 @@ public class CacheFileManager implements CacheManager {
 		//				mCacheDir = context.getCacheDir();
 		//				Log.d(TAG, "Memery");
 		//			}
+		mContext = context;
 		mDatasource = new TileHitDataSource(context);
 		//		if (mDatasource == null) {
 		//			Log.d("TileHitDataSource", "mDatasource is null");
@@ -131,7 +114,12 @@ public class CacheFileManager implements CacheManager {
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
 
+		//<<<<<<< HEAD
 		addTileHit(tile);
+		//=======
+		//		cacheCheck((JobTile) tile);
+		//		mDatasource.setTileHit(tileFile);
+		//>>>>>>> city/release_0_4_cache
 
 		try {
 			return new CacheFile(tile, this, f, new FileOutputStream(f));
@@ -193,9 +181,10 @@ public class CacheFileManager implements CacheManager {
 		return is;
 	}
 
-	@Override
-	public void cacheCheck() {
-
+	private void cacheCheck(JobTile Tile) {
+		if (getCacheDirSize() > MAX_SIZE) {
+			reduceCachingSize(Tile);
+		}
 	}
 
 	private long getCacheDirSize() {
@@ -217,6 +206,101 @@ public class CacheFileManager implements CacheManager {
 	public void setCachingSize(long size) {
 		this.MAX_SIZE = size * 1024 * 1024;
 		Log.d(TAG, "set MAX_SIZE to: " + MAX_SIZE);
+	}
+
+	@Override
+	public void setCachingPath(String path) {
+		this.CACHE_DIRECTORY = path;
+		String state = Environment.getExternalStorageState();
+
+		String externalStorageDirectory = Environment.getExternalStorageDirectory()
+				.getAbsolutePath();
+		String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
+		//			boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(
+		//					android.os.Environment.MEDIA_MOUNTED);
+
+		if (Environment.MEDIA_MOUNTED.equals(state)) {
+			// We can read and write the media
+			mCacheDir = createDirectory(cacheDirectoryPath);
+			Log.d(TAG, "SDCARD");
+		} else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+			// We can only read the media
+			mCacheDir = mContext.getCacheDir();
+			Log.d(TAG, "SDCARD not writing!");
+		} else {
+			// Something else is wrong. It may be one of many other states, but all we need
+			//  to know is we can neither read nor write
+			mCacheDir = mContext.getCacheDir();
+			Log.d(TAG, "Memory");
+		}
+	}
+
+	private void reduceCachingSize(Tile tile) {
+		/* 1.distance
+		 * 2.haeufigkeit
+		 * 3.time */
+		ArrayList<String> safeTile = new ArrayList<String>();
+		int z = tile.zoomLevel;
+		int x = tile.tileX;
+		int y = tile.tileY;
+
+		/* the tiles surrouding the current tile should not be deleted. */
+		for (int zz = z; zz > 4; zz--) {
+			for (int xx = x - 3; xx < x + 4; xx++) {
+				for (int yy = y - 3; yy < y + 4; yy++) {
+					if (xx < 0) {
+						xx = (int) (Math.pow(2, zz) - 1 + xx);
+					}
+					if (yy > 0) {
+						String safeTileFile = String.format(CACHE_FILE, Integer.valueOf(zz),
+								Integer.valueOf(xx), Integer.valueOf(yy));
+						safeTile.add(safeTileFile);
+					}
+				}
+			}
+			x = x / 2;
+			x = y / 2;
+		}
+		/* get the middle haeufigkeit */
+		//Log.d("Cache", "middle is: " + datasource.getMiddleHits());
+		ArrayList<String> always = (ArrayList<String>) mDatasource
+				.getAllTileFileAboveHits(mDatasource.getMiddleHits());
+
+		safeTile.addAll(always);
+		/* time */
+		if (mCacheDir != null) {
+			File[] files = mCacheDir.listFiles();
+			for (File file : files) {
+				if (file.isFile()) {
+					Date now = new Date();
+					long NOW = now.getTime();
+					Date befor = new Date(file.lastModified());
+					long BEFOR = befor.getTime();
+					long old = NOW - BEFOR;
+					//Log.d("Cache", file.getName());
+					if (!safeTile.contains(file.getName()) && old > 2000000) {
+						file.delete();
+					}
+				}
+			}
+			if (getCacheDirSize() > MAX_SIZE) {
+				for (File file : files) {
+					if (file.isFile()) {
+						if (!safeTile.contains(file.getName())) {
+							file.delete();
+						}
+					}
+				}
+			}
+			if (getCacheDirSize() > MAX_SIZE) {
+				for (File file : files) {
+					if (file.isFile()) {
+						file.delete();
+					}
+				}
+			}
+		}
+
 	}
 
 }

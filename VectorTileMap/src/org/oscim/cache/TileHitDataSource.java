@@ -27,6 +27,7 @@ public class TileHitDataSource {
 	private static final String TAG = "TileHitDataSource";
 	private SQLiteDatabase database;
 	private SQLiteHelper dbHelper;
+	public static String Lock = "dblock";
 
 	//	private String[] allColumns = { SQLiteHelper.COLUMN_ID,
 	//			SQLiteHelper.COLUMN_COMMENT };
@@ -58,17 +59,23 @@ public class TileHitDataSource {
 
 	public void setTileHit(String TileName) {
 		//ContentValues values = new ContentValues();
-		String insert =
-				"INSERT OR IGNORE INTO " + SQLiteHelper.TABLE_NAME + "(_name,hits)"
-						+ " VALUES ('"
-						+ TileName
-						+ "', '0');";
-		String update =
-				"UPDATE " + SQLiteHelper.TABLE_NAME
-						+ " SET hits = hits + 1 WHERE _name LIKE '"
-						+ TileName + "'";
-		database.execSQL(insert);
-		database.execSQL(update);
+		synchronized (Lock) {
+			open();
+			String insert =
+					"INSERT OR IGNORE INTO " + SQLiteHelper.TABLE_NAME + "(_name,hits)"
+							+ " VALUES ('"
+							+ TileName
+							+ "', '0');";
+			String update =
+					"UPDATE " + SQLiteHelper.TABLE_NAME
+							+ " SET hits = hits + 1 WHERE _name = '"
+							+ TileName + "'";
+			database.execSQL(insert);
+			database.execSQL(update);
+			//Log.d("Cache", "setTileHit once");
+			database.close();
+		}
+		//Log.d("Cache", "hits from " + TileName + ": " + getHitsByTile(TileName));
 		//values.put(SQLiteHelper.COLUMN_COMMENT, TileHit);
 		//		long insertId = database.insert(SQLiteHelper.TABLE_NAME, null,
 		//				values);
@@ -82,26 +89,67 @@ public class TileHitDataSource {
 	}
 
 	public int getHitsByTile(String Tilefile) {
-		Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "hits" }, "_name=?",
-				new String[] { Tilefile }, null, null, null);
-		cursor.moveToFirst();
-		int hit = cursor.getInt(0);
-		cursor.close();
-		return hit;
+		synchronized (Lock) {
+			open();
+			Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "hits" },
+					"_name=?",
+					new String[] { Tilefile }, null, null, null);
+			cursor.moveToFirst();
+			int hit = cursor.getInt(0);
+			cursor.close();
+			database.close();
+			return hit;
+		}
 	}
 
 	public List<String> getAllTileFileUnderHits(int hit) {
-		List<String> TileFiles = new ArrayList<String>();
-		Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "_name" },
-				"hits<=?", new String[] { String.valueOf(hit) }, null, null, null);
-		cursor.moveToFirst();
-		while (!cursor.isAfterLast()) {
-			String File = cursor.getString(0);
-			TileFiles.add(File);
-			cursor.moveToNext();
+		synchronized (Lock) {
+			open();
+			List<String> TileFiles = new ArrayList<String>();
+			Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "_name" },
+					"hits<=?", new String[] { String.valueOf(hit) }, null, null, null);
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				String File = cursor.getString(0);
+				TileFiles.add(File);
+				cursor.moveToNext();
+			}
+			cursor.close();
+			database.close();
+			return TileFiles;
 		}
-		cursor.close();
-		return TileFiles;
+	}
+
+	public List<String> getAllTileFileAboveHits(int hit) {
+		synchronized (Lock) {
+			open();
+			List<String> TileFiles = new ArrayList<String>();
+			Cursor cursor = database.query(SQLiteHelper.TABLE_NAME, new String[] { "_name" },
+					"hits>?", new String[] { String.valueOf(hit) }, null, null, null);
+			cursor.moveToFirst();
+			while (!cursor.isAfterLast()) {
+				String File = cursor.getString(0);
+				TileFiles.add(File);
+				cursor.moveToNext();
+			}
+			cursor.close();
+			database.close();
+			return TileFiles;
+		}
+	}
+
+	public int getMiddleHits() {
+		synchronized (Lock) {
+			open();
+			Cursor c = database.rawQuery(
+					"select max(hits) from " + SQLiteHelper.TABLE_NAME,
+					null);
+			c.moveToFirst();
+			int middle = c.getInt(0) / 2;
+			c.close();
+			database.close();
+			return middle;
+		}
 	}
 
 	public void deleteTileFileUnderhits(int hit) {
@@ -112,7 +160,11 @@ public class TileHitDataSource {
 	}
 
 	public void deleteTileFile(String name) {
-		database.delete(SQLiteHelper.TABLE_NAME, SQLiteHelper.COLUMN_ID
-				+ " = '" + name + "'", null);
+		synchronized (Lock) {
+			open();
+			database.delete(SQLiteHelper.TABLE_NAME, SQLiteHelper.COLUMN_ID
+					+ " = '" + name + "'", null);
+			close();
+		}
 	}
 }
