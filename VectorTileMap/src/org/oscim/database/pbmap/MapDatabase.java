@@ -16,6 +16,7 @@ package org.oscim.database.pbmap;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,7 +46,6 @@ import org.oscim.database.OpenResult;
 import org.oscim.database.QueryResult;
 import org.oscim.generator.JobTile;
 
-import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -64,23 +64,6 @@ public class MapDatabase implements IMapDatabase {
 	private boolean mOpenFile = false;
 
 	private static final boolean USE_CACHE = true;
-
-	//	private static final boolean USE_APACHE_HTTP = false;
-	//	private static final boolean USE_LW_HTTP = true;
-
-	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/pbmap";
-	private static final String CACHE_FILE = "%d-%d-%d.tile";
-
-	//	private static final String SERVER_ADDR = "city.informatik.uni-bremen.de";
-	// private static final String URL =
-	// "http://city.informatik.uni-bremen.de:8020/test/%d/%d/%d.osmtile";
-	//private static final String URL = "http://city.informatik.uni-bremen.de/osmstache/test/%d/%d/%d.osmtile";
-	//private static final String URL = "http://city.informatik.uni-bremen.de/osmstache/gis-live/%d/%d/%d.osmtile";
-
-	// private static final String URL =
-	// "http://city.informatik.uni-bremen.de/tiles/tiles.py///test/%d/%d/%d.osmtile";
-	// private static final String URL =
-	// "http://city.informatik.uni-bremen.de/osmstache/gis2/%d/%d/%d.osmtile";
 
 	private final static float REF_TILE_SIZE = 4096.0f;
 
@@ -125,66 +108,65 @@ public class MapDatabase implements IMapDatabase {
 		// scale coordinates to tile size
 		mScaleFactor = REF_TILE_SIZE / Tile.TILE_SIZE;
 
-		File f = null;
-		mCurTagCnt = 0;
-		mBufferSize = 0;
-		mBufferPos = 0;
-		mReadPos = 0;
-
 		if (USE_CACHE) {
-			f = new File(cacheDir, String.format(CACHE_FILE,
-					Integer.valueOf(tile.zoomLevel),
-					Integer.valueOf(tile.tileX),
-					Integer.valueOf(tile.tileY)));
-			try {
-				mInputStream = mCacheManager.getCache(tile);
-				if (mInputStream != null) {
-					mContentLenth = f.length();
-					tile.isEmpty = false;
-					decode();
-					//mCacheManager.cacheReadFinish();
+			File f = mCacheManager.getCache(tile);
+			if (f != null)
+				try {
+					mCurTagCnt = 0;
+					mBufferSize = 0;
+					mBufferPos = 0;
+					mReadPos = 0;
 
-					return QueryResult.SUCCESS;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				//return QueryResult.FAILED;
+					mInputStream = new FileInputStream(f);
+					mContentLenth = (int) f.length();
 
-				Log.d(TAG, "failed using cache for " + tile);
-
-				// try loading again
-				mCurTagCnt = 0;
-				mBufferSize = 0;
-				mBufferPos = 0;
-				mReadPos = 0;
-			} finally {
-				if (mInputStream != null)
-					try {
-						mInputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
+					if (mContentLenth > 0 && mInputStream != null) {
+						tile.isEmpty = false;
+						decode();
+						return QueryResult.SUCCESS;
 					}
-				mInputStream = null;
-			}
+				} catch (Exception e) {
+					e.printStackTrace();
+					//return QueryResult.FAILED;
+
+					Log.d(TAG, "failed using cache for " + tile);
+
+				} finally {
+					if (mInputStream != null)
+						try {
+							mInputStream.close();
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+
+					// try loading again
+					mInputStream = null;
+				}
 		}
 
 		try {
+			mCurTagCnt = 0;
+			mBufferSize = 0;
+			mBufferPos = 0;
+			mReadPos = 0;
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() > 0) {
-				///mCacheManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+
 				mCacheFile = mCacheManager.writeCache(tile);
+
 				// write byte already read while parsing header
 				if (mCacheFile != null && mBufferSize - mBufferPos > 0) {
 					mCacheFile.write(mReadBuffer, mBufferPos, mBufferSize - mBufferPos);
 				}
-				//mCaching = true;
 
 				tile.isEmpty = false;
+
 				decode();
 			} else {
 				result = QueryResult.FAILED;
 			}
 		} catch (SocketException ex) {
 			Log.d(TAG, "Socket exception: " + ex.getMessage());
+			mSocket = null; // FIXME!!!!
 			result = QueryResult.FAILED;
 		} catch (SocketTimeoutException ex) {
 			Log.d(TAG, "Socket Timeout exception: " + ex.getMessage());
@@ -202,12 +184,8 @@ public class MapDatabase implements IMapDatabase {
 		if (mCacheFile != null)
 			mCacheFile.cacheFinish(result == QueryResult.SUCCESS);
 
-		//mCacheManager.cacheFinish(tile, result == QueryResult.SUCCESS);
-
 		return result;
 	}
-
-	private static File cacheDir;
 
 	@Override
 	public String getMapProjection() {
@@ -243,7 +221,6 @@ public class MapDatabase implements IMapDatabase {
 		}
 
 		mCacheManager = cacheManager;
-		mCacheManager.setCachingPath(CACHE_DIRECTORY);
 
 		int port = url.getPort();
 		if (port < 0)
@@ -261,21 +238,9 @@ public class MapDatabase implements IMapDatabase {
 		mHost = host;
 		mPort = port;
 
-		//mSockAddr = new InetSocketAddress(host, port);
-
 		mRequestBuffer = new byte[1024];
 		System.arraycopy(REQUEST_GET_START, 0,
 				mRequestBuffer, 0, REQUEST_GET_START.length);
-
-		if (USE_CACHE) {
-			if (cacheDir == null) {
-				String externalStorageDirectory = Environment
-						.getExternalStorageDirectory()
-						.getAbsolutePath();
-				String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
-				cacheDir = createDirectory(cacheDirectoryPath);
-			}
-		}
 
 		mOpenFile = true;
 
@@ -295,10 +260,6 @@ public class MapDatabase implements IMapDatabase {
 				e.printStackTrace();
 			}
 			mSocket = null;
-		}
-		//		}
-		if (USE_CACHE) {
-			cacheDir = null;
 		}
 	}
 
@@ -1005,22 +966,23 @@ public class MapDatabase implements IMapDatabase {
 			try {
 				mSocket.close();
 			} catch (IOException e) {
-
+				e.printStackTrace();
 			}
 
-			//Log.d(TAG, "not alive  - recreate connection " + mMaxReq);
+			Log.d(TAG, "not alive  - recreate connection " + mMaxReq);
 			mSocket = null;
 		}
 
 		if (mSocket == null) {
+
 			if (!lwHttpConnect(tile)) {
 				// FIXME use Android Conneciton to not even try loading in this case::
-				//Log.d(TAG, tile + " loading failed - no connection ");
+				Log.d(TAG, tile + " loading failed - no connection ");
 				return false;
 			}
 			// we know our server
 			mMaxReq = RESPONSE_EXPECTED_LIVES;
-			//Log.d(TAG, "create connection");
+			Log.d(TAG, "create connection");
 		} else {
 			// should not be needed
 			if (mResponseStream == null) {

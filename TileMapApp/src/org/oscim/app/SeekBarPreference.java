@@ -56,7 +56,9 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		double sdAvailSize = (double)stat.getAvailableBlocks()
 		                   * (double)stat.getBlockSize();
 		//One binary megabyte equals 1,048,576 bytes.
-		int megaAvailable = (int)sdAvailSize / 1048576;
+		// otherwise we need an logarithmic scale to set a sane value with the slider...
+		int megaAvailable = 100; //(int)sdAvailSize / 1048576;
+		
 		mMaxValue = megaAvailable;//attrs.getAttributeIntValue(ANDROIDNS, "max", 100);
 		mMinValue = attrs.getAttributeIntValue(ROBOBUNNYNS, "min", 0);
 		

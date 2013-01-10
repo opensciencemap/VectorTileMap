@@ -17,10 +17,13 @@ package org.oscim.cache;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oscim.core.Tile;
+
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.util.Log;
 
 public class TileHitDataSource {
@@ -37,11 +40,9 @@ public class TileHitDataSource {
 	}
 
 	public void open() throws SQLException {
-		Log.d(TAG, "in dbHelper open");
+		//Log.d(TAG, "in dbHelper open");
 		if (dbHelper == null) {
-			Log.d(TAG, "dbHelper is null");
-		} else {
-			Log.d(TAG, "dbHelper is not null");
+			Log.d(TAG, "dbHelper is null!");
 		}
 		database = dbHelper.getWritableDatabase();
 	}
@@ -86,6 +87,42 @@ public class TileHitDataSource {
 		//		TileHit th = cursorToTileHit(cursor);
 		//		cursor.close();
 		//		return th;
+	}
+
+	private static final String CACHE_FILE = "%d-%d-%d.tile";
+
+	public void setTileHit(Tile[] tiles) {
+
+		new AsyncTask<Tile, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Tile... commits) {
+				synchronized (Lock) {
+					open();
+					for (final Tile tile : commits) {
+						System.out.println("commit " + tile);
+
+						final String tileName = String.format(CACHE_FILE,
+								Integer.valueOf(tile.zoomLevel),
+								Integer.valueOf(tile.tileX),
+								Integer.valueOf(tile.tileY));
+						String insert =
+								"INSERT OR IGNORE INTO " + SQLiteHelper.TABLE_NAME + "(_name,hits)"
+										+ " VALUES ('"
+										+ tileName
+										+ "', '0');";
+						String update =
+								"UPDATE " + SQLiteHelper.TABLE_NAME
+										+ " SET hits = hits + 1 WHERE _name = '"
+										+ tileName + "'";
+						database.execSQL(insert);
+						database.execSQL(update);
+					}
+
+					database.close();
+				}
+				return Boolean.TRUE;
+			}
+		}.execute(tiles);
 	}
 
 	public int getHitsByTile(String Tilefile) {

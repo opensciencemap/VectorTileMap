@@ -95,7 +95,7 @@ public class MapView extends RelativeLayout {
 
 	// TODO use 1 download and 1 generator thread instead
 	private final MapWorker mMapWorkers[];
-	private final int mNumMapWorkers = 4;
+	private final int mNumMapWorkers = 2;
 
 	private MapOptions mMapOptions;
 	private IMapDatabase mMapDatabase;
@@ -346,6 +346,8 @@ public class MapView extends RelativeLayout {
 		return new MapPosition(startPos, (byte) 1, 1);
 	}
 
+	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
+
 	/**
 	 * Sets the MapDatabase for this MapView.
 	 * @param options
@@ -366,6 +368,8 @@ public class MapView extends RelativeLayout {
 		mJobQueue.clear();
 		mClearTiles = true;
 		mMapOptions = options;
+
+		mCacheManager.setCachingPath(CACHE_DIRECTORY + options.db);
 
 		for (int i = 0; i < mNumMapWorkers; i++) {
 			MapWorker mapWorker = mMapWorkers[i];

@@ -42,7 +42,6 @@ import org.oscim.database.OpenResult;
 import org.oscim.database.QueryResult;
 import org.oscim.generator.JobTile;
 
-import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -61,8 +60,8 @@ public class MapDatabase implements IMapDatabase {
 	private boolean mOpenFile = false;
 
 	private static final boolean USE_CACHE = false;
-	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/oscimap";
-	private static final String CACHE_FILE = "%d-%d-%d.tile";
+	//private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/oscimap";
+	//private static final String CACHE_FILE = "%d-%d-%d.tile";
 
 	//private static String SERVER_ADDR = "city.informatik.uni-bremen.de";
 	//private static int PORT = 80;
@@ -120,42 +119,36 @@ public class MapDatabase implements IMapDatabase {
 		mBufferPos = 0;
 		mReadPos = 0;
 
-		if (USE_CACHE) {
-			f = new File(cacheDir, String.format(CACHE_FILE,
-					Integer.valueOf(tile.zoomLevel),
-					Integer.valueOf(tile.tileX),
-					Integer.valueOf(tile.tileY)));
-			try {
-				mInputStream = mCacheManager.getCache(tile);
-				if (mInputStream != null) {
-					mContentLenth = f.length();
-					tile.isEmpty = false;
-					decode();
-					//mCacheManager.cacheReadFinish();
-
-					return QueryResult.SUCCESS;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				//return QueryResult.FAILED;
-
-				Log.d(TAG, "failed using cache for " + tile);
-
-				// try loading again
-				mCurTagCnt = 0;
-				mBufferSize = 0;
-				mBufferPos = 0;
-				mReadPos = 0;
-			} finally {
-				if (mInputStream != null)
-					try {
-						mInputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				mInputStream = null;
-			}
-		}
+		//		if (USE_CACHE) {
+		//
+		//			try {
+		//				mContentLenth = mCacheManager.getCache(tile, mInputStream);
+		//				if (mContentLenth > 0) {
+		//					tile.isEmpty = false;
+		//					decode();
+		//					return QueryResult.SUCCESS;
+		//				}
+		//			} catch (Exception e) {
+		//				e.printStackTrace();
+		//				//return QueryResult.FAILED;
+		//
+		//				Log.d(TAG, "failed using cache for " + tile);
+		//
+		//				// try loading again
+		//				mCurTagCnt = 0;
+		//				mBufferSize = 0;
+		//				mBufferPos = 0;
+		//				mReadPos = 0;
+		//			} finally {
+		//				if (mInputStream != null)
+		//					try {
+		//						mInputStream.close();
+		//					} catch (IOException e) {
+		//						e.printStackTrace();
+		//					}
+		//				mInputStream = null;
+		//			}
+		//		}
 		try {
 
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() >= 0) {
@@ -243,7 +236,6 @@ public class MapDatabase implements IMapDatabase {
 		}
 
 		mCacheManager = cacheManager;
-		mCacheManager.setCachingPath(CACHE_DIRECTORY);
 
 		int port = url.getPort();
 		if (port < 0)
@@ -266,15 +258,15 @@ public class MapDatabase implements IMapDatabase {
 		System.arraycopy(REQUEST_GET_START, 0,
 				mRequestBuffer, 0, REQUEST_GET_START.length);
 
-		if (USE_CACHE) {
-			if (cacheDir == null) {
-				String externalStorageDirectory = Environment
-						.getExternalStorageDirectory()
-						.getAbsolutePath();
-				String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
-				cacheDir = createDirectory(cacheDirectoryPath);
-			}
-		}
+		//		if (USE_CACHE) {
+		//			if (cacheDir == null) {
+		//				String externalStorageDirectory = Environment
+		//						.getExternalStorageDirectory()
+		//						.getAbsolutePath();
+		//				String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
+		//				cacheDir = createDirectory(cacheDirectoryPath);
+		//			}
+		//		}
 
 		mOpenFile = true;
 

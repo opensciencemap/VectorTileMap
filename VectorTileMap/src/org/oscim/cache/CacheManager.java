@@ -14,16 +14,18 @@
  */
 package org.oscim.cache;
 
-import java.io.InputStream;
+import java.io.File;
 
 import org.oscim.core.Tile;
 
 public interface CacheManager {
 	CacheFile writeCache(Tile tile);
 
-	InputStream getCache(Tile tile);
+	File getCache(Tile tile);
 
 	void setCachingSize(long size);
 
 	void setCachingPath(String path);
+
+	void tileAdded(CacheFile cacheFile, int size);
 }

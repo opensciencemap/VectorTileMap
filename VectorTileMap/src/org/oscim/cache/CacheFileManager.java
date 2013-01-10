@@ -15,10 +15,8 @@
 package org.oscim.cache;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -42,7 +40,7 @@ public class CacheFileManager implements CacheManager {
 	final TileHitDataSource mDatasource;
 	private File mCacheDir;
 
-	private long mCacheSize = 0;
+	private volatile long mCacheSize = 0;
 	private Context mContext;
 
 	private ArrayList<Tile> mCommitHitList;
@@ -70,21 +68,6 @@ public class CacheFileManager implements CacheManager {
 		// FIXME get size from Database or read once in asyncTask!
 		// also use asyncTask for limiting cache:
 		// for now check only once on initialization:
-
-		new AsyncTask<Void, Void, Boolean>() {
-
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				mCacheSize = getCacheDirSize();
-
-				if (mCacheSize > MAX_SIZE) {
-					Log.d(TAG, "MAX_SIZE: " + MAX_SIZE);
-					mDatasource.deleteTileFileUnderhits(2);
-				}
-
-				return null;
-			}
-		}.execute();
 
 		// todo commit on app pause/destroy
 		mCommitHitList = new ArrayList<Tile>(100);
@@ -114,12 +97,10 @@ public class CacheFileManager implements CacheManager {
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
 
-		//<<<<<<< HEAD
 		addTileHit(tile);
-		//=======
-		//		cacheCheck((JobTile) tile);
-		//		mDatasource.setTileHit(tileFile);
-		//>>>>>>> city/release_0_4_cache
+
+		// FIXME ASYNC!!!!! but safe with other operation...
+		cacheCheck((JobTile) tile);
 
 		try {
 			return new CacheFile(tile, this, f, new FileOutputStream(f));
@@ -137,57 +118,38 @@ public class CacheFileManager implements CacheManager {
 			Tile[] tiles = new Tile[mCommitHitList.size()];
 			tiles = mCommitHitList.toArray(tiles);
 			mCommitHitList.clear();
-			new AsyncTask<Tile, Void, Boolean>() {
-				@Override
-				protected Boolean doInBackground(Tile... commits) {
-					for (final Tile tile : commits) {
-						System.out.println("commit " + tile);
-						final String tileFile = String.format(CACHE_FILE,
-								Integer.valueOf(tile.zoomLevel),
-								Integer.valueOf(tile.tileX),
-								Integer.valueOf(tile.tileY));
-						mDatasource.setTileHit(tileFile);
-					}
-					return Boolean.TRUE;
-				}
-			}.execute(tiles);
+
+			mDatasource.setTileHit(tiles);
 		}
 	}
 
 	// input stream must be closed by calller!
 	@Override
-	public synchronized InputStream getCache(Tile tile) {
-		InputStream is = null;
+	public synchronized File getCache(Tile tile) {
 
 		File f = new File(mCacheDir, String.format(CACHE_FILE,
 				Integer.valueOf(tile.zoomLevel),
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
 		if (f.exists() && f.length() > 0) {
-			try {
-				is = new FileInputStream(f);
-
-				addTileHit(tile);
-
-				Log.d(TAG, tile + " using cache");
-
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+			return f;
 		}
 
-		return is;
+		return null;
 	}
 
-	private void cacheCheck(JobTile Tile) {
-		if (getCacheDirSize() > MAX_SIZE) {
-			reduceCachingSize(Tile);
+	private void cacheCheck(JobTile tile) {
+		if (mCacheSize > MAX_SIZE) {
+			if (mCleanupJob == null) {
+				long limit = MAX_SIZE - Math.min(MAX_SIZE / 4, 4 * 1024 * 1024);
+				mCleanupJob = new CleanupTask(mCacheSize, limit, mCacheDir);
+				mCleanupJob.execute(tile);
+			}
 		}
 	}
 
 	private long getCacheDirSize() {
+		Log.d(TAG, ">>>>>> " + mCacheSize + " " + mCacheDir);
 		if (mCacheDir != null) {
 			long size = 0;
 			File[] files = mCacheDir.listFiles();
@@ -197,6 +159,9 @@ public class CacheFileManager implements CacheManager {
 					size += file.length();
 				}
 			}
+			mCacheSize = size;
+			Log.d(TAG, "cache size is now " + mCacheSize);
+
 			return size;
 		}
 		return -1;
@@ -204,6 +169,7 @@ public class CacheFileManager implements CacheManager {
 
 	@Override
 	public void setCachingSize(long size) {
+		//this.MAX_SIZE = 500 * 1024; //size * 1024 * 1024;
 		this.MAX_SIZE = size * 1024 * 1024;
 		Log.d(TAG, "set MAX_SIZE to: " + MAX_SIZE);
 	}
@@ -215,6 +181,7 @@ public class CacheFileManager implements CacheManager {
 
 		String externalStorageDirectory = Environment.getExternalStorageDirectory()
 				.getAbsolutePath();
+
 		String cacheDirectoryPath = externalStorageDirectory + CACHE_DIRECTORY;
 		//			boolean isSDPresent = android.os.Environment.getExternalStorageState().equals(
 		//					android.os.Environment.MEDIA_MOUNTED);
@@ -233,45 +200,79 @@ public class CacheFileManager implements CacheManager {
 			mCacheDir = mContext.getCacheDir();
 			Log.d(TAG, "Memory");
 		}
+		Log.d(TAG, "cache dir: " + mCacheDir);
+
+		new AsyncTask<Void, Void, Boolean>() {
+
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				getCacheDirSize();
+				return null;
+			}
+		}.execute();
 	}
 
-	private void reduceCachingSize(Tile tile) {
-		/* 1.distance
-		 * 2.haeufigkeit
-		 * 3.time */
-		ArrayList<String> safeTile = new ArrayList<String>();
-		int z = tile.zoomLevel;
-		int x = tile.tileX;
-		int y = tile.tileY;
+	class CleanupTask extends AsyncTask<Tile, Void, Boolean> {
+		File dir;
+		long limit;
+		long currentSize;
+		long beginSize;
 
-		/* the tiles surrouding the current tile should not be deleted. */
-		for (int zz = z; zz > 4; zz--) {
-			for (int xx = x - 3; xx < x + 4; xx++) {
-				for (int yy = y - 3; yy < y + 4; yy++) {
-					if (xx < 0) {
-						xx = (int) (Math.pow(2, zz) - 1 + xx);
-					}
-					if (yy > 0) {
-						String safeTileFile = String.format(CACHE_FILE, Integer.valueOf(zz),
-								Integer.valueOf(xx), Integer.valueOf(yy));
-						safeTile.add(safeTileFile);
+		public CleanupTask(long size, long limit, File cacheDir) {
+			dir = cacheDir;
+			this.limit = limit;
+			beginSize = currentSize = size;
+		}
+
+		@Override
+		protected Boolean doInBackground(Tile... params) {
+			reduceCachingSize(params[0]);
+			return null;
+		}
+
+		private void reduceCachingSize(Tile tile) {
+			/* 1.distance
+			 * 2.haeufigkeit
+			 * 3.time */
+			ArrayList<String> safeTile = new ArrayList<String>();
+			int z = tile.zoomLevel;
+			int x = tile.tileX;
+			int y = tile.tileY;
+
+			/* the tiles surrouding the current tile should not be deleted. */
+			for (int zz = z; zz > 4; zz--) {
+				for (int xx = x - 3; xx < x + 4; xx++) {
+					for (int yy = y - 3; yy < y + 4; yy++) {
+						if (xx < 0) {
+							xx = (int) (Math.pow(2, zz) - 1 + xx);
+						}
+						if (yy > 0) {
+							String safeTileFile = String.format(CACHE_FILE, Integer.valueOf(zz),
+									Integer.valueOf(xx), Integer.valueOf(yy));
+							safeTile.add(safeTileFile);
+						}
 					}
 				}
+				x = x / 2;
+				x = y / 2;
 			}
-			x = x / 2;
-			x = y / 2;
-		}
-		/* get the middle haeufigkeit */
-		//Log.d("Cache", "middle is: " + datasource.getMiddleHits());
-		ArrayList<String> always = (ArrayList<String>) mDatasource
-				.getAllTileFileAboveHits(mDatasource.getMiddleHits());
+			/* get the middle haeufigkeit */
+			//Log.d("Cache", "middle is: " + datasource.getMiddleHits());
+			ArrayList<String> always = (ArrayList<String>) mDatasource
+					.getAllTileFileAboveHits(mDatasource.getMiddleHits());
 
-		safeTile.addAll(always);
-		/* time */
-		if (mCacheDir != null) {
-			File[] files = mCacheDir.listFiles();
-			for (File file : files) {
-				if (file.isFile()) {
+			//long limit = MAX_SIZE - 1024 * 1024;
+
+			safeTile.addAll(always);
+			/* time */
+			if (dir != null) {
+				File[] files = dir.listFiles();
+				for (int i = 0; i < files.length && currentSize > limit; i++) {
+					File file = files[i];
+					if (!file.isFile()) {
+						files[i] = null;
+						continue;
+					}
 					Date now = new Date();
 					long NOW = now.getTime();
 					Date befor = new Date(file.lastModified());
@@ -279,28 +280,48 @@ public class CacheFileManager implements CacheManager {
 					long old = NOW - BEFOR;
 					//Log.d("Cache", file.getName());
 					if (!safeTile.contains(file.getName()) && old > 2000000) {
+						Log.d(TAG, "delete 1 " + file.getName());
+						currentSize -= file.length();
 						file.delete();
+						files[i] = null;
 					}
 				}
-			}
-			if (getCacheDirSize() > MAX_SIZE) {
-				for (File file : files) {
-					if (file.isFile()) {
-						if (!safeTile.contains(file.getName())) {
-							file.delete();
-						}
-					}
-				}
-			}
-			if (getCacheDirSize() > MAX_SIZE) {
-				for (File file : files) {
-					if (file.isFile()) {
+				for (int i = 0; i < files.length && currentSize > limit; i++) {
+					File file = files[i];
+					if (file == null)
+						continue;
+
+					if (!safeTile.contains(file.getName())) {
+						Log.d(TAG, "delete 2 " + file.getName());
+						currentSize -= file.length();
 						file.delete();
+						files[i] = null;
 					}
 				}
+				for (int i = 0; i < files.length && currentSize > limit; i++) {
+					File file = files[i];
+					if (file == null)
+						continue;
+					Log.d(TAG, "delete 3 " + file.getName());
+
+					currentSize -= file.length();
+					file.delete();
+				}
 			}
+			mCacheSize -= (beginSize - currentSize);
+			mCleanupJob = null;
+			Log.d(TAG, "finished cleanup" + (beginSize - currentSize) + " now: " + mCacheSize);
 		}
 
+	}
+
+	private CleanupTask mCleanupJob;
+
+	@Override
+	public void tileAdded(CacheFile cacheFile, int size) {
+
+		mCacheSize += size;
+		Log.d(TAG, cacheFile.mTile + " written: " + size + " sum:" + mCacheSize);
 	}
 
 }

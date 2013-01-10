@@ -421,7 +421,7 @@ public class TileGenerator implements IRenderCallback, IMapDatabaseCallback {
 		mLayers = new Layers();
 
 		if (mMapDatabase.executeQuery(tile, this) != QueryResult.SUCCESS) {
-			//Log.d(TAG, "Failed loading: " + tile);
+			Log.d(TAG, "Failed loading: " + tile);
 			//			mTagName = new Tag("name", "Failed loading tile. No connection.", false);
 			//			mPoiX = Tile.TILE_SIZE >> 1;
 			//			mPoiY = Tile.TILE_SIZE >> 1;
@@ -448,10 +448,10 @@ public class TileGenerator implements IRenderCallback, IMapDatabaseCallback {
 
 		tile.layers = mLayers;
 		tile.labels = mLabels;
-		Log.d(TAG, "loaded: " + tile);
 		mLayers = null;
 		mLabels = null;
 		mCurLineLayer = null;
+		//Log.d(TAG, "loaded: " + tile);
 
 		return true;
 	}

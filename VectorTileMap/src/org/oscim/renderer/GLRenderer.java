@@ -281,7 +281,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		return true;
 	}
 
-	private static boolean uploadTileData(MapTile tile) {
+	private static void uploadTileData(MapTile tile) {
 		if (tile.layers != null) {
 			if (!uploadLayers(tile.layers, tile.vbo, true)) {
 				Log.d(TAG, "uploadTileData " + tile + " is empty!");
@@ -290,12 +290,10 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
+		//Log.d(TAG, "uploaded " + tile.isReady + " " + tile);
+
 		tile.isReady = true;
 		tile.newData = false;
-
-		// Log.d(TAG, "uploaded " + tile.isReady + " " + tile);
-
-		return tile.isReady;
 	}
 
 	private static boolean uploadOverlayData(RenderOverlay renderOverlay) {
@@ -505,6 +503,7 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 		GLES20.glEnable(GL_DEPTH_TEST);
 		GLES20.glEnable(GL_POLYGON_OFFSET_FILL);
 		mDrawCount = 0;
+		mDrawSerial++;
 
 		for (int i = 0; i < tileCnt; i++) {
 			MapTile t = tiles[i];
@@ -524,7 +523,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		GLES20.glDisable(GL_POLYGON_OFFSET_FILL);
 		GLES20.glDisable(GL_DEPTH_TEST);
-		mDrawSerial++;
 
 		/* draw overlays */
 		GLES20.glEnable(GL_BLEND);

@@ -29,7 +29,7 @@ public class CacheFile {
 	private final FileOutputStream mCacheFile;
 	private final File mFile;
 	private final CacheManager mCacheManager;
-	private final Tile mTile;
+	final Tile mTile;
 
 	CacheFile(Tile tile, CacheManager cm, File f, FileOutputStream out) {
 		mCacheManager = cm;
@@ -53,7 +53,6 @@ public class CacheFile {
 		if (mCacheFile == null)
 			return;
 
-		Log.d(TAG, mTile + " written: " + written);
 		try {
 			mCacheFile.close();
 		} catch (IOException e) {
@@ -62,6 +61,8 @@ public class CacheFile {
 
 		if (!success)
 			mFile.delete();
+		else
+			mCacheManager.tileAdded(this, written);
 		//else
 		//	tell cacheManager that dir size increased by bytes written..
 		// increase hit count etc
