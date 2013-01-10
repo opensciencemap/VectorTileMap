@@ -49,7 +49,7 @@ import android.util.Log;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
 
-	private static final String TAG = "SurfaceRenderer";
+	private static final String TAG = GLRenderer.class.getName();
 
 	private static final int MB = 1024 * 1024;
 	private static final int SHORT_BYTES = 2;
@@ -283,15 +283,16 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 	private static boolean uploadTileData(MapTile tile) {
 		if (tile.layers != null) {
-			tile.isReady = uploadLayers(tile.layers, tile.vbo, true);
-
-			if (!tile.isReady) {
+			if (!uploadLayers(tile.layers, tile.vbo, true)) {
 				Log.d(TAG, "uploadTileData " + tile + " is empty!");
 				tile.layers.clear();
 				tile.layers = null;
 			}
 		}
+
+		tile.isReady = true;
 		tile.newData = false;
+
 		// Log.d(TAG, "uploaded " + tile.isReady + " " + tile);
 
 		return tile.isReady;
@@ -599,6 +600,9 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
 		if (tile.holder != null)
 			tile = tile.holder;
+
+		if (tile.layers == null)
+			return;
 
 		GLES20.glPolygonOffset(0, mDrawCount++);
 
