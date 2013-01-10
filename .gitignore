@@ -1,6 +1,7 @@
 VectorTileMap/backup/*
 VectorTileMap/gen/*
 VectorTileMap/obj/*
+VectorTileMap/libs/armeabi/*
 VectorTileMap/local.properties
 TileMapApp/gen/*
 TileMapApp/proguard/*
