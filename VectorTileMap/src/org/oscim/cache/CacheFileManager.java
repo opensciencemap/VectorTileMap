@@ -19,11 +19,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import org.oscim.core.Tile;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 
@@ -35,10 +37,12 @@ public class CacheFileManager implements CacheManager {
 	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
 
-	private final TileHitDataSource mDatasource;
+	final TileHitDataSource mDatasource;
 	private final File mCacheDir;
 
 	private long mCacheSize = 0;
+
+	private ArrayList<Tile> mCommitHitList;
 
 	public CacheFileManager(Context context) {
 		//		boolean mExternalStorageAvailable = false;
@@ -83,11 +87,25 @@ public class CacheFileManager implements CacheManager {
 		// FIXME get size from Database or read once in asyncTask!
 		// also use asyncTask for limiting cache:
 		// for now check only once on initialization:
-		mCacheSize = getCacheDirSize();
-		if (mCacheSize > MAX_SIZE) {
-			Log.d(TAG, "MAX_SIZE: " + MAX_SIZE);
-			mDatasource.deleteTileFileUnderhits(2);
-		}
+
+		new AsyncTask<Void, Void, Boolean>() {
+
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				mCacheSize = getCacheDirSize();
+
+				if (mCacheSize > MAX_SIZE) {
+					Log.d(TAG, "MAX_SIZE: " + MAX_SIZE);
+					mDatasource.deleteTileFileUnderhits(2);
+				}
+
+				return null;
+			}
+		}.execute();
+
+		// todo commit on app pause/destroy
+		mCommitHitList = new ArrayList<Tile>(100);
+
 	}
 
 	private static File createDirectory(String pathName) {
@@ -112,12 +130,8 @@ public class CacheFileManager implements CacheManager {
 				Integer.valueOf(tile.zoomLevel),
 				Integer.valueOf(tile.tileX),
 				Integer.valueOf(tile.tileY)));
-		String tileFile = String.format(CACHE_FILE,
-				Integer.valueOf(tile.zoomLevel),
-				Integer.valueOf(tile.tileX),
-				Integer.valueOf(tile.tileY));
 
-		mDatasource.setTileHit(tileFile);
+		addTileHit(tile);
 
 		try {
 			return new CacheFile(tile, this, f, new FileOutputStream(f));
@@ -128,10 +142,35 @@ public class CacheFileManager implements CacheManager {
 		return null;
 	}
 
+	private void addTileHit(Tile t) {
+		mCommitHitList.add(t);
+
+		if (mCommitHitList.size() > 100) {
+			Tile[] tiles = new Tile[mCommitHitList.size()];
+			tiles = mCommitHitList.toArray(tiles);
+			mCommitHitList.clear();
+			new AsyncTask<Tile, Void, Boolean>() {
+				@Override
+				protected Boolean doInBackground(Tile... commits) {
+					for (final Tile tile : commits) {
+						System.out.println("commit " + tile);
+						final String tileFile = String.format(CACHE_FILE,
+								Integer.valueOf(tile.zoomLevel),
+								Integer.valueOf(tile.tileX),
+								Integer.valueOf(tile.tileY));
+						mDatasource.setTileHit(tileFile);
+					}
+					return Boolean.TRUE;
+				}
+			}.execute(tiles);
+		}
+	}
+
 	// input stream must be closed by calller!
 	@Override
 	public synchronized InputStream getCache(Tile tile) {
 		InputStream is = null;
+
 		File f = new File(mCacheDir, String.format(CACHE_FILE,
 				Integer.valueOf(tile.zoomLevel),
 				Integer.valueOf(tile.tileX),
@@ -139,12 +178,8 @@ public class CacheFileManager implements CacheManager {
 		if (f.exists() && f.length() > 0) {
 			try {
 				is = new FileInputStream(f);
-				String tileFile = String.format(CACHE_FILE,
-						Integer.valueOf(tile.zoomLevel),
-						Integer.valueOf(tile.tileX),
-						Integer.valueOf(tile.tileY));
 
-				mDatasource.setTileHit(tileFile);
+				addTileHit(tile);
 
 				Log.d(TAG, tile + " using cache");
 
