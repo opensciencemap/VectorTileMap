@@ -28,6 +28,7 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
+import org.oscim.cache.CacheFile;
 import org.oscim.cache.CacheManager;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
@@ -60,7 +61,7 @@ public class MapDatabase implements IMapDatabase {
 	private boolean mOpenFile = false;
 
 	private static final boolean USE_CACHE = false;
-	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/";
+	private static final String CACHE_DIRECTORY = "/Android/data/org.oscim.app/cache/oscimap";
 	private static final String CACHE_FILE = "%d-%d-%d.tile";
 
 	//private static String SERVER_ADDR = "city.informatik.uni-bremen.de";
@@ -85,6 +86,8 @@ public class MapDatabase implements IMapDatabase {
 	private int mPort;
 	private long mContentLenth;
 	private InputStream mInputStream;
+	private CacheManager mCacheManager;
+	private CacheFile mCacheFile;
 
 	//private boolean mCaching;
 	//private CacheManager cManager;
@@ -102,7 +105,7 @@ public class MapDatabase implements IMapDatabase {
 	@Override
 	public QueryResult executeQuery(JobTile tile, IMapDatabaseCallback mapDatabaseCallback) {
 		QueryResult result = QueryResult.SUCCESS;
-		//mCacheFile = null;
+		mCacheFile = null;
 		//mCaching = false;
 		mTile = tile;
 
@@ -117,36 +120,53 @@ public class MapDatabase implements IMapDatabase {
 		mBufferPos = 0;
 		mReadPos = 0;
 
-		//		if (USE_CACHE) {
-		//			f = new File(cacheDir, String.format(CACHE_FILE,
-		//					Integer.valueOf(tile.zoomLevel),
-		//					Integer.valueOf(tile.tileX),
-		//					Integer.valueOf(tile.tileY)));
-		//
-		//			//			if (cacheRead(tile, f))
-		//			//				return QueryResult.SUCCESS;
-		//			cManager.cacheCheck();
-		//			try {
-		//				mInputStream = cManager.cacheReadBegin(tile);
-		//				if (mInputStream != null) {
-		//					mContentLenth = f.length();
-		//					tile.isEmpty = false;
-		//					decode();
-		//					cManager.cacheReadFinish();
-		//					return QueryResult.SUCCESS;
-		//				}
-		//				//return QueryResult.FAILED;
-		//			} catch (Exception e) {
-		//				e.printStackTrace();
-		//				return QueryResult.FAILED;
-		//			}
-		//		}
+		if (USE_CACHE) {
+			f = new File(cacheDir, String.format(CACHE_FILE,
+					Integer.valueOf(tile.zoomLevel),
+					Integer.valueOf(tile.tileX),
+					Integer.valueOf(tile.tileY)));
+			try {
+				mInputStream = mCacheManager.getCache(tile);
+				if (mInputStream != null) {
+					mContentLenth = f.length();
+					tile.isEmpty = false;
+					decode();
+					//mCacheManager.cacheReadFinish();
 
+					return QueryResult.SUCCESS;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				//return QueryResult.FAILED;
+
+				Log.d(TAG, "failed using cache for " + tile);
+
+				// try loading again
+				mCurTagCnt = 0;
+				mBufferSize = 0;
+				mBufferPos = 0;
+				mReadPos = 0;
+			} finally {
+				if (mInputStream != null)
+					try {
+						mInputStream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				mInputStream = null;
+			}
+		}
 		try {
 
 			if (lwHttpSendRequest(tile) && lwHttpReadHeader() >= 0) {
-				//cManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+				///mCacheManager.cacheBegin(tile, mReadBuffer, mBufferPos, mBufferSize);
+				mCacheFile = mCacheManager.writeCache(tile);
+				// write byte already read while parsing header
+				if (mCacheFile != null && mBufferSize - mBufferPos > 0) {
+					mCacheFile.write(mReadBuffer, mBufferPos, mBufferSize - mBufferPos);
+				}
 				//mCaching = true;
+
 				tile.isEmpty = false;
 				decode();
 			} else {
@@ -184,6 +204,8 @@ public class MapDatabase implements IMapDatabase {
 		//				mSocket = null;
 		//			}
 		//		}
+		if (mCacheFile != null)
+			mCacheFile.cacheFinish(result == QueryResult.SUCCESS);
 		return result;
 	}
 
@@ -219,6 +241,9 @@ public class MapDatabase implements IMapDatabase {
 			e.printStackTrace();
 			return new OpenResult("invalid url: " + options.get("url"));
 		}
+
+		mCacheManager = cacheManager;
+		mCacheManager.setCachingPath(CACHE_DIRECTORY);
 
 		int port = url.getPort();
 		if (port < 0)
@@ -681,6 +706,11 @@ public class MapDatabase implements IMapDatabase {
 			//	/mCacheFile.write(mReadBuffer, mBufferSize, len);
 			//	cManager.cacheWrite(mReadBuffer, mBufferSize, len);
 
+			if (mCacheFile != null) {
+				//mCacheFile.write(mReadBuffer, mBufferSize, len);
+				//mCacheManager.cacheWrite(mReadBuffer, mBufferSize, len);
+				mCacheFile.write(mReadBuffer, mBufferSize, len);
+			}
 			if (mReadPos == mContentLenth)
 				break;
 

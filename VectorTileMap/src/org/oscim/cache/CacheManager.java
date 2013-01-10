@@ -30,7 +30,7 @@ public interface CacheManager {
 
 	//void cacheWrite(byte[] readBuffer, int offset, int len);
 
-	void cacheCheck();
-
 	void setCachingSize(long size);
+
+	void setCachingPath(String path);
 }

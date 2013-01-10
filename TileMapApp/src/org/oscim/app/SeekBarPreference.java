@@ -2,6 +2,8 @@ package org.oscim.app;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Environment;
+import android.os.StatFs;
 import android.preference.Preference;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -50,12 +52,17 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	}
 	
 	private void setValuesFromXml(AttributeSet attrs) {
-		mMaxValue = attrs.getAttributeIntValue(ANDROIDNS, "max", 100);
+		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+		double sdAvailSize = (double)stat.getAvailableBlocks()
+		                   * (double)stat.getBlockSize();
+		//One binary megabyte equals 1,048,576 bytes.
+		int megaAvailable = (int)sdAvailSize / 1048576;
+		mMaxValue = megaAvailable;//attrs.getAttributeIntValue(ANDROIDNS, "max", 100);
 		mMinValue = attrs.getAttributeIntValue(ROBOBUNNYNS, "min", 0);
 		
 		mUnitsLeft = getAttributeStringValue(attrs, ROBOBUNNYNS, "unitsLeft", "");
 		String units = getAttributeStringValue(attrs, ROBOBUNNYNS, "units", "");
-		mUnitsRight = getAttributeStringValue(attrs, ROBOBUNNYNS, "unitsRight", units);
+		mUnitsRight = "/"+String.valueOf(megaAvailable)+"MB";//getAttributeStringValue(attrs, ROBOBUNNYNS, "unitsRight", units);
 		
 		try {
 			String newInterval = attrs.getAttributeValue(ROBOBUNNYNS, "interval");
