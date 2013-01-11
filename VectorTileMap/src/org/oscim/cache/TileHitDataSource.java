@@ -98,8 +98,9 @@ public class TileHitDataSource {
 			protected Boolean doInBackground(Tile... commits) {
 				synchronized (Lock) {
 					open();
+					SQLiteDatabase db = database;
 					for (final Tile tile : commits) {
-						System.out.println("commit " + tile);
+						//System.out.println("commit " + tile);
 
 						final String tileName = String.format(CACHE_FILE,
 								Integer.valueOf(tile.zoomLevel),
@@ -114,11 +115,11 @@ public class TileHitDataSource {
 								"UPDATE " + SQLiteHelper.TABLE_NAME
 										+ " SET hits = hits + 1 WHERE _name = '"
 										+ tileName + "'";
-						database.execSQL(insert);
-						database.execSQL(update);
+						db.execSQL(insert);
+						db.execSQL(update);
 					}
 
-					database.close();
+					db.close();
 				}
 				return Boolean.TRUE;
 			}

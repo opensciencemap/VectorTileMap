@@ -141,6 +141,8 @@ public class CacheFileManager implements CacheManager {
 	private void cacheCheck(JobTile tile) {
 		if (mCacheSize > MAX_SIZE) {
 			if (mCleanupJob == null) {
+				// TODO dump mCommitHitList before cleanup!
+
 				long limit = MAX_SIZE - Math.min(MAX_SIZE / 4, 4 * 1024 * 1024);
 				mCleanupJob = new CleanupTask(mCacheSize, limit, mCacheDir);
 				mCleanupJob.execute(tile);

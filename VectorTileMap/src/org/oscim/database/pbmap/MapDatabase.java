@@ -1038,27 +1038,30 @@ public class MapDatabase implements IMapDatabase {
 		//					0, mRequestBuffer, 0,
 		//					REQUEST_GET_START.length);
 		//		}
+
 		try {
 			mSocket = new Socket();
 			mSocket.connect(mSockAddr, 30000);
 			mSocket.setTcpNoDelay(true);
-			// mCmdBuffer = new PrintStream(mSocket.getOutputStream());
 			mCommandStream = new BufferedOutputStream(mSocket.getOutputStream());
 			mResponseStream = mSocket.getInputStream();
 
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 			//Log.d(TAG, "no network in LW_HTTP_CONNECTION");
+
 			tile.isEmpty = true;
 			if (mSocket == null)
 				return false;
+
 			try {
 				mSocket.close();
 			} catch (Exception ee) {
 				ee.printStackTrace();
+			} finally {
+				mSocket = null;
 			}
 
-			mSocket = null;
 			return false;
 
 		}
