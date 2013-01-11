@@ -20,13 +20,13 @@
             android:title="@string/preferences_scale_bar_unit" />
         -->
 
-        <ListPreference
+        <!-- <ListPreference
             android:defaultValue="@string/preferences_map_database_default"
             android:entries="@array/preferences_map_generator_values"
             android:entryValues="@array/preferences_map_database_keys"
             android:key="mapDatabase"
             android:summary="@string/preferences_map_view_mode_desc"
-            android:title="@string/preferences_map_view_mode" />
+            android:title="@string/preferences_map_view_mode" />-->
         <!--
              <ListPreference
             android:defaultValue="@string/preferences_text_scale_default"
@@ -62,10 +62,12 @@
             android:key="fullscreen"
             android:summary="@string/preferences_fullscreen_desc"
             android:title="@string/preferences_fullscreen" />
-        <CheckBoxPreference
+        <!-- disable for now flipping orientation causes gl context to be recreated 
+            and this is not handeled properly yet -->
+        <!-- <CheckBoxPreference
             android:key="fixOrientation"
             android:summary="@string/preferences_fix_orientation"
-            android:title="@string/preferences_fix_orientation_desc" />
+            android:title="@string/preferences_fix_orientation_desc" />-->
         <CheckBoxPreference
             android:key="wakeLock"
             android:summary="@string/preferences_wake_lock_desc"
