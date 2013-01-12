@@ -33,45 +33,12 @@ import android.graphics.Paint.Cap;
 public class OverlayGrid extends RenderOverlay {
 
 	private TileSet tiles;
-	private float[] mPoints;
-	private short[] mIndex;
 	private Text mText;
 	final static String TAG = "OverlayGrid";
 
 	public OverlayGrid(MapView mapView) {
 		super(mapView);
-
-		int size = Tile.TILE_SIZE;
-		float[] points = new float[64];
-		short[] index = new short[16];
-
-		float pos = -size * 4;
-
-		// vertical lines
-		for (int i = 0; i < 8; i++) {
-			index[i] = 4;
-			// x1,y1,x2,y2
-			points[i * 4] = pos + i * size;
-			points[i * 4 + 1] = pos + 0;
-			points[i * 4 + 2] = pos + i * size;
-			points[i * 4 + 3] = pos + size * 8;
-		}
-
-		// horizontal lines
-		for (int j = 8; j < 16; j++) {
-			index[j] = 4;
-			points[j * 4] = pos + 0;
-			points[j * 4 + 1] = pos + (j - 8) * size;
-			points[j * 4 + 2] = pos + size * 8;
-			points[j * 4 + 3] = pos + (j - 8) * size;
-		}
-
-		mIndex = index;
-		mPoints = points;
-
-		// mText = Text.createText(20, 3, Color.BLACK, Color.RED, false);
-		mText = Text.createText(22, 0, Color.RED, 0, false);
-		// mText = Text.createText(22, 0, Color.RED, 0, true);
+		mText = Text.createText(22, 2, 0xFFFFFFFF, 0xCC000000, false);
 	}
 
 	private void addLabels(int x, int y, int z) {
@@ -79,21 +46,14 @@ public class OverlayGrid extends RenderOverlay {
 
 		TextLayer tl = new TextLayer();
 		tiles = TileManager.getActiveTiles(tiles);
-		//for (int index = 0; index < tiles.cnt; index++) {
-		//Log.d(TAG, "tile is: " + tiles.tiles[index].isVisible);
-		//if (!tiles.tiles[index].isVisible) {
+
 		for (int i = -2; i < 2; i++) {
 			for (int j = -2; j < 2; j++) {
-				//tiles = TileManager.getActiveTiles(tiles);
-				//Log.d(TAG, "tiles number: " + tiles.cnt);
-				//TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
-				//	(x + j) + " / " + (y + i) + " / " + z, mText);
 				for (MapTile t : tiles.tiles) {
 					if (t != null && t.tileX == x + j && t.tileY == y + i && t.isEmpty) {
 
 						//  check parents
-						if ((t.proxies & 1 << 4) != 0
-								|| (t.proxies & 1 << 5) != 0)
+						if ((t.proxies & 1 << 4) != 0)
 							continue;
 
 						// check children
@@ -102,44 +62,26 @@ public class OverlayGrid extends RenderOverlay {
 								&& (t.proxies & 1 << 2) != 0
 								&& (t.proxies & 1 << 3) != 0)
 							continue;
-
-						//						Log.d(TAG, "tileX: " + t.tileX + "; tileY: " + t.tileY + "; x: " + x
-						//								+ "; y: " + y + "; z:" + z + "; i:" + i + "; j:" + j);
-						//						TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
-						//								(x + j) + " / " + (y + i) + " / " + z, mText);
 						TextItem ti = TextItem.get().set(size * j + size / 2, size * i + size / 2,
 								"no data", mText);
 						TextItem ti2 = TextItem.get().set(size * j + size / 2,
 								size * i + size / 2 + mText.fontDescent + mText.fontHeight,
 								"check the connection", mText);
 						ti.x1 = 0;
-						ti.y1 = 1; // (short) (size / 2);
-						ti.x2 = 1; // (short) size;
-						ti.y2 = 1; // (short) (size / 2);
+						ti.y1 = 1;
+						ti.x2 = 1;
+						ti.y2 = 1;
 
 						ti2.x1 = 0;
-						ti2.y1 = 1; // (short) (size / 2);
-						ti2.x2 = 1; // (short) size;
-						ti2.y2 = 1; // (short) (size / 2);
+						ti2.y1 = 1;
+						ti2.x2 = 1;
+						ti2.y2 = 1;
 						tl.addText(ti);
 						tl.addText(ti2);
 					}
 
 				}
-
-				// TextItem ti = new TextItem(size * j + size / 2, size * i +
-				// size / 2,
-				// (x + j) + " / " + (y + i) + " / " + z, mText);
-
-				// rotation, TODO could also be used for slide range
-				//				ti.x1 = 0;
-				//				ti.y1 = 1; // (short) (size / 2);
-				//				ti.x2 = 1; // (short) size;
-				//				ti.y2 = 1; // (short) (size / 2);
-				//				tl.addText(ti);
 			}
-			//}
-			//}
 		}
 
 		tl.prepare();

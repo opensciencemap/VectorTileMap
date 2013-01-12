@@ -74,6 +74,7 @@ public final class TextLayer extends TextureLayer {
 		return false;
 	}
 
+	// TODO also sort by label and only draw texture once 
 	public void addText(TextItem item) {
 		verticesCnt += 4;
 		TextItem it = labels;
