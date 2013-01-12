@@ -49,8 +49,8 @@
     <PreferenceCategory android:title='Caching settings'>
          <org.oscim.app.SeekBarPreference
             android:key="caching"
-            android:title="Caching Size"
-            android:summary="Set caching size"
+            android:title="Cache Size"
+            android:summary="Set tile cache size"
             android:defaultValue="30"
             android:max="50"
             robobunny:min="1"
