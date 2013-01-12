@@ -29,8 +29,7 @@ import org.osmdroid.location.GeocoderNominatim;
 import org.osmdroid.overlays.DefaultInfoWindow;
 import org.osmdroid.overlays.ExtendedOverlayItem;
 import org.osmdroid.overlays.ItemizedOverlayWithBubble;
-import org.osmdroid.routing.GoogleRouteManager;
-//import org.osmdroid.routing.OSRMRoadManager;
+import org.osmdroid.routing.MapQuestRouteManager;
 import org.osmdroid.routing.Route;
 import org.osmdroid.routing.RouteManager;
 import org.osmdroid.routing.RouteNode;
@@ -40,7 +39,6 @@ import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -52,7 +50,7 @@ public class RouteSearch {
 	protected PathOverlay mRoadOverlay;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> mRoadNodeMarkers;
 	protected ItemizedOverlayWithBubble<ExtendedOverlayItem> itineraryMarkers;
-	
+
 	protected GeoPoint startPoint, destinationPoint;
 	protected ArrayList<GeoPoint> viaPoints;
 	protected static int START_INDEX = -2, DEST_INDEX = -1;
@@ -255,9 +253,12 @@ public class RouteSearch {
 		}
 		if (road == null)
 			return;
+		
+		// FIXME localize!
 		if (road.status == Route.STATUS_DEFAULT)
-			Toast.makeText(tileMap, "We have a problem to get the route",
+			Toast.makeText(tileMap, "Route query failed",
 					Toast.LENGTH_SHORT).show();
+		
 		mRoadOverlay = RouteManager.buildRoadOverlay(tileMap.map, road, tileMap);
 		Overlay removedOverlay = mapOverlays.set(1, mRoadOverlay);
 		//we set the road overlay at the "bottom", just above the MapEventsOverlay,
@@ -266,10 +267,6 @@ public class RouteSearch {
 		putRoadNodes(road);
 
 		tileMap.map.redrawMap();
-
-		//Set route info in the text view:
-
-		//	((TextView) findViewById(R.id.routeInfo)).setText(road.getLengthDurationText(-1));
 	}
 
 	void removeRoadPath() {
@@ -347,61 +344,61 @@ public class RouteSearch {
 		@Override
 		protected Route doInBackground(WayPoints... wp) {
 			ArrayList<GeoPoint> waypoints = wp[0].waypoints;
-			//RoadManager roadManager = new GoogleRoadManager();
-			//<<<<<<< HEAD
-			//			RoadManager roadManager = new GoogleRoadManager();
-			//			roadManager.addRequestOption("");
-			//=======
-			//RoadManager roadManager = new OSRMRoadManager();
-			RouteManager roadManager = new GoogleRouteManager();
-			//>>>>>>> master
-			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
-			 * locale = Locale.getDefault();
-			 * roadManager.addRequestOption("locale="+locale.getLanguage
-			 * ()+"_"+locale.getCountry()); */
+			//RouteManager roadManager = new OSRMRouteManager();
+			//RouteManager roadManager = new GoogleRouteManager();
+			RouteManager roadManager = new MapQuestRouteManager();
+
+			//	RoadManager roadManager = new MapQuestRouteManager();
+			//	Locale locale = Locale.getDefault();
+			//	roadManager.addRequestOption("locale=" + locale.getLanguage
+			//	() + "_" + locale.getCountry());
 			return roadManager.getRoad(waypoints);
 		}
 
 		@Override
 		protected void onPostExecute(Route result) {
 			mRoad = result;
+			
+			/* update overlays */
 			updateUIWithRoad(result);
+			
+			/* route info popup */
 			DecimalFormat twoDForm = new DecimalFormat("#.#");
 			DecimalFormat oneDForm = new DecimalFormat("#");
-			int hour =  ((int)result.duration / 3600);
-			int minute = ((int)result.duration%3600)/60;
+			int hour = ((int) result.duration / 3600);
+			int minute = ((int) result.duration % 3600) / 60;
 			String time = "";
-			if(hour == 0 && minute == 0){
+			if (hour == 0 && minute == 0) {
 				time = "?";
 			}
-			else if(hour == 0 && minute != 0){
-				time = minute+"m";
-			}else{
-				time = hour+"h "+minute+"m";
+			else if (hour == 0 && minute != 0) {
+				time = minute + "m";
+			} else {
+				time = hour + "h " + minute + "m";
 			}
 			//Log.d(TAG,"Hour: "+hour+" Min: "+minute+" Duration: "+result.duration);
-//			tileMap.mapInfo.setVisibility(View.VISIBLE);//			tileMap.mapInfo.setTextSize((float) 20.0);
-			double dis = ((double)(startPoint.distanceTo(destinationPoint)))/1000;
+			//			tileMap.mapInfo.setVisibility(View.VISIBLE);//			tileMap.mapInfo.setTextSize((float) 20.0);
+			double dis = ((double) (startPoint.distanceTo(destinationPoint))) / 1000;
 			String distance;
 			String shortpath;
-			if(dis<100){
+			if (dis < 100) {
 				distance = twoDForm.format(dis);
-			}else {
+			} else {
 				distance = oneDForm.format(dis);
 			}
-			if(result.length == 0){
+			if (result.length == 0) {
 				shortpath = "?";
 			}
-			else if(result.length<100){
+			else if (result.length < 100) {
 				shortpath = twoDForm.format(result.length);
-			}else{
+			} else {
 				shortpath = oneDForm.format(result.length);
 			}
-//			tileMap.mapInfo.setText(" Direct distance: "+distance+" km" +
-//					"\n Shortest path: " + shortpath
-//					+ " km \n By car: "
-//					+time);
-			tileMap.setRouteBar(distance+" km ", shortpath+" km ", time);
+			//			tileMap.mapInfo.setText(" Direct distance: "+distance+" km" +
+			//					"\n Shortest path: " + shortpath
+			//					+ " km \n By car: "
+			//					+time);
+			tileMap.setRouteBar(distance + " km ", shortpath + " km ", time);
 		}
 	}
 
@@ -488,40 +485,44 @@ public class RouteSearch {
 			List<Overlay> mapOverlays = tileMap.map.getOverlays();
 			ArrayList<String> list = new ArrayList<String>();
 
+			final String clear_route = "Clear Route";
+			final String clear_nodes = "Clear Nodes";
+			final String clear_segments = "Clear Segments";
+			
 			if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() != 0) {
 				list.clear();
-				list.add("Clear Route Node Only");
-				list.add("Clear All");
+				list.add(clear_route);
+				list.add(clear_nodes);
 			} else if (mRoadNodeMarkers.size() == 0 && mapOverlays.contains(mRoadOverlay)) {
 				list.clear();
-				list.add("Clear Route Only");
-				list.add("Clear All");
+				list.add(clear_route);
+				list.add(clear_segments);
 			} else if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() == 0
 					&& markerDestination == null) {
 				list.clear();
-				list.add("Nothing to Clear");
+				list.add("Nothing to clear");
 			} else if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() == 0
 					&& markerDestination != null) {
 				list.clear();
-				list.add("Clear All");
+				list.add(clear_route);
 			} else {
 				list.clear();
-				list.add("Clear Route Node Only");
-				list.add("Clear Route Only");
-				list.add("Clear All");
+				list.add(clear_route);
+				list.add(clear_nodes);
+				list.add(clear_segments);
 			}
 			final String[] test = new String[list.size()];
 			for (int i = 0; i < list.size(); i++) {
 				test[i] = list.get(i);
 			}
-			builder.setTitle("Clear");
+			//builder.setTitle("Clear");
 			builder.setItems(test, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
-					if (test[which].equals("Clear Route Only")) {
+					if (test[which] == clear_segments) {
 						removeRoadPath();
-					} else if (test[which].equals("Clear Route Node Only")) {
+					} else if (test[which] == clear_nodes) {
 						removeRoadNodes();
-					} else if (test[which].equals("Clear All")) {
+					} else if (test[which]== clear_route) {
 						removeAllOverlay();
 						setDistanceTextInvisible();
 					}

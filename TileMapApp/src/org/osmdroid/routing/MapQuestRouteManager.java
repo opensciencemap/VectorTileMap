@@ -27,7 +27,7 @@ import android.util.Log;
  * 
  * @author M.Kergall
  */
-public class MapQuestRoadManager extends RouteManager {
+public class MapQuestRouteManager extends RouteManager {
 
 	static final String MAPQUEST_GUIDANCE_SERVICE = "http://open.mapquestapi.com/guidance/v0/route?";
 
@@ -80,7 +80,7 @@ public class MapQuestRoadManager extends RouteManager {
 	@Override
 	public Route getRoad(ArrayList<GeoPoint> waypoints) {
 		String url = getUrl(waypoints);
-		Log.d(BonusPackHelper.LOG_TAG, "MapQuestRoadManager.getRoute:" + url);
+		Log.d(BonusPackHelper.LOG_TAG, "MapQuestRouteManager.getRoute:" + url);
 		Route road = null;
 		HttpConnection connection = new HttpConnection();
 		connection.doGet(url);
@@ -92,7 +92,7 @@ public class MapQuestRoadManager extends RouteManager {
 			road = new Route(waypoints);
 		}
 		connection.close();
-		Log.d(BonusPackHelper.LOG_TAG, "MapQuestRoadManager.getRoute - finished");
+		Log.d(BonusPackHelper.LOG_TAG, "MapQuestRouteManager.getRoute - finished");
 		return road;
 	}
 
@@ -121,6 +121,11 @@ public class MapQuestRoadManager extends RouteManager {
 		if (road != null && road.routeHigh.size() > 0) {
 			road.nodes = finalizeNodes(road.nodes, handler.mLinks, road.routeHigh);
 			road.buildLegs(waypoints);
+
+			// drop these points...
+			road.routeHigh.remove(0);
+			road.routeHigh.remove(road.routeHigh.size()-1);
+			
 			road.status = Route.STATUS_OK;
 		}
 		return road;

@@ -14,7 +14,7 @@ import android.util.Log;
 /**
  * describes the way to go from a position to an other. Normally returned by a
  * call to a Directions API (from MapQuest, GoogleMaps or other)
- * @see MapQuestRoadManager
+ * @see MapQuestRouteManager
  * @see GoogleRouteManager
  * @see OSRMRouteManager
  * @author M.Kergall
