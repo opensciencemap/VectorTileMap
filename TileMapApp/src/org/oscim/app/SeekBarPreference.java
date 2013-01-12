@@ -24,7 +24,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 	private static final String ROBOBUNNYNS="http://app.oscim.org";
 	private static final int DEFAULT_VALUE = 50;
 	
-	private int mMaxValue      = 100;
+	private int mMaxValue      = 50;
 	private int mMinValue      = 0;
 	private int mInterval      = 1;
 	private int mCurrentValue;
@@ -57,7 +57,7 @@ public class SeekBarPreference extends Preference implements OnSeekBarChangeList
 		                   * (double)stat.getBlockSize();
 		//One binary megabyte equals 1,048,576 bytes.
 		// otherwise we need an logarithmic scale to set a sane value with the slider...
-		int megaAvailable = 100; //(int)sdAvailSize / 1048576;
+		int megaAvailable = 50; //(int)sdAvailSize / 1048576;
 		
 		mMaxValue = megaAvailable;//attrs.getAttributeIntValue(ANDROIDNS, "max", 100);
 		mMinValue = attrs.getAttributeIntValue(ROBOBUNNYNS, "min", 0);
