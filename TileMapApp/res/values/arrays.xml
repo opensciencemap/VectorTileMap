@@ -8,6 +8,7 @@
         <item>PBMAP_READER</item>
       	<item>OSCIMAP_READER</item>
 	      <item>TEST_READER</item>
+	      <item>OSCIMAP_READER_TEST</item>
         </string-array>
 
     <string name="preferences_map_database_default">PBMAP_READER</string>

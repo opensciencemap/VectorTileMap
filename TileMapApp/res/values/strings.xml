@@ -11,8 +11,9 @@
         <!-- <item>PostGIS</item> -->
         <item>OpenScienceMap</item>
         <item>OpenScienceMap2</item>
-        <item>Test</item>
-    </string-array>
+        <item>VectorTileServer</item>
+        <item>Experimentation</item>
+        </string-array>
     <string-array name="preferences_scale_bar_unit_values">
         <item>Imperial</item>
         <item>Metric</item>

@@ -172,21 +172,27 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				options = new MapOptions(mapDatabaseNew);
 				options.put("url",
 						"http://city.informatik.uni-bremen.de:80/osci/map-live/");
-						//"http://city.informatik.uni-bremen.de:80/osci/oscim/");
+				//"http://city.informatik.uni-bremen.de:80/osci/oscim/");
 				break;
 			case TEST_READER:
 				options = new MapOptions(MapDatabases.OSCIMAP_READER);
 				options.put("url",
 						"http://city.informatik.uni-bremen.de:8000/");
+				break;
+			case OSCIMAP_READER_TEST:
+ 				options = new MapOptions(MapDatabases.OSCIMAP_READER);
+				options.put("url",
+						"http://city.informatik.uni-bremen.de:80/osci/map3/");
+				break;
 			default:
 				break;
 			}
-			
+
 			map.setMapDatabase(options);
 			mMapDatabase = mapDatabaseNew;
 		}
 	}
-	
+
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
@@ -405,7 +411,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				mPoiSearch.poiMarkers.showBubbleOnItem(id, map);
 
 				POI poi = mPoiSearch.getPOIs().get(id);
-				
+
 				if (poi.bbox != null)
 					map.getMapViewPosition().animateTo(poi.bbox);
 				else
