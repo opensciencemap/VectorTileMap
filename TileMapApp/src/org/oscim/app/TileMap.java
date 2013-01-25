@@ -537,9 +537,14 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		if (preferences.contains("theme")) {
 			String name = preferences.getString("theme",
 					"OSMARENDER");
-			InternalRenderTheme theme = InternalRenderTheme.valueOf(name);
+			InternalRenderTheme theme = null;
+			
+			try{
+				theme = InternalRenderTheme.valueOf(name);
+			} catch (IllegalArgumentException e){
+			}
 			if (theme == null)
-				map.setRenderTheme(InternalRenderTheme.OSMARENDER);
+				map.setRenderTheme(InternalRenderTheme.DEFAULT); 
 			else
 				map.setRenderTheme(theme);
 		}
