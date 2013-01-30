@@ -1,2 +1,7 @@
 VectorTileMap is part of the OpenScienceMap project, developed at University of Bremen. 
 http://www.opensciencemap.org
+
+
+Build: 
+
+in VectorTileMap/jni run 'ndk-build' from Android NDK
