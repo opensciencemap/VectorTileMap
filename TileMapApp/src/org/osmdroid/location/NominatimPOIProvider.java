@@ -19,7 +19,7 @@ import android.util.Log;
  * and http://open.mapquestapi.com/nominatim/<br>
  * @author M.Kergall
  */
-public class NominatimPOIProvider implements POIProvider{
+public class NominatimPOIProvider implements POIProvider {
 	/* As the doc lacks a lot of features, source code may help:
 	 * https://trac.openstreetmap
 	 * .org/browser/applications/utils/nominatim/website/search.php featuretype=
@@ -94,10 +94,11 @@ public class NominatimPOIProvider implements POIProvider{
 				//	jPlace.optLong("osm_id");
 				poi.location = new GeoPoint(jPlace.getDouble("lat"), jPlace.getDouble("lon"));
 				JSONArray bbox = jPlace.optJSONArray("boundingbox");
-				if (bbox != null){
+				if (bbox != null) {
 					try {
-					poi.bbox = new BoundingBox(bbox.getDouble(0), bbox.getDouble(2),  bbox.getDouble(1),  bbox.getDouble(3));
-					} catch (Exception e){
+						poi.bbox = new BoundingBox(bbox.getDouble(0), bbox.getDouble(2),
+								bbox.getDouble(1), bbox.getDouble(3));
+					} catch (Exception e) {
 						Log.d("NominatimPOIProvider", "could not parse " + bbox);
 					}
 					//Log.d("NominatimPOIProvider", "bbox " + poi.bbox);
@@ -106,7 +107,7 @@ public class NominatimPOIProvider implements POIProvider{
 				poi.type = jPlace.getString("type");
 				poi.description = jPlace.optString("display_name");
 				poi.thumbnailPath = jPlace.optString("icon", null);
-				
+
 				if (i == 0 && poi.thumbnailPath != null) {
 					//first POI, and we have a thumbnail: load it
 					thumbnail = BonusPackHelper.loadBitmap(poi.thumbnailPath);
@@ -152,15 +153,16 @@ public class NominatimPOIProvider implements POIProvider{
 	 *            ...
 	 * @return list of POIs, null if technical issue.
 	 */
-	public ArrayList<POI> getPOIInside(BoundingBox boundingBox,  String type, int maxResults) {
+	public ArrayList<POI> getPOIInside(BoundingBox boundingBox, String type, int maxResults) {
 		String url = getUrlInside(boundingBox, type, maxResults);
 		return getThem(url);
 	}
 
-	public ArrayList<POI> getPOI(String query, int maxResults){
+	public ArrayList<POI> getPOI(String query, int maxResults) {
 		String url = getCommonUrl(query, maxResults).toString();
 		return getThem(url);
 	}
+
 	/**
 	 * @param path
 	 *            Warning: a long path may cause a failure due to the url to be
@@ -173,7 +175,7 @@ public class NominatimPOIProvider implements POIProvider{
 	 * @param maxWidth
 	 *            to the path. Certainly not in degrees. Probably in km.
 	 * @return list of POIs, null if technical issue.
-	 */ 
+	 */
 	public ArrayList<POI> getPOIAlong(ArrayList<GeoPoint> path, String type,
 			int maxResults, double maxWidth) {
 		StringBuffer urlString = getCommonUrl(type, maxResults);

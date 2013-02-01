@@ -14,7 +14,6 @@ import android.widget.TextView;
  * Default implementation of InfoWindow. It handles a text and a description. It
  * also handles optionally a sub-description and an image. Clicking on the
  * bubble will close it.
- * 
  * @author M.Kergall
  */
 public class DefaultInfoWindow extends InfoWindow {

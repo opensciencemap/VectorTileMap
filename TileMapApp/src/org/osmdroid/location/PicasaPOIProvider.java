@@ -25,7 +25,7 @@ import android.util.Log;
  * @see "https://developers.google.com/picasa-web/docs/2.0/reference"
  * @author M.Kergall
  */
-public class PicasaPOIProvider implements POIProvider{
+public class PicasaPOIProvider implements POIProvider {
 
 	String mAccessToken;
 

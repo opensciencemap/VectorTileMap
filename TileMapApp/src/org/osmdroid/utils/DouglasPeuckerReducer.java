@@ -9,7 +9,6 @@ import org.oscim.core.GeoPoint;
  * From:
  * http://www.phpriot.com/articles/reducing-map-path-douglas-peucker-algorithm/4<br>
  * Ported from PHP to Java. "marked" array added to optimize.
- * 
  * @author M.Kergall
  */
 public class DouglasPeuckerReducer {
@@ -17,7 +16,6 @@ public class DouglasPeuckerReducer {
 	/**
 	 * Reduce the number of points in a shape using the Douglas-Peucker
 	 * algorithm
-	 * 
 	 * @param shape
 	 *            The shape to reduce
 	 * @param tolerance
@@ -62,7 +60,6 @@ public class DouglasPeuckerReducer {
 	/**
 	 * Reduce the points in shape between the specified first and last index.
 	 * Mark the points to keep in marked[]
-	 * 
 	 * @param shape
 	 *            The original shape
 	 * @param marked
@@ -121,7 +118,6 @@ public class DouglasPeuckerReducer {
 	/**
 	 * Calculate the orthogonal distance from the line joining the lineStart and
 	 * lineEnd points to point
-	 * 
 	 * @param point
 	 *            The point the distance is being calculated for
 	 * @param lineStart

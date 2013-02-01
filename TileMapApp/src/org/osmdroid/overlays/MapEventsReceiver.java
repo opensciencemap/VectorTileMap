@@ -5,7 +5,6 @@ import org.oscim.core.GeoPoint;
 /**
  * Interface for objects that need to handle map events thrown by a
  * MapEventsOverlay.
- * 
  * @see MapEventsOverlay
  * @author M.Kergall
  */

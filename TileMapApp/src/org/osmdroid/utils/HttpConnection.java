@@ -54,11 +54,9 @@ public class HttpConnection {
 		stream = null;
 		entity = null;
 		HttpParams httpParameters = new BasicHttpParams();
-		/*
-		 * useful? HttpProtocolParams.setContentCharset(httpParameters,
+		/* useful? HttpProtocolParams.setContentCharset(httpParameters,
 		 * "UTF-8"); HttpProtocolParams.setHttpElementCharset(httpParameters,
-		 * "UTF-8");
-		 */
+		 * "UTF-8"); */
 		// Set the timeout in milliseconds until a connection is established.
 		HttpConnectionParams.setConnectionTimeout(httpParameters, TIMEOUT_CONNECTION);
 		// Set the default socket timeout (SO_TIMEOUT) 

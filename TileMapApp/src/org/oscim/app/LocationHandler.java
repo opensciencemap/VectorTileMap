@@ -124,7 +124,6 @@ public class LocationHandler {
 
 	/**
 	 * Disables the "show my location" mode.
-	 * 
 	 * @return ...
 	 */
 	boolean disableShowMyLocation() {
@@ -149,7 +148,6 @@ public class LocationHandler {
 
 	/**
 	 * Returns the status of the "show my location" mode.
-	 * 
 	 * @return true if the "show my location" mode is enabled, false otherwise.
 	 */
 	boolean isShowMyLocationEnabled() {
@@ -158,7 +156,6 @@ public class LocationHandler {
 
 	/**
 	 * Disables the "snap to location" mode.
-	 * 
 	 * @param showToast
 	 *            defines whether a toast message is displayed or not.
 	 */
@@ -178,7 +175,6 @@ public class LocationHandler {
 
 	/**
 	 * Enables the "snap to location" mode.
-	 * 
 	 * @param showToast
 	 *            defines whether a toast message is displayed or not.
 	 */
@@ -197,7 +193,6 @@ public class LocationHandler {
 
 	/**
 	 * Returns the status of the "snap to location" mode.
-	 * 
 	 * @return true if the "snap to location" mode is enabled, false otherwise.
 	 */
 	boolean isSnapToLocationEnabled() {

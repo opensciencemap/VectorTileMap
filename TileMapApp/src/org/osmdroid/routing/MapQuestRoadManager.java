@@ -24,7 +24,6 @@ import android.util.Log;
  * list of waypoints. It uses MapQuest open, public and free API, based on
  * OpenStreetMap data. <br>
  * See http://open.mapquestapi.com/guidance
- * 
  * @author M.Kergall
  */
 public class MapQuestRoadManager extends RoadManager {
@@ -33,7 +32,6 @@ public class MapQuestRoadManager extends RoadManager {
 
 	/**
 	 * Build the URL to MapQuest service returning a route in XML format
-	 * 
 	 * @param waypoints
 	 *            : array of waypoints, as [lat, lng], from start point to end
 	 *            point.
@@ -98,7 +96,6 @@ public class MapQuestRoadManager extends RoadManager {
 
 	/**
 	 * XML implementation
-	 * 
 	 * @param is
 	 *            : input stream to parse
 	 * @param waypoints

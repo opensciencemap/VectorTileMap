@@ -10,7 +10,6 @@ import android.view.MotionEvent;
 /**
  * Empty overlay than can be used to detect events on the map, and to throw them
  * to a MapEventsReceiver.
- * 
  * @see MapEventsReceiver
  * @author M.Kergall
  */

@@ -46,13 +46,13 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 	BoundingBox mBoundingBox;
 
 	public POIOverlay(MapView mapView, Context context, List<ExtendedOverlayItem> aList,
-	InfoWindow bubble) {
+			InfoWindow bubble) {
 		super(mapView, context, aList, bubble);
-		
+
 		mUpdateTask = new UpdateTask();
-		FlickrPOIProvider provider =  new FlickrPOIProvider("c39be46304a6c6efda8bc066c185cd7e");
+		FlickrPOIProvider provider = new FlickrPOIProvider("c39be46304a6c6efda8bc066c185cd7e");
 		provider.setPrevious(mPOIMap);
-		
+
 		mPoiProvider = provider;
 		mMarker = context.getResources().getDrawable(R.drawable.marker_poi_flickr);
 	}
@@ -91,9 +91,9 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 			}
 		}
 	}
-	
-	HashMap<String,POI> mPOIMap = new HashMap<String, POI>(100);
-	
+
+	HashMap<String, POI> mPOIMap = new HashMap<String, POI>(100);
+
 	class POITask extends AsyncTask<Object, Void, List<POI>> {
 
 		@Override
@@ -104,12 +104,12 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 
 		@Override
 		protected void onPostExecute(List<POI> pois) {
-//			removeAllItems();
+			//			removeAllItems();
 
 			if (pois != null) {
 				for (POI poi : pois) {
 					ExtendedOverlayItem poiMarker = new ExtendedOverlayItem(poi.type,
-					poi.description, poi.location);
+							poi.description, poi.location);
 
 					poiMarker.setMarker(mMarker);
 					poiMarker.setMarkerHotspot(OverlayItem.HotspotPlace.CENTER);
@@ -117,7 +117,7 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 					poiMarker.setRelatedObject(poi);
 
 					addItem(poiMarker);
-					
+
 					mPOIMap.put(poi.id, poi);
 				}
 			}
@@ -150,18 +150,18 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 				}
 			});
 
-//			getView().setOnClickListener(new View.OnClickListener() {
-//				@Override
-//				public void onClick(View view) {
-//					POI poi = (POI) view.getTag();
-//
-//					if (poi != null) {
-//						Intent intent = new Intent(tileMap, POIActivity.class);
-//						intent.putExtra("ID", poiMarkers.getBubbledItemId());
-//						tileMap.startActivityForResult(intent, TileMap.POIS_REQUEST);
-//					}
-//				}
-//			});
+			//			getView().setOnClickListener(new View.OnClickListener() {
+			//				@Override
+			//				public void onClick(View view) {
+			//					POI poi = (POI) view.getTag();
+			//
+			//					if (poi != null) {
+			//						Intent intent = new Intent(tileMap, POIActivity.class);
+			//						intent.putExtra("ID", poiMarkers.getBubbledItemId());
+			//						tileMap.startActivityForResult(intent, TileMap.POIS_REQUEST);
+			//					}
+			//				}
+			//			});
 		}
 
 		@Override
@@ -183,5 +183,4 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 		}
 	}
 
-	
 }

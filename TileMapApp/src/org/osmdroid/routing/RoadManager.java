@@ -12,7 +12,6 @@ import android.graphics.Paint;
 /**
  * Generic class to get a route between a start and a destination point, going
  * through a list of waypoints.
- * 
  * @see MapQuestRoadManager
  * @see GoogleRoadManager
  * @see OSRMRoadManager
@@ -31,7 +30,6 @@ public abstract class RoadManager {
 	/**
 	 * Add an option that will be used in the route request. Note that some
 	 * options are set in the request in all cases.
-	 * 
 	 * @param requestOption
 	 *            see provider documentation. Just one example:
 	 *            "routeType=bicycle" for MapQuest; "mode=bicycling" for Google.
@@ -64,7 +62,6 @@ public abstract class RoadManager {
 
 	/**
 	 * Builds an overlay for the road shape with a default (and nice!) color.
-	 * 
 	 * @param mapView
 	 *            ..
 	 * @param road

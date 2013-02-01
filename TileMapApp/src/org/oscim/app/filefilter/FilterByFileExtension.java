@@ -18,7 +18,8 @@ import java.io.File;
 import java.io.FileFilter;
 
 /**
- * Accepts all readable directories and all readable files with a given extension.
+ * Accepts all readable directories and all readable files with a given
+ * extension.
  */
 public class FilterByFileExtension implements FileFilter {
 	private final String extension;

@@ -36,16 +36,22 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 /**
- * A FilePicker displays the contents of directories. The user can navigate within the file system and select a single
- * file whose path is then returned to the calling activity. The ordering of directory contents can be specified via
- * {@link #setFileComparator(Comparator)}. By default subfolders and files are grouped and each group is ordered
+ * A FilePicker displays the contents of directories. The user can navigate
+ * within the file system and select a single
+ * file whose path is then returned to the calling activity. The ordering of
+ * directory contents can be specified via
+ * {@link #setFileComparator(Comparator)}. By default subfolders and files are
+ * grouped and each group is ordered
  * alphabetically.
  * <p>
- * A {@link FileFilter} can be activated via {@link #setFileDisplayFilter(FileFilter)} to restrict the displayed files
- * and folders. By default all files and folders are visible.
+ * A {@link FileFilter} can be activated via
+ * {@link #setFileDisplayFilter(FileFilter)} to restrict the displayed files and
+ * folders. By default all files and folders are visible.
  * <p>
- * Another <code>FileFilter</code> can be applied via {@link #setFileSelectFilter(ValidFileFilter)} to check if a
- * selected file is valid before its path is returned. By default all files are considered as valid and can be selected.
+ * Another <code>FileFilter</code> can be applied via
+ * {@link #setFileSelectFilter(ValidFileFilter)} to check if a selected file is
+ * valid before its path is returned. By default all files are considered as
+ * valid and can be selected.
  */
 public class FilePicker extends Activity implements AdapterView.OnItemClickListener {
 	/**
@@ -63,9 +69,9 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 	private static final String PREFERENCES_FILE = "FilePicker";
 
 	/**
-	 * Sets the file comparator which is used to order the contents of all directories before displaying them. If set to
+	 * Sets the file comparator which is used to order the contents of all
+	 * directories before displaying them. If set to
 	 * null, subfolders and files will not be ordered.
-	 * 
 	 * @param fileComparator
 	 *            the file comparator (may be null).
 	 */
@@ -74,9 +80,9 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 	}
 
 	/**
-	 * Sets the file display filter. This filter is used to determine which files and subfolders of directories will be
+	 * Sets the file display filter. This filter is used to determine which
+	 * files and subfolders of directories will be
 	 * displayed. If set to null, all files and subfolders are shown.
-	 * 
 	 * @param fileDisplayFilter
 	 *            the file display filter (may be null).
 	 */
@@ -85,9 +91,9 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 	}
 
 	/**
-	 * Sets the file select filter. This filter is used when the user selects a file to determine if it is valid. If set
+	 * Sets the file select filter. This filter is used when the user selects a
+	 * file to determine if it is valid. If set
 	 * to null, all files are considered as valid.
-	 * 
 	 * @param fileSelectFilter
 	 *            the file selection filter (may be null).
 	 */
@@ -97,7 +103,6 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 
 	/**
 	 * Creates the default file comparator.
-	 * 
 	 * @return the default file comparator.
 	 */
 	private static Comparator<File> getDefaultFileComparator() {
@@ -191,26 +196,26 @@ public class FilePicker extends Activity implements AdapterView.OnItemClickListe
 	protected Dialog onCreateDialog(int id) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		switch (id) {
-			case DIALOG_FILE_INVALID:
-				builder.setIcon(android.R.drawable.ic_menu_info_details);
-				builder.setTitle(R.string.error);
+		case DIALOG_FILE_INVALID:
+			builder.setIcon(android.R.drawable.ic_menu_info_details);
+			builder.setTitle(R.string.error);
 
-				StringBuilder stringBuilder = new StringBuilder();
-				stringBuilder.append(getString(R.string.file_invalid));
-				stringBuilder.append("\n\n");
-				stringBuilder.append(FilePicker.fileSelectFilter.getFileOpenResult()
-						.getErrorMessage());
+			StringBuilder stringBuilder = new StringBuilder();
+			stringBuilder.append(getString(R.string.file_invalid));
+			stringBuilder.append("\n\n");
+			stringBuilder.append(FilePicker.fileSelectFilter.getFileOpenResult()
+					.getErrorMessage());
 
-				builder.setMessage(stringBuilder.toString());
-				builder.setPositiveButton(R.string.ok, null);
-				return builder.create();
-				// case DIALOG_FILE_SELECT:
-				// builder.setMessage(R.string.file_select);
-				// builder.setPositiveButton(R.string.ok, null);
-				// return builder.create();
-			default:
-				// do dialog will be created
-				return null;
+			builder.setMessage(stringBuilder.toString());
+			builder.setPositiveButton(R.string.ok, null);
+			return builder.create();
+			// case DIALOG_FILE_SELECT:
+			// builder.setMessage(R.string.file_select);
+			// builder.setPositiveButton(R.string.ok, null);
+			// return builder.create();
+		default:
+			// do dialog will be created
+			return null;
 		}
 	}
 

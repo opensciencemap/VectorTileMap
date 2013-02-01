@@ -33,7 +33,6 @@ public class PolylineEncoder {
 
 	/**
 	 * Encode a polyline with Google polyline encoding method
-	 * 
 	 * @param polyline
 	 *            the polyline
 	 * @param precision
@@ -56,7 +55,6 @@ public class PolylineEncoder {
 
 	/**
 	 * Decode a "Google-encoded" polyline
-	 * 
 	 * @param encodedString
 	 *            ...
 	 * @param precision

@@ -57,10 +57,10 @@ public class FourSquareProvider {
 	//"https://api.foursquare.com/v2/venues/search?v=20120321&intent=checkin&ll=53.06,8.8&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY
 	private String getUrlInside(BoundingBox boundingBox, String query, int maxResults) {
 		StringBuffer url = new StringBuffer(
-		"https://api.foursquare.com/v2/venues/search?v=20120321"
-		+ "&intent=browse"
-		+ "&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3"
-		+ "&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY");
+				"https://api.foursquare.com/v2/venues/search?v=20120321"
+						+ "&intent=browse"
+						+ "&client_id=ZUN4ZMNZUFT3Z5QQZNMQ3ACPL4OJMBFGO15TYX51D5MHCIL3"
+						+ "&client_secret=X1RXCVF4VVSG1Y2FUDQJLKQUC1WF4XXKIMK2STXKACLPDGLY");
 		url.append("&sw=");
 		url.append(boundingBox.getMinLatitude());
 		url.append(',');
@@ -107,8 +107,8 @@ public class FourSquareProvider {
 
 				JSONObject jLocation = jVenue.getJSONObject("location");
 				poi.location = new GeoPoint(
-				jLocation.getDouble("lat"),
-				jLocation.getDouble("lng"));
+						jLocation.getDouble("lat"),
+						jLocation.getDouble("lng"));
 				poi.description = jLocation.optString("address", null);
 
 				JSONArray jCategories = jVenue.getJSONArray("categories");
@@ -153,13 +153,13 @@ public class FourSquareProvider {
 					return null;
 				try {
 					URL url = new URL(poi.url);
-					HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+					HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 					conn.setInstanceFollowRedirects(false);
-					
+
 					String redirect = conn.getHeaderField("Location");
-					if (redirect != null){
-					Log.d(BonusPackHelper.LOG_TAG, redirect);
-					return redirect;
+					if (redirect != null) {
+						Log.d(BonusPackHelper.LOG_TAG, redirect);
+						return redirect;
 					}
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
@@ -174,10 +174,11 @@ public class FourSquareProvider {
 			protected void onPostExecute(String result) {
 				if (result == null)
 					return;
-				
-				Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://foursquare.com" + result));
+
+				Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://foursquare.com"
+						+ result));
 				context.startActivity(myIntent);
-				
+
 			}
 		}.execute(poi);
 

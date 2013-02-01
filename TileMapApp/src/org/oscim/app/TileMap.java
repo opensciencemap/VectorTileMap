@@ -180,7 +180,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 						"http://city.informatik.uni-bremen.de:8000/");
 				break;
 			case OSCIMAP_READER_TEST:
- 				options = new MapOptions(MapDatabases.OSCIMAP_READER);
+				options = new MapOptions(MapDatabases.OSCIMAP_READER);
 				options.put("url",
 						"http://city.informatik.uni-bremen.de:80/osci/map3/");
 				break;
@@ -538,13 +538,13 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			String name = preferences.getString("theme",
 					"OSMARENDER");
 			InternalRenderTheme theme = null;
-			
-			try{
+
+			try {
 				theme = InternalRenderTheme.valueOf(name);
-			} catch (IllegalArgumentException e){
+			} catch (IllegalArgumentException e) {
 			}
 			if (theme == null)
-				map.setRenderTheme(InternalRenderTheme.DEFAULT); 
+				map.setRenderTheme(InternalRenderTheme.DEFAULT);
 			else
 				map.setRenderTheme(theme);
 		}

@@ -61,7 +61,7 @@ public class POISearch {
 		final ArrayList<ExtendedOverlayItem> poiItems = new ArrayList<ExtendedOverlayItem>();
 
 		poiMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(App.map, tileMap,
-		poiItems, new POIInfoWindow(App.map));
+				poiItems, new POIInfoWindow(App.map));
 
 		App.map.getOverlays().add(poiMarkers);
 
@@ -100,7 +100,7 @@ public class POISearch {
 				return pois;
 			} else if (mTag.equals("flickr")) {
 				FlickrPOIProvider poiProvider = new FlickrPOIProvider(
-				"c39be46304a6c6efda8bc066c185cd7e");
+						"c39be46304a6c6efda8bc066c185cd7e");
 				BoundingBox bb = App.map.getBoundingBox();
 				ArrayList<POI> pois = poiProvider.getPOIInside(bb, null, 20);
 				return pois;
@@ -127,7 +127,7 @@ public class POISearch {
 				//				if (destinationPoint == null) {
 				BoundingBox bb = App.map.getBoundingBox();
 				pois = poiProvider.getPOIInside(bb, mTag, 10);
-				
+
 				//pois = poiProvider.getPOI( mTag, 10);
 				//	} else {
 				//		pois = poiProvider.getPOIAlong(mRoad.getRouteLow(), mTag, 100, 2.0);
@@ -142,13 +142,13 @@ public class POISearch {
 				//no search, no message
 			} else if (pois == null) {
 				Toast
-				.makeText(tileMap.getApplicationContext(),
-							"Technical issue when getting " + mTag + " POI.", Toast.LENGTH_LONG)
-				.show();
+						.makeText(tileMap.getApplicationContext(),
+								"Technical issue when getting " + mTag + " POI.", Toast.LENGTH_LONG)
+						.show();
 			} else {
 				Toast.makeText(tileMap.getApplicationContext(),
-								"" + pois.size() + " " + mTag + " entries found",
-								Toast.LENGTH_LONG).show();
+						"" + pois.size() + " " + mTag + " entries found",
+						Toast.LENGTH_LONG).show();
 				//	if (mTag.equals("flickr") || mTag.startsWith("picasa") || mTag.equals("wikipedia"))
 				//	startAsyncThumbnailsLoading(mPOIs);
 			}
@@ -172,7 +172,7 @@ public class POISearch {
 					if (split != null && split.length > 1) {
 						name = split[0];
 						desc = split[1];
- 
+
 						for (int i = 2; i < 3 && i < split.length; i++)
 							desc += "," + split[i];
 					}
@@ -182,7 +182,7 @@ public class POISearch {
 				}
 
 				ExtendedOverlayItem poiMarker = new ExtendedOverlayItem(
-				poi.type + (name == null ? "" : ": " + name), desc, poi.location);
+						poi.type + (name == null ? "" : ": " + name), desc, poi.location);
 				Drawable marker = null;
 
 				if (poi.serviceId == POI.POI_SERVICE_NOMINATIM) {

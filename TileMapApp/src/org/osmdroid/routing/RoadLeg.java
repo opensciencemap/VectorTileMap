@@ -11,7 +11,6 @@ import android.util.Log;
 /**
  * Road Leg is the portion of the road between 2 waypoints (intermediate points
  * requested)
- * 
  * @author M.Kergall
  */
 public class RoadLeg implements Parcelable {

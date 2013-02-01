@@ -16,7 +16,6 @@ import android.util.Log;
 
 /**
  * Useful functions and common constants.
- * 
  * @author M.Kergall
  */
 public class BonusPackHelper {
@@ -47,7 +46,6 @@ public class BonusPackHelper {
 
 	/**
 	 * sends an http request, and returns the whole content result in a String.
-	 * 
 	 * @param url
 	 *            ...
 	 * @return the whole content, or null if any issue.
@@ -63,7 +61,6 @@ public class BonusPackHelper {
 	/**
 	 * requestStringFromPost: do a post request to a url with name-value pairs,
 	 * and returns the whole content result in a String.
-	 * 
 	 * @param url
 	 *            ...
 	 * @param nameValuePairs
@@ -80,7 +77,6 @@ public class BonusPackHelper {
 
 	/**
 	 * Loads a bitmap from a url.
-	 * 
 	 * @param url
 	 *            ...
 	 * @return the bitmap, or null if any issue.
@@ -91,12 +87,10 @@ public class BonusPackHelper {
 			InputStream is = (InputStream) new URL(url).getContent();
 			bitmap = BitmapFactory.decodeStream(new FlushedInputStream(is));
 			//Alternative providing better handling on loading errors?
-			/*
-			 * Drawable d = Drawable.createFromStream(new
+			/* Drawable d = Drawable.createFromStream(new
 			 * FlushedInputStream(is), null); if (is != null) is.close(); if (d
-			 * != null) bitmap = ((BitmapDrawable)d).getBitmap();
-			 */
-		} catch (FileNotFoundException e){
+			 * != null) bitmap = ((BitmapDrawable)d).getBitmap(); */
+		} catch (FileNotFoundException e) {
 			Log.d(BonusPackHelper.LOG_TAG, "image not available: " + url);
 		} catch (Exception e) {
 			e.printStackTrace();

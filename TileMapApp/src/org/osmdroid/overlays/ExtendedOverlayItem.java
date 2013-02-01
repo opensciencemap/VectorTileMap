@@ -102,36 +102,36 @@ public class ExtendedOverlayItem extends OverlayItem {
 			place = HotspotPlace.BOTTOM_CENTER; // use same default than in
 												// osmdroid.
 		switch (place) {
-			case NONE:
-				hp.set(0, 0);
-				break;
-			case BOTTOM_CENTER:
-				hp.set(w / 2, 0);
-				break;
-			case LOWER_LEFT_CORNER:
-				hp.set(0, 0);
-				break;
-			case LOWER_RIGHT_CORNER:
-				hp.set(w, 0);
-				break;
-			case CENTER:
-				hp.set(w / 2, -h / 2);
-				break;
-			case LEFT_CENTER:
-				hp.set(0, -h / 2);
-				break;
-			case RIGHT_CENTER:
-				hp.set(w, -h / 2);
-				break;
-			case TOP_CENTER:
-				hp.set(w / 2, -h);
-				break;
-			case UPPER_LEFT_CORNER:
-				hp.set(0, -h);
-				break;
-			case UPPER_RIGHT_CORNER:
-				hp.set(w, -h);
-				break;
+		case NONE:
+			hp.set(0, 0);
+			break;
+		case BOTTOM_CENTER:
+			hp.set(w / 2, 0);
+			break;
+		case LOWER_LEFT_CORNER:
+			hp.set(0, 0);
+			break;
+		case LOWER_RIGHT_CORNER:
+			hp.set(w, 0);
+			break;
+		case CENTER:
+			hp.set(w / 2, -h / 2);
+			break;
+		case LEFT_CENTER:
+			hp.set(0, -h / 2);
+			break;
+		case RIGHT_CENTER:
+			hp.set(w, -h / 2);
+			break;
+		case TOP_CENTER:
+			hp.set(w / 2, -h);
+			break;
+		case UPPER_LEFT_CORNER:
+			hp.set(0, -h);
+			break;
+		case UPPER_RIGHT_CORNER:
+			hp.set(w, -h);
+			break;
 		}
 		return hp;
 	}

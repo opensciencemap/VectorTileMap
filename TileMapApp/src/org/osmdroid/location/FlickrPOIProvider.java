@@ -14,7 +14,6 @@ import android.util.Log;
 
 /**
  * POI Provider using Flickr service to get geolocalized photos.
- * 
  * @see "http://www.flickr.com/services/api/flickr.photos.search.html"
  * @author M.Kergall
  */
@@ -34,7 +33,7 @@ public class FlickrPOIProvider implements POIProvider {
 
 	private String getUrlInside(BoundingBox boundingBox, int maxResults) {
 		StringBuffer url = new StringBuffer(
-		"http://api.flickr.com/services/rest/?method=flickr.photos.search");
+				"http://api.flickr.com/services/rest/?method=flickr.photos.search");
 		url.append("&api_key=" + mApiKey);
 		url.append("&bbox=" + boundingBox.getMinLongitude());
 		url.append("," + boundingBox.getMinLatitude());
@@ -56,8 +55,7 @@ public class FlickrPOIProvider implements POIProvider {
 		return url.toString();
 	}
 
-	/*
-	 * public POI getPhoto(String photoId){ String url =
+	/* public POI getPhoto(String photoId){ String url =
 	 * "http://api.flickr.com/services/rest/?method=flickr.photos.getInfo"
 	 * +
 	 * "&api_key=" + mApiKey + "&photo_id=" + photo Id +
@@ -92,8 +90,7 @@ public class FlickrPOIProvider implements POIProvider {
 	 * +server+"/"+photoId+"_"+secret+"_s.jpg"; poi.mUrl =
 	 * "http://www.flickr.com/photos/"+nsid+"/"+photoId; return poi;
 	 * }catch
-	 * (JSONException e) { e.printStackTrace(); return null; } }
-	 */
+	 * (JSONException e) { e.printStackTrace(); return null; } } */
 
 	/**
 	 * @param fullUrl
@@ -123,8 +120,8 @@ public class FlickrPOIProvider implements POIProvider {
 
 				POI poi = new POI(POI.POI_SERVICE_FLICKR);
 				poi.location = new GeoPoint(
-				jPhoto.getDouble("latitude"),
-				jPhoto.getDouble("longitude"));
+						jPhoto.getDouble("latitude"),
+						jPhoto.getDouble("longitude"));
 				poi.id = photoId; //Long.parseLong(photoId);
 				poi.type = jPhoto.getString("title");
 				poi.thumbnailPath = jPhoto.getString("url_sq");

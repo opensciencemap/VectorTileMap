@@ -7,7 +7,6 @@ import android.os.Parcelable;
 
 /**
  * Road intersection, with instructions to continue.
- * 
  * @author M.Kergall
  */
 public class RoadNode implements Parcelable {

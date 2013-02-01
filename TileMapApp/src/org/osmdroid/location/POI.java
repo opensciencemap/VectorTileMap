@@ -51,7 +51,7 @@ public class POI implements Parcelable {
 	 * defined.
 	 */
 	public int rank;
-	
+
 	/** number of attempts to load the thumbnail that have failed */
 	protected int mThumbnailLoadingFailures;
 

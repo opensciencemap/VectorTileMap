@@ -25,8 +25,8 @@ final class FileUtils {
 	private static final double ONE_MEGABYTE = 1000000;
 
 	/**
-	 * Formats the given file size as a human readable string, using SI prefixes.
-	 * 
+	 * Formats the given file size as a human readable string, using SI
+	 * prefixes.
 	 * @param fileSize
 	 *            the file size to be formatted.
 	 * @param resources

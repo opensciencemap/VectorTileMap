@@ -14,7 +14,6 @@
  */
 package org.oscim.app;
 
-
 public class MapInfoDialog {
 	//onCreate
 	//	else if (id == DIALOG_INFO_MAP_FILE) {

@@ -20,7 +20,6 @@ import android.util.Log;
  * data and Nominatim API. <br>
  * See http://wiki.openstreetmap.org/wiki/Nominatim or
  * http://open.mapquestapi.com/nominatim/
- * 
  * @author M.Kergall
  */
 public class GeocoderNominatim {
@@ -57,7 +56,6 @@ public class GeocoderNominatim {
 	 * Specify the url of the Nominatim service provider to use. Can be one of
 	 * the predefined (NOMINATIM_SERVICE_URL or MAPQUEST_SERVICE_URL), or
 	 * another one, your local instance of Nominatim for instance.
-	 * 
 	 * @param serviceUrl
 	 *            ...
 	 */
@@ -69,7 +67,6 @@ public class GeocoderNominatim {
 	 * Build an Android Address object from the Nominatim address in JSON
 	 * format. Current implementation is mainly targeting french addresses, and
 	 * will be quite basic on other countries.
-	 * 
 	 * @param jResult
 	 *            ...
 	 * @return ...
@@ -122,13 +119,11 @@ public class GeocoderNominatim {
 		if (jAddress.has("country_code"))
 			gAddress.setCountryCode(jAddress.getString("country_code"));
 
-		/*
-		 * Other possible OSM tags in Nominatim results not handled yet: subway,
+		/* Other possible OSM tags in Nominatim results not handled yet: subway,
 		 * golf_course, bus_stop, parking,... house, house_number, building
 		 * city_district (13e Arrondissement) road => or highway, ... sub-city
 		 * (like suburb) => locality, isolated_dwelling, hamlet ...
-		 * state_district
-		 */
+		 * state_district */
 
 		return gAddress;
 	}
