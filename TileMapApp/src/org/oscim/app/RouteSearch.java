@@ -18,6 +18,7 @@ package org.oscim.app;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.oscim.core.GeoPoint;
 import org.oscim.overlay.Overlay;
@@ -28,7 +29,7 @@ import org.osmdroid.location.GeocoderNominatim;
 import org.osmdroid.overlays.DefaultInfoWindow;
 import org.osmdroid.overlays.ExtendedOverlayItem;
 import org.osmdroid.overlays.ItemizedOverlayWithBubble;
-import org.osmdroid.routing.OSRMRoadManager;
+import org.osmdroid.routing.MapQuestRoadManager;
 import org.osmdroid.routing.Road;
 import org.osmdroid.routing.RoadManager;
 import org.osmdroid.routing.RoadNode;
@@ -57,23 +58,11 @@ public class RouteSearch {
 	private final TileMap tileMap;
 
 	RouteSearch(TileMap tileMap) {
-		// keep context and mapview reference
 
 		this.tileMap = tileMap;
-
-		//		if (savedInstanceState == null) {
-		//		Location l = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		//		if (l != null) {
-		//			startPoint = new GeoPoint(l.getLatitude(), l.getLongitude());
-		//		} else {
-		//			//we put a hard-coded start
-		startPoint = null; //new GeoPoint(53.067221, 8.78767);
-		//		}
+		startPoint = null;
 		destinationPoint = null;
 		viaPoints = new ArrayList<GeoPoint>();
-		//		mapController.setZoom(9);
-		//		mapController.setCenter(startPoint);
-		//		}
 
 		// Itinerary markers:
 		final ArrayList<ExtendedOverlayItem> waypointsItems = new ArrayList<ExtendedOverlayItem>();
@@ -87,12 +76,6 @@ public class RouteSearch {
 		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
 				tileMap.map);
 		tileMap.map.getOverlays().add(mRoadNodeMarkers);
-
-		//		if (savedInstanceState != null) {
-		//			mRoad = savedInstanceState.getParcelable("road");
-		//			updateUIWithRoad(mRoad);
-		//		}
-
 	}
 
 	//------------- Geocoding and Reverse Geocoding
@@ -132,7 +115,7 @@ public class RouteSearch {
 		return "";
 	}
 
-	//Async task to reverse-geocode the marker position in a separate thread:
+	// Async task to reverse-geocode the marker position in a separate thread:
 	class GeocodingTask extends AsyncTask<Object, Void, String> {
 		ExtendedOverlayItem marker;
 
@@ -172,8 +155,7 @@ public class RouteSearch {
 
 		itineraryMarkers.addItem(overlayItem);
 
-		tileMap.map.redrawMap();
-		//map.invalidate();
+		tileMap.map.redrawMap(true);
 
 		//Start geocoding task to update the description of the marker with its address:
 		new GeocodingTask().execute(overlayItem);
@@ -261,48 +243,27 @@ public class RouteSearch {
 		mapOverlays.add(removedOverlay);
 		putRoadNodes(road);
 
-		tileMap.map.redrawMap();
+		tileMap.map.redrawMap(true);
 
 		//Set route info in the text view:
 
 		//	((TextView) findViewById(R.id.routeInfo)).setText(road.getLengthDurationText(-1));
 	}
-	
-	void removeRoadPath(){
+
+	void removeRoadPath() {
 		List<Overlay> mapOverlays = tileMap.map.getOverlays();
 		if (mRoadOverlay != null) {
 			mapOverlays.remove(mRoadOverlay);
 		}
-		tileMap.map.redrawMap();
+		tileMap.map.redrawMap(true);
 	}
-	
-	void removeRoadNodes(){
-		List<Overlay> mapOverlays = tileMap.map.getOverlays();
-		if (mRoadNodeMarkers != null) {
-			mapOverlays.remove(mRoadNodeMarkers);
-		}
-		
-		final ArrayList<ExtendedOverlayItem> roadItems = new ArrayList<ExtendedOverlayItem>();
-		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
-				tileMap.map);
-		tileMap.map.getOverlays().add(mRoadNodeMarkers);
-//		itineraryMarkers.removeAllItems();
-//		mRoadNodeMarkers.removeAllItems();
-//		//Start marker:
-//		if (startPoint != null) {
-//			markerStart = putMarkerItem(null, startPoint, START_INDEX,
-//					R.string.departure, R.drawable.marker_departure, -1);
-//		}
-//		//Destination marker if any:
-//		if (destinationPoint != null) {
-//			markerDestination = putMarkerItem(null, destinationPoint, DEST_INDEX,
-//					R.string.destination,
-//					R.drawable.marker_destination, -1);
-//		}
-		tileMap.map.redrawMap();
+
+	void removeRoadNodes() {
+		mRoadNodeMarkers.removeAllItems();
+		tileMap.map.redrawMap(true);
 	}
-	
-	void removeAllOverlay(){
+
+	void removeAllOverlay() {
 		List<Overlay> mapOverlays = tileMap.map.getOverlays();
 		if (mRoadOverlay != null) {
 			mapOverlays.remove(mRoadOverlay);
@@ -314,11 +275,12 @@ public class RouteSearch {
 		mRoadNodeMarkers = new ItemizedOverlayWithBubble<ExtendedOverlayItem>(tileMap, roadItems,
 				tileMap.map);
 		tileMap.map.getOverlays().add(mRoadNodeMarkers);
-		
+
 		//removePoint(-2);
 		removePoint(-1);
-		tileMap.map.redrawMap();
+		tileMap.map.redrawMap(true);
 	}
+
 	/**
 	 * Async task to get the road in a separate thread.
 	 */
@@ -327,11 +289,11 @@ public class RouteSearch {
 		protected Road doInBackground(WayPoints... wp) {
 			ArrayList<GeoPoint> waypoints = wp[0].waypoints;
 			//RoadManager roadManager = new GoogleRoadManager();
-			RoadManager roadManager = new OSRMRoadManager();
-			/* RoadManager roadManager = new MapQuestRoadManager(); Locale
-			 * locale = Locale.getDefault();
-			 * roadManager.addRequestOption("locale="+locale.getLanguage
-			 * ()+"_"+locale.getCountry()); */
+			//RoadManager roadManager = new OSRMRoadManager();
+			RoadManager roadManager = new MapQuestRoadManager();
+			Locale locale = Locale.getDefault();
+			roadManager.addRequestOption("locale=" + locale.getLanguage() + "_"
+					+ locale.getCountry());
 			return roadManager.getRoad(waypoints);
 		}
 
@@ -339,8 +301,6 @@ public class RouteSearch {
 		protected void onPostExecute(Road result) {
 			mRoad = result;
 			updateUIWithRoad(result);
-
-			/// ??? getPOIAsync(poiTagText.getText().toString());
 		}
 	}
 
@@ -382,82 +342,84 @@ public class RouteSearch {
 	// ----------- context menu
 	boolean onContextItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.menu_departure:
-				startPoint = tempClickedGeoPoint;
-				//new GeoPoint((GeoPoint) tempClickedGeoPoint);
-				markerStart = putMarkerItem(markerStart, startPoint, START_INDEX,
-						R.string.departure, R.drawable.marker_departure, -1);
-				getRoadAsync();
-				return true;
-			case R.id.menu_destination:
-				destinationPoint = tempClickedGeoPoint;
-				//new GeoPoint((GeoPoint) tempClickedGeoPoint);
-				markerDestination = putMarkerItem(markerDestination, destinationPoint, DEST_INDEX,
-						R.string.destination,
-						R.drawable.marker_destination, -1);
-				getRoadAsync();
-				return true;
-			case R.id.menu_viapoint:
-				GeoPoint viaPoint = tempClickedGeoPoint; //new GeoPoint((GeoPoint) tempClickedGeoPoint);
-				addViaPoint(viaPoint);
-				getRoadAsync();
-				return true;
-			case R.id.menu_clear:
-				AlertDialog.Builder builder = new AlertDialog.Builder(tileMap);
-//				if (mRoadOverlay != null) {
-//					mapOverlays.remove(mRoadOverlay);
-//				}
-//				if (mRoadNodeMarkers != null) {
-//					mapOverlays.remove(mRoadNodeMarkers);
-//				}
-				List<Overlay> mapOverlays = tileMap.map.getOverlays();
-				ArrayList<String> list = new ArrayList<String>();
-				
-				if(!mapOverlays.contains(mRoadOverlay)&&mRoadNodeMarkers.size()!=0){
-					list.clear();
-					list.add("Clear Route Node Only");
-					list.add("Clear All");
-				}else if(mRoadNodeMarkers.size()==0 && mapOverlays.contains(mRoadOverlay)){
-					list.clear();
-					list.add("Clear Route Only");
-					list.add("Clear All");
-				}else if(!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size()==0 && markerDestination == null){
-					list.clear();
-					list.add("Nothing to Clear");
-				}else if(!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size()==0 && markerDestination != null){
-					list.clear();
-					list.add("Clear All");
-				}else{
-					list.clear();
-					list.add("Clear Route Node Only");
-					list.add("Clear Route Only");
-					list.add("Clear All");
+		case R.id.menu_departure:
+			startPoint = tempClickedGeoPoint;
+			markerStart = putMarkerItem(markerStart, startPoint, START_INDEX,
+					R.string.departure, R.drawable.marker_departure, -1);
+			getRoadAsync();
+			return true;
+
+		case R.id.menu_destination:
+			destinationPoint = tempClickedGeoPoint;
+			markerDestination = putMarkerItem(markerDestination, destinationPoint, DEST_INDEX,
+					R.string.destination,
+					R.drawable.marker_destination, -1);
+			getRoadAsync();
+			return true;
+
+		case R.id.menu_viapoint:
+			GeoPoint viaPoint = tempClickedGeoPoint;
+			addViaPoint(viaPoint);
+			getRoadAsync();
+			return true;
+
+		case R.id.menu_clear:
+			AlertDialog.Builder builder = new AlertDialog.Builder(tileMap);
+			//				if (mRoadOverlay != null) {
+			//					mapOverlays.remove(mRoadOverlay);
+			//				}
+			//				if (mRoadNodeMarkers != null) {
+			//					mapOverlays.remove(mRoadNodeMarkers);
+			//				}
+			List<Overlay> mapOverlays = tileMap.map.getOverlays();
+			ArrayList<String> list = new ArrayList<String>();
+
+			if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() != 0) {
+				list.clear();
+				list.add("Clear Route Node Only");
+				list.add("Clear All");
+			} else if (mRoadNodeMarkers.size() == 0 && mapOverlays.contains(mRoadOverlay)) {
+				list.clear();
+				list.add("Clear Route Only");
+				list.add("Clear All");
+			} else if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() == 0
+					&& markerDestination == null) {
+				list.clear();
+				list.add("Nothing to Clear");
+			} else if (!mapOverlays.contains(mRoadOverlay) && mRoadNodeMarkers.size() == 0
+					&& markerDestination != null) {
+				list.clear();
+				list.add("Clear All");
+			} else {
+				list.clear();
+				list.add("Clear Route Node Only");
+				list.add("Clear Route Only");
+				list.add("Clear All");
+			}
+			final String[] test = new String[list.size()];
+			for (int i = 0; i < list.size(); i++) {
+				test[i] = list.get(i);
+			}
+			builder.setTitle("Clear");
+			builder.setItems(test, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					if (test[which].equals("Clear Route Only")) {
+						removeRoadPath();
+					} else if (test[which].equals("Clear Route Node Only")) {
+						removeRoadNodes();
+					} else if (test[which].equals("Clear All")) {
+						removeAllOverlay();
+					}
+					// The 'which' argument contains the index position
+					// of the selected item
 				}
-				final String[] test = new String[list.size()];
-				for(int i=0;i<list.size();i++){
-					test[i] = list.get(i);
-				}
-			    builder.setTitle("Clear");
-			    builder.setItems(test, new DialogInterface.OnClickListener() {
-			          public void onClick(DialogInterface dialog, int which) {
-			        	  if(test[which].equals("Clear Route Only")){
-			        		  removeRoadPath();
-			        	  }else if(test[which].equals("Clear Route Node Only")){
-			        		  removeRoadNodes();
-			        	  }else if(test[which].equals("Clear All")){
-			        		  removeAllOverlay();
-			        	  }
-			          // The 'which' argument contains the index position
-			          // of the selected item
-			       }
-			    });
-				AlertDialog alertDialog = builder.create();
- 
-				// show it
-				alertDialog.show();
-				return true;
-			    //return builder.create();
-			default:
+			});
+			AlertDialog alertDialog = builder.create();
+
+			alertDialog.show();
+			return true;
+
+		default:
 		}
 		return false;
 	}
