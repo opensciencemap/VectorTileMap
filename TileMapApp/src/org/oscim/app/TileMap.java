@@ -606,7 +606,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		// map.setMapFile(map.getMapFile());
 		// }
 
-		map.redrawMap();
+		map.redrawMap(false);
 	}
 
 	@Override

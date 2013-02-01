@@ -117,7 +117,7 @@ public class ItemizedOverlayWithBubble<Item extends OverlayItem> extends Itemize
 			eItem.showBubble(mBubble, mapView);
 			//			mMapView.getMapViewPosition().animateTo(eItem.mGeoPoint, 0);
 
-			mapView.redrawMap();
+			mapView.redrawMap(true);
 			setFocus((Item) eItem);
 		}
 	}

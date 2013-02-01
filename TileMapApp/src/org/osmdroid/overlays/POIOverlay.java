@@ -122,7 +122,7 @@ public class POIOverlay extends ItemizedOverlayWithBubble<ExtendedOverlayItem> {
 				}
 			}
 
-			mMapView.redrawMap();
+			mMapView.redrawMap(true);
 		}
 	}
 

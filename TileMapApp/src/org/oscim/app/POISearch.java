@@ -217,7 +217,7 @@ public class POISearch {
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		tileMap.startActivityForResult(intent, TileMap.POIS_REQUEST);
 
-		App.map.redrawMap();
+		App.map.redrawMap(true);
 	}
 
 	void getPOIAsync(String tag) {

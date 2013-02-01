@@ -21,8 +21,8 @@ public class ConnectionHandler extends BroadcastReceiver
 			if (activeNetInfo.isConnected()) {
 				Toast.makeText(context, "Active Network Type : " + activeNetInfo.getTypeName(),
 						Toast.LENGTH_SHORT).show();
-				if (App.map != null)
-					App.map.redrawMap();
+				//if (App.map != null)
+				//	App.map.redrawMap();
 			}
 			//Toast.makeText( context, "Active Network Type : " + activeNetInfo.getTypeName(), Toast.LENGTH_SHORT ).show();
 		}
