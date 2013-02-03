@@ -150,12 +150,12 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	private void setMapDatabase(SharedPreferences preferences) {
 		MapDatabases mapDatabaseNew;
 		String dbname = preferences.getString("mapDatabase",
-				MapDatabases.PBMAP_READER.name());
+				MapDatabases.OSCIMAP_READER.name());
 
 		try {
 			mapDatabaseNew = MapDatabases.valueOf(dbname);
 		} catch (IllegalArgumentException e) {
-			mapDatabaseNew = MapDatabases.PBMAP_READER;
+			mapDatabaseNew = MapDatabases.OSCIMAP_READER;
 		}
 
 		if (mapDatabaseNew != mMapDatabase) {
@@ -532,7 +532,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		if (preferences.contains("mapDatabase")) {
 			setMapDatabase(preferences);
-
 		}
 		if (preferences.contains("theme")) {
 			String name = preferences.getString("theme",
