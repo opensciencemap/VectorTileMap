@@ -328,8 +328,8 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 	}
 
 	private void toggleMenuCheck() {
-		mMenu.findItem(R.id.menu_rotation_enable).setChecked(map.enableRotation);
-		mMenu.findItem(R.id.menu_compass_enable).setChecked(map.enableCompass);
+		mMenu.findItem(R.id.menu_rotation_enable).setChecked(map.getRotationEnabled());
+		mMenu.findItem(R.id.menu_compass_enable).setChecked(map.getCompassEnabled());
 	}
 
 	//	private void toggleMenuRotation() {
