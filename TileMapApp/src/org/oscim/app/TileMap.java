@@ -580,30 +580,20 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		boolean drawTileCoordinates = preferences.getBoolean("drawTileCoordinates", false);
 		boolean disablePolygons = preferences.getBoolean("disablePolygons", false);
 		boolean drawUnmatchedWays = preferences.getBoolean("drawUnmatchedWays", false);
+		boolean debugLabels = preferences.getBoolean("debugLabels", false);
 
 		DebugSettings cur = map.getDebugSettings();
-		if (cur.mDisablePolygons != disablePolygons
-				|| cur.mDrawTileCoordinates != drawTileCoordinates
-				|| cur.mDrawTileFrames != drawTileFrames
-				|| cur.mDrawUnmatchted != drawUnmatchedWays) {
-			Log.d(TAG, "set map debug settings");
-
+		if (cur.disablePolygons != disablePolygons
+				|| cur.drawTileCoordinates != drawTileCoordinates
+				|| cur.drawTileFrames != drawTileFrames
+				|| cur.debugTheme != drawUnmatchedWays
+				|| cur.debugLabels != debugLabels) {
+			
 			DebugSettings debugSettings = new DebugSettings(drawTileCoordinates,
-					drawTileFrames, disablePolygons, drawUnmatchedWays);
+					drawTileFrames, disablePolygons, drawUnmatchedWays, debugLabels);
 
 			map.setDebugSettings(debugSettings);
 		}
-		//		if (preferences.contains("about")){
-		//			startActivity(new Intent(this, InfoView.class));
-		//			Log.i("mapviewer", "klick about");
-		//			return;
-		//		}
-		// if (mMapDatabase == MapDatabases.MAP_READER) {
-		// if (map.getMapFile() == null)
-		// startMapFilePicker();
-		// } else {
-		// map.setMapFile(map.getMapFile());
-		// }
 
 		map.redrawMap(false);
 	}
