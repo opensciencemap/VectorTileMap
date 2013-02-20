@@ -85,6 +85,10 @@
             android:key="disablePolygons"
             android:summary="@string/preferences_disable_polygons"
             android:title="@string/preferences_disable_polygons" />
+         <CheckBoxPreference
+            android:key="debugLabels"
+            android:summary="@string/preferences_debug_labels"
+            android:title="@string/preferences_debug_labels" />
     </PreferenceCategory>
 
 </PreferenceScreen>
