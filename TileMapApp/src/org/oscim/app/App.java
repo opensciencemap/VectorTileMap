@@ -22,7 +22,8 @@ import android.content.res.Resources;
 // see http://androidcookbook.com : Android's Application Object as a "Singleton"
 public class App extends Application {
 
-	public static final String TAG = "TileMap";
+	public static final String TAG = TileMap.class.getName();
+	
 	static MapView map;
 	static POISearch poiSearch;
 	static Resources res;
@@ -32,8 +33,5 @@ public class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		res = getResources();
-		// Log.d("...", ">>>>>>>>  INIT <<<<<<<");
-		// sInstance = this;
-		// sInstance.initializeInstance();
 	}
 }

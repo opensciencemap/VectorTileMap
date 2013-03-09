@@ -34,14 +34,12 @@ import org.osmdroid.overlays.MapEventsReceiver;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -60,20 +58,10 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 	MapView map;
 
-	// private static final String BUNDLE_CENTER_AT_FIRST_FIX =
-	// "centerAtFirstFix";
-
 	private static final String BUNDLE_SHOW_MY_LOCATION = "showMyLocation";
 	private static final String BUNDLE_SNAP_TO_LOCATION = "snapToLocation";
 	private static final int DIALOG_ENTER_COORDINATES = 0;
-	//	private static final int DIALOG_INFO_MAP_FILE = 1;
 	private static final int DIALOG_LOCATION_PROVIDER_DISABLED = 2;
-
-	// private static final FileFilter FILE_FILTER_EXTENSION_MAP =
-	// new FilterByFileExtension(".map");
-	//	private static final FileFilter FILE_FILTER_EXTENSION_XML =
-	//			new FilterByFileExtension(".xml");
-	// private static final int SELECT_MAP_FILE = 0;
 
 	// Intents
 	private static final int SELECT_RENDER_THEME_FILE = 1;
@@ -94,41 +82,28 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		super.onCreate(savedInstanceState);
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
-		// set up the layout views
 		setContentView(R.layout.activity_tilemap);
-
 		map = (MapView) findViewById(R.id.mapView);
+
 		setMapDatabase(preferences);
 
 		App.map = map;
 		App.mainActivity = this;
 
-		// configure the MapView and activate the zoomLevel buttons
 		map.setClickable(true);
-		// map.setBuiltInZoomControls(true);
 		map.setFocusable(true);
 
 		mLocation = new LocationHandler(this);
 
 		// get the pointers to different system services
-		PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		//PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		//mWakeLock = powerManager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "AMV");
 
-		mWakeLock = powerManager
-				.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "AMV");
+		if (savedInstanceState != null &&
+				savedInstanceState.getBoolean(BUNDLE_SHOW_MY_LOCATION) &&
+				savedInstanceState.getBoolean(BUNDLE_SNAP_TO_LOCATION))
+			mLocation.enableSnapToLocation(false);
 
-		if (savedInstanceState != null) {
-			if (savedInstanceState.getBoolean(BUNDLE_SHOW_MY_LOCATION)) {
-
-				// enableShowMyLocation(savedInstanceState
-				// .getBoolean(BUNDLE_CENTER_AT_FIRST_FIX));
-
-				if (savedInstanceState.getBoolean(BUNDLE_SNAP_TO_LOCATION)) {
-					mLocation.enableSnapToLocation(false);
-				}
-			}
-		}
-
-		//To use MapEventsReceiver methods, we add a MapEventsOverlay:
 		MapEventsOverlay overlay = new MapEventsOverlay(this, this);
 		App.map.getOverlays().add(overlay);
 
@@ -142,7 +117,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			Uri uri = intent.getData();
 			if (uri != null) {
 				String scheme = uri.getSchemeSpecificPart();
-				Log.d(TAG, "got intent >>> " + (scheme == null ? "" : scheme));
+				Log.d(TAG, "got intent " + (scheme == null ? "" : scheme));
 			}
 		}
 	}
@@ -179,11 +154,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				options.put("url",
 						"http://city.informatik.uni-bremen.de:8000/");
 				break;
-			case OSCIMAP_READER_TEST:
-				options = new MapOptions(MapDatabases.OSCIMAP_READER);
-				options.put("url",
-						"http://city.informatik.uni-bremen.de:80/osci/map3/");
-				break;
+			//case OSCIMAP_READER_TEST:
+			//	options = new MapOptions(MapDatabases.OSCIMAP_READER);
+			//	options.put("url",
+			//		"http://city.informatik.uni-bremen.de:80/osci/map3/");
+			//break;
 			default:
 				break;
 			}
@@ -222,6 +197,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 		case R.id.menu_position:
 			return true;
+
 		case R.id.menu_rotation_enable:
 			if (!item.isChecked()) {
 				item.setChecked(true);
@@ -230,19 +206,14 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				item.setChecked(false);
 				map.enableRotation(false);
 			}
-
-			//toggleMenuRotation();
 			toggleMenuCheck();
 			return true;
 
-			//		case R.id.menu_rotation_disable:
-			//			map.enableRotation(false);
-			//			toggleMenuRotation();
-			//			return true;
 		case R.id.menu_nearby:
 			Intent intent = new Intent(this, POIActivity.class);
 			startActivityForResult(intent, TileMap.POIS_REQUEST);
 			return true;
+
 		case R.id.menu_compass_enable:
 			if (!item.isChecked()) {
 				item.setChecked(true);
@@ -252,14 +223,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				map.enableCompass(false);
 			}
 			toggleMenuCheck();
-			//map.enableCompass(true);
-			//toggleMenuRotation();
 			return true;
-
-			//		case R.id.menu_compass_disable:
-			//			map.enableCompass(false);
-			//			toggleMenuRotation();
-			//			return true;
 
 		case R.id.menu_position_my_location_enable:
 			toggleMenuItem(mMenu,
@@ -283,45 +247,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			startActivity(new Intent(this, EditPreferences.class));
 			return true;
 
-			//		case R.id.menu_render_theme:
-			//			return true;
-			//
-			//		case R.id.menu_render_theme_osmarender:
-			//			map.setRenderTheme(InternalRenderTheme.OSMARENDER);
-			//			return true;
-			//
-			//		case R.id.menu_render_theme_tronrender:
-			//			map.setRenderTheme(InternalRenderTheme.TRONRENDER);
-			//			return true;
-			//
-			//		case R.id.menu_render_theme_select_file:
-			//			startRenderThemePicker();
-			//			return true;
-
-			// case R.id.menu_position_map_center:
-			// // disable GPS follow mode if it is enabled
-			// location.disableSnapToLocation(true);
-			//
-			// map.setCenter(map.getMapDatabase()
-			// .getMapInfo().mapCenter);
-			// return true;
-			// case R.id.menu_mapfile:
-			// startMapFilePicker();
-			// return true;
-
-			//		case R.id.menu_pois:
-			//			mPoiSearch.getPOIAsync("bar");
-			//			//				Intent myIntent = new Intent(this, POIActivity.class);
-			//			//				myIntent.putParcelableArrayListExtra("POI", mPOIs);
-			//			//				//				myIntent.putExtra("ID", poiMarkers.getBubbledItemId());
-			//			//				startActivityForResult(myIntent, POIS_REQUEST);
-			//			return true;
-			//
-			//		case R.id.menu_poi_list:
-			//			Intent myIntent = new Intent(this, POIActivity.class);
-			//			myIntent.putExtra("ID", mPoiSearch.poiMarkers.getBubbledItemId());
-			//			startActivityForResult(myIntent, POIS_REQUEST);
-			//			return true;
 		default:
 			return false;
 		}
@@ -331,19 +256,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		mMenu.findItem(R.id.menu_rotation_enable).setChecked(map.getRotationEnabled());
 		mMenu.findItem(R.id.menu_compass_enable).setChecked(map.getCompassEnabled());
 	}
-
-	//	private void toggleMenuRotation() {
-	//
-	//		toggleMenuItem(mMenu,
-	//						R.id.menu_rotation_enable,
-	//						R.id.menu_rotation_disable,
-	//						!map.enableRotation);
-	//
-	//		toggleMenuItem(mMenu,
-	//						R.id.menu_compass_enable,
-	//						R.id.menu_compass_disable,
-	//						!map.enableCompass);
-	//	}
 
 	private static void toggleMenuItem(Menu menu, int id, int id2, boolean enable) {
 		menu.findItem(id).setVisible(enable);
@@ -365,16 +277,14 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				R.id.menu_position_my_location_disable,
 				!mLocation.isShowMyLocationEnabled());
 
-		if (mMapDatabase == MapDatabases.MAP_READER) {
-			//menu.findItem(R.id.menu_mapfile).setVisible(true);
-			//menu.findItem(R.id.menu_position_map_center).setVisible(true);
-		}
+		// if (mMapDatabase == MapDatabases.MAP_READER) {
+		// menu.findItem(R.id.menu_mapfile).setVisible(true);
+		// menu.findItem(R.id.menu_position_map_center).setVisible(true);
+		// }
 		// else {
 		// menu.findItem(R.id.menu_mapfile).setVisible(false);
 		// menu.findItem(R.id.menu_position_map_center).setVisible(false);
 		// }
-
-		//toggleMenuRotation();
 
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -588,7 +498,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				|| cur.drawTileFrames != drawTileFrames
 				|| cur.debugTheme != drawUnmatchedWays
 				|| cur.debugLabels != debugLabels) {
-			
+
 			DebugSettings debugSettings = new DebugSettings(drawTileCoordinates,
 					drawTileFrames, disablePolygons, drawUnmatchedWays, debugLabels);
 
@@ -604,7 +514,6 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 		outState.putBoolean(BUNDLE_SHOW_MY_LOCATION, mLocation.isShowMyLocationEnabled());
 		// outState.putBoolean(BUNDLE_CENTER_AT_FIRST_FIX,
 		// mMyLocationListener.isCenterAtFirstFix());
-
 		// outState.putBoolean(BUNDLE_SNAP_TO_LOCATION, mSnapToLocation);
 	}
 

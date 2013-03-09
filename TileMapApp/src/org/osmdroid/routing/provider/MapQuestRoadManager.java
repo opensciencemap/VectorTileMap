@@ -1,4 +1,4 @@
-package org.osmdroid.routing;
+package org.osmdroid.routing.provider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,9 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
+import org.osmdroid.routing.Road;
+import org.osmdroid.routing.RoadManager;
+import org.osmdroid.routing.RoadNode;
 import org.osmdroid.utils.BonusPackHelper;
 import org.osmdroid.utils.HttpConnection;
 import org.osmdroid.utils.PolylineEncoder;

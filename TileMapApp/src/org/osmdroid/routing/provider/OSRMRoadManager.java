@@ -1,4 +1,4 @@
-package org.osmdroid.routing;
+package org.osmdroid.routing.provider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
+import org.osmdroid.routing.Road;
+import org.osmdroid.routing.RoadManager;
+import org.osmdroid.routing.RoadNode;
 import org.osmdroid.utils.BonusPackHelper;
 import org.osmdroid.utils.HttpConnection;
 import org.osmdroid.utils.PolylineEncoder;

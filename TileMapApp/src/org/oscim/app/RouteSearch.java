@@ -29,10 +29,10 @@ import org.osmdroid.location.GeocoderNominatim;
 import org.osmdroid.overlays.DefaultInfoWindow;
 import org.osmdroid.overlays.ExtendedOverlayItem;
 import org.osmdroid.overlays.ItemizedOverlayWithBubble;
-import org.osmdroid.routing.MapQuestRoadManager;
 import org.osmdroid.routing.Road;
 import org.osmdroid.routing.RoadManager;
 import org.osmdroid.routing.RoadNode;
+import org.osmdroid.routing.provider.MapQuestRoadManager;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;

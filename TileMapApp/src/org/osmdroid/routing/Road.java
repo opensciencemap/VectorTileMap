@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.oscim.core.BoundingBox;
 import org.oscim.core.GeoPoint;
+import org.osmdroid.routing.provider.GoogleRoadManager;
+import org.osmdroid.routing.provider.MapQuestRoadManager;
+import org.osmdroid.routing.provider.OSRMRoadManager;
 import org.osmdroid.utils.BonusPackHelper;
 import org.osmdroid.utils.DouglasPeuckerReducer;
 

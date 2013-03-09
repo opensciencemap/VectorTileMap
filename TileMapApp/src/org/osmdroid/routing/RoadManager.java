@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import org.oscim.core.GeoPoint;
 import org.oscim.overlay.PathOverlay;
 import org.oscim.view.MapView;
+import org.osmdroid.routing.provider.GoogleRoadManager;
+import org.osmdroid.routing.provider.MapQuestRoadManager;
+import org.osmdroid.routing.provider.OSRMRoadManager;
 
 import android.content.Context;
 import android.graphics.Paint;
