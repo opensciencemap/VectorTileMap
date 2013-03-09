@@ -71,7 +71,7 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 	private MapDatabases mMapDatabase;
 
-	private WakeLock mWakeLock;
+	//private WakeLock mWakeLock;
 	private Menu mMenu = null;
 
 	POISearch mPoiSearch;
@@ -403,12 +403,11 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "onPause");
 		super.onPause();
 		// release the wake lock if necessary
-		if (mWakeLock.isHeld()) {
-			mWakeLock.release();
-		}
+		//if (mWakeLock.isHeld()) {
+		//	mWakeLock.release();
+		//}
 	}
 
 	LocationDialog mLocationDialog;
@@ -482,9 +481,9 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 			// getWindow().getWindowManager().getDefaultDisplay().getOrientation());
 		}
 
-		if (preferences.getBoolean("wakeLock", false) && !mWakeLock.isHeld()) {
-			mWakeLock.acquire();
-		}
+		//if (preferences.getBoolean("wakeLock", false) && !mWakeLock.isHeld()) {
+		//	mWakeLock.acquire();
+		//}
 
 		boolean drawTileFrames = preferences.getBoolean("drawTileFrames", false);
 		boolean drawTileCoordinates = preferences.getBoolean("drawTileCoordinates", false);
