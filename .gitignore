@@ -7,6 +7,7 @@ VectorTileMap/obj/*
 VectorTileMap/libs/armeabi/*
 VectorTileMap/local.properties
 VectorTileMap/reports/*
+cVectorTileMap/*
 TileMapApp/gen/*
 TileMapApp/proguard/*
 TileMapExample/gen/*
