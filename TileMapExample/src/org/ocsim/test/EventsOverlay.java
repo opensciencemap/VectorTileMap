@@ -1,4 +1,4 @@
-package org.ocsim.app;
+package org.ocsim.test;
 
 import org.oscim.overlay.Overlay;
 import org.oscim.view.MapView;

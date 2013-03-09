@@ -1,10 +1,15 @@
-package org.ocsim.app;
+package org.ocsim.test;
 
+import org.oscim.core.GeoPoint;
+import org.oscim.core.MapPosition;
 import org.oscim.database.MapDatabases;
 import org.oscim.database.MapOptions;
+import org.oscim.overlay.GenericOverlay;
+import org.oscim.renderer.overlays.GridOverlay;
 import org.oscim.view.MapView;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 
 public class MapActivity extends org.oscim.view.MapActivity {
@@ -20,15 +25,22 @@ public class MapActivity extends org.oscim.view.MapActivity {
 
 		//MapOptions options = new MapOptions(MapDatabases.PBMAP_READER);
 		//options.put("url", "http://city.informatik.uni-bremen.de:80/osmstache/test/");
-		MapOptions options = new MapOptions(MapDatabases.OSCIMAP_READER);
-		options.put("url", "http://city.informatik.uni-bremen.de:80/osci/map-live/");
+		
+		//MapOptions options = new MapOptions(MapDatabases.OSCIMAP_READER);
+		//options.put("url", "http://city.informatik.uni-bremen.de:80/osci/map-live/");
 
+		MapOptions options = new MapOptions(MapDatabases.MAP_READER);
+		options.put("file", Environment.getExternalStorageDirectory().getPath() +"/bremen.map");
+
+		
 		mMap.setMapDatabase(options);
 
 		// configure the MapView and activate the zoomLevel buttons
 		mMap.setClickable(true);
 		mMap.setFocusable(true);
-		//mMap.getOverlayManager().add(new EventsOverlay());
+		
+		mMap.setMapCenter(new MapPosition(new GeoPoint(53.1f, 8.8f),(byte)12, 1));
+		//mMap.getOverlayManager().add(new GenericOverlay(mMap,new GridOverlay(mMap)));
 	}
 
 	@Override
