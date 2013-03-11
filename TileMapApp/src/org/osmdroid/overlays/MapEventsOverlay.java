@@ -25,7 +25,7 @@ public class MapEventsOverlay extends Overlay {
 	 *            implement MapEventsReceiver interface.
 	 */
 	public MapEventsOverlay(Context ctx, MapEventsReceiver receiver) {
-		super(ctx);
+		super();
 		mReceiver = receiver;
 	}
 
