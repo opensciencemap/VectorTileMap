@@ -104,13 +104,15 @@ public class TileMap extends MapActivity implements MapEventsReceiver {
 				savedInstanceState.getBoolean(BUNDLE_SNAP_TO_LOCATION))
 			mLocation.enableSnapToLocation(false);
 
-		MapEventsOverlay overlay = new MapEventsOverlay(this, this);
-		App.map.getOverlays().add(overlay);
+		MapEventsOverlay overlay = new MapEventsOverlay(map, this);
+		map.getOverlays().add(overlay);
 
 		App.poiSearch = mPoiSearch = new POISearch(this);
 
 		registerForContextMenu(map);
 		mRouteSearch = new RouteSearch(this);
+
+		//map.getOverlays().add(new AreaSelectionOverlay(map));
 
 		final Intent intent = getIntent();
 		if (intent != null) {

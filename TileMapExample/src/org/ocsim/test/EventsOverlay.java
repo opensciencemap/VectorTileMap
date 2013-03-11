@@ -7,9 +7,12 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 public class EventsOverlay extends Overlay {
+	public EventsOverlay(MapView mapView) {
+		super(mapView);
+	}
 	@Override
-	public boolean onTouchEvent(MotionEvent e, MapView mapView) {
+	public boolean onTouchEvent(MotionEvent e) {
 		Log.d("app", e.toString());
-		return false;
+		return false; 
 	}
 }

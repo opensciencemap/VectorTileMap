@@ -50,9 +50,8 @@ public abstract class RoadManager {
 		return result.toString();
 	}
 
-	public static PathOverlay buildRoadOverlay(MapView mapView, Road road, Paint paint,
-			Context context) {
-		PathOverlay roadOverlay = new PathOverlay(mapView, 0, context);
+	public static PathOverlay buildRoadOverlay(MapView mapView, Road road, Paint paint) {
+		PathOverlay roadOverlay = new PathOverlay(mapView, 0);
 		roadOverlay.setPaint(paint);
 		if (road != null) {
 			ArrayList<GeoPoint> polyline = road.routeHigh;
@@ -73,12 +72,12 @@ public abstract class RoadManager {
 	 *            ..
 	 * @return route shape overlay
 	 */
-	public static PathOverlay buildRoadOverlay(MapView mapView, Road road, Context context) {
+	public static PathOverlay buildRoadOverlay(MapView mapView, Road road) {
 		Paint paint = new Paint();
 		paint.setColor(0x800000FF);
 		paint.setStyle(Paint.Style.STROKE);
 		paint.setStrokeWidth(5);
-		return buildRoadOverlay(mapView, road, paint, context);
+		return buildRoadOverlay(mapView, road, paint);
 	}
 
 }

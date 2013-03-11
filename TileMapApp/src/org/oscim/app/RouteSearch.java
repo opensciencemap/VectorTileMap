@@ -236,7 +236,7 @@ public class RouteSearch {
 		if (road.status == Road.STATUS_DEFAULT)
 			Toast.makeText(tileMap, "We have a problem to get the route",
 					Toast.LENGTH_SHORT).show();
-		mRoadOverlay = RoadManager.buildRoadOverlay(tileMap.map, road, tileMap);
+		mRoadOverlay = RoadManager.buildRoadOverlay(tileMap.map, road);
 		Overlay removedOverlay = mapOverlays.set(1, mRoadOverlay);
 		//we set the road overlay at the "bottom", just above the MapEventsOverlay,
 		//to avoid covering the other overlays. 
